@@ -30,13 +30,19 @@ const openBackupButton = document.getElementById("openBackupButton")
 // Элемент со списком серий
 const seriesListDiv = document.getElementById("seriesListDiv")
 
-// Поля ввода
+// Элемент для вывод информации
+const infoDiv = document.getElementById("infoDiv")
+
+// Поля ввода для добавления и изменения
 const nameInput = document.getElementById("nameInput")
 const seasonNumberInput = document.getElementById("seasonNumberInput")
 const serialNumberInput = document.getElementById("serialNumberInput")
 const siteInput = document.getElementById("siteInput")
 const nextReleaseDateInput = document.getElementById("nextReleaseDateInput")
 const completedInput = document.getElementById("completedInput")
+
+// Поле ввода для поиска
+const searchInput = document.getElementById("searchInput")
 
 // База данных Indexed DB
 var database;
@@ -125,9 +131,12 @@ function onOpenFile(event) {
         } else {
             clearAll()
             seriesList = data
-            seriesList.sort((prev, next) => prev.id - next.id);
-            counter = seriesList[seriesList.length - 1].id + 1
+            for (let i = 0; i < seriesList.length; i++) {
+                seriesList[index].id = i;
+            }
+            counter = seriesList.length
             seriesList.forEach(series => {
+                series.nextDate = new Date(series.nextDate)
                 addSeriesToListDiv(series)
                 database.transaction("series", "readwrite").objectStore("series").add(series).onerror = function(event) {
                     alert("Что-то пошло не так!\nonOpenFile: " + event.target.error);
@@ -161,16 +170,86 @@ function clearAll() {
     activeList = []   
 }
 
+function getSeriesValuesFromInput() {
+    return {name: nameInput.value,
+            seasonNumber: seasonNumberInput.value,
+            serialNumber: serialNumberInput.value,
+            site: siteInput.value,
+            nextDate: nextReleaseDateInput.value,
+            completed: completedInput.checked}
+}
+
+
+function showInfoMessage(message) {
+    infoDiv.innerText = message;
+}
+
+
+function seriesValidator(series, callback) {
+    callback("")
+
+    if (series.name.length == 0) {
+        callback("Некорректное название")
+        return null;
+    } else if (!series.hasOwnProperty("id")) { // условие, чтобы при изменении не проверялось наличие такого же имени, так как оно конечно же будет
+        for (let i = 0; i < seriesList.length; i++) {
+            if (seriesList[i].name == series.name) {
+                callback("Сериал с таким названием уже существует")
+                return null;
+            }
+        }
+    }
+
+    if (series.seasonNumber.length == 0) {
+        callback("Некорректное число сезонов")
+        return null;
+    } else {
+        series.seasonNumber = Number(series.seasonNumber)
+        if (isNaN(series.seasonNumber)) {
+            callback("Некорректное число сезонов")
+            return null;
+        } else if (series.seasonNumber <= 0) {
+            callback("Число сезонов не может быть меньшим либо равным нуля")
+            return null;
+        }
+    }
+
+    if (series.serialNumber.length == 0) {
+        callback("Некорректное число серий")
+        return null;
+    } else {
+        series.serialNumber = Number(series.serialNumber)
+        if (isNaN(series.serialNumber)) {
+            callback("Некорректное число серий")
+            return null;
+        } else if (series.serialNumber <= 0) {
+            callback("Число серий не может быть меньшим либо равным нуля")
+            return null;
+        }
+    }
+
+    if (series.site.length == 0) {
+        callback("Некорректная ссылка на сайт")
+        return null;
+    }
+
+    series.nextDate = new Date(series.nextDate);
+    if (isNaN(series.nextDate)) {
+        callback("Некорректная дата")
+        return null;
+    }
+
+    return series;
+}
+
 function addNew() {
     console.log("addNew")
 
-    let series = {id: counter++,
-                  name: nameInput.value,
-                  seasonNumber: seasonNumberInput.value,
-                  serialNumber: serialNumberInput.value,
-                  site: siteInput.value,
-                  nextDate: nextReleaseDateInput.value,
-                  completed: completedInput.checked}
+    let series = seriesValidator(getSeriesValuesFromInput(), showInfoMessage)
+    if (series == null) {
+        return;
+    }
+    series.id = counter++;
 
     seriesList.push(series)
     
@@ -181,8 +260,38 @@ function addNew() {
     }
 }
 
-function createSeries() {
-    
+function sortSeries(sortType) {
+    switch (sortType) {
+        case 1: // по названию
+            seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
+            break;
+        case 2: // по ближайшей серии
+            seriesList.sort((prev, next) => (prev.nextDate < next.nextDate) ? -1 : 1);
+            break;
+        case 3: // по количеству серий
+            seriesList.sort((prev, next) => next.serialNumber - prev.serialNumber);
+            break;
+        case 4: // по количеству сезонов
+            seriesList.sort((prev, next) => next.seasonNumber - prev.seasonNumber);
+            break;
+        case 5: // по завершённости
+            seriesList.sort((prev, _next) => (prev.completed) ? -1 : 1);
+            break;
+        default:
+            alert("sortSeries. Как возможен default????")
+            break;
+    }
+    sortDivList()
+}
+
+function sortDivList() {
+    divList.forEach(div => {
+        div.remove()
+    });
+    divList = []
+    seriesList.forEach(series => {
+        addSeriesToListDiv(series)
+    })
 }
 
 
@@ -210,6 +319,7 @@ function createDiv(series)
     div.style.width = "300px";
     div.style.height = "100px";
     div.style.background = defaultDivColor
+    div.style.marginTop = "5px";
 
     divInner(div, series)
     
@@ -227,7 +337,7 @@ function divInner(div, series) {
     } else {
         inner += "</br>Сезон: " + series.seasonNumber
         inner += "</br>Серия: " + series.serialNumber
-        inner += "</br>Дата выхода следующей серии: " + series.nextDate + "</br>"
+        inner += "</br>Дата выхода следующей серии: " + series.nextDate.toLocaleDateString() + "</br>"
         inner += "Ссылка: <a href=" + siteChecker(series.site) + ">" + series.site + "</a>"
     }
     div.innerHTML = inner
@@ -263,6 +373,25 @@ function divOnMouseUp() {
         activeList.splice(index, 1)
     }
 }
+
+
+function findSeries() {
+    let substr = searchInput.value.trim().toLowerCase()
+    if (substr.length == 0) {
+        divList.forEach(div => {
+            div.style.display = "block"
+        })
+        return;
+    }
+    for (let i = 0; i < seriesList.length; i++) {
+        if (seriesList[i].name.search(substr) != -1) {
+            divList[i].style.display  = "block"
+        } else {
+            divList[i].style.display  = "none"
+        }
+    }
+}
+
 
 function beforeRemove() {
     console.log("before remove")
@@ -356,16 +485,20 @@ function cancelChange() {
 
 function change() {
     console.log("change")
-
-    activeList.forEach(div => {
-        let index = divList.indexOf(div)
-        seriesList[index].name = nameInput.value
-        seriesList[index].number = serialNumberInput.value
-        seriesList[index].site = siteInput.value
-        seriesList[index].nextDate = nextReleaseDateInput.value
+    if (activeList.length != 0) {
+        let index = divList.indexOf(activeList[0])
+        let updatedSeries = getSeriesValuesFromInput();
+        updatedSeries.id = seriesList[index].id
+        updatedSeries.name = seriesList[index].name // запрет изменения имени
+        updatedSeries = seriesValidator(updatedSeries, (_)=>{})
+        if (updatedSeries == null) {
+            return;
+        }
+        updatedSeries.id = seriesList[index].id
+        seriesList[index] = updatedSeries
         database.transaction("series", "readwrite").objectStore("series").put(seriesList[index])
         divInner(divList[index], seriesList[index])
-    });
+    }
 
     cancelChange()
 }
