@@ -260,19 +260,32 @@ function addNew() {
     }
 }
 
+
+function sortWithoutCompletedSeries(prev, next, predicate) {
+    if (prev.completed) {
+        return 1;
+    } else if (next.completed) {
+        return -1;
+    } else if (predicate(prev, next)) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
 function sortSeries(sortType) {
     switch (sortType) {
         case 1: // по названию
             seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
             break;
         case 2: // по ближайшей серии
-            seriesList.sort((prev, next) => (prev.nextDate < next.nextDate) ? -1 : 1);
+            seriesList.sort((prev, next) => sortWithoutCompletedSeries(prev, next, (prev, next) => (prev.nextDate < next.nextDate) ? -1 : 1));
             break;
         case 3: // по количеству серий
-            seriesList.sort((prev, next) => next.serialNumber - prev.serialNumber);
+            seriesList.sort((prev, next) => sortWithoutCompletedSeries(prev, next, (prev, next) => next.serialNumber - prev.serialNumber));
             break;
         case 4: // по количеству сезонов
-            seriesList.sort((prev, next) => next.seasonNumber - prev.seasonNumber);
+            seriesList.sort((prev, next) => sortWithoutCompletedSeries(prev, next, (prev, next) => next.seasonNumber - prev.seasonNumber));
             break;
         case 5: // по завершённости
             seriesList.sort((prev, _next) => (prev.completed) ? -1 : 1);

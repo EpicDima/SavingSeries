@@ -21,7 +21,7 @@
     <p>
         Сортировка: 
         <br><span onclick="sortSeries(1)">По названию</span>
-        <br><span onclick="sortSeries(2)">По ближайшей серии</span>
+        <br><span onclick="sortSeries(2)">По дате ближайшей серии</span>
         <br><span onclick="sortSeries(3)">По количеству серий</span>
         <br><span onclick="sortSeries(4)">По количеству сезонов</span>
         <br><span onclick="sortSeries(5)">По завершённости</span>
@@ -38,31 +38,28 @@
      <!-- Выделить добавление в отдельный блок 
         и сделать возможность добавления серий 
         с пометками просмотрено/непросмотрено, короче как на эскизе  -->
-    <p>
-        Название
-        <input id="nameInput" type="text" required/>
-    </p>
-    <p>
-        Номер сезона
-        <input id="seasonNumberInput" type="number"/>
-    </p>
-    <p>
-        Номер серии
-        <input id="serialNumberInput" type="number"/>
-    </p>
-    <p>
-        Сайт
-        <input id="siteInput" type="url"/>
-    </p>
-    <p>
-        Дата выхода следующей серии
-        <input id="nextReleaseDateInput" type="date"/>
-    </p>
-    <p>
-        Сериал завершён
-        <input id="completedInput" type="checkbox">
-    </p>
-
+    
+    <div id="addingDiv">
+            Название
+            <input id="nameInput" type="text" required/>
+            <br>
+            Номер сезона
+            <input id="seasonNumberInput" type="number"/>
+            <br>
+            Номер серии
+            <input id="serialNumberInput" type="number"/>
+            <br>
+            Сайт
+            <input id="siteInput" type="url"/>
+            <br>
+            Дата выхода следующей серии
+            <input id="nextReleaseDateInput" type="date"/>
+            <br>
+            Сериал завершён
+            <input id="completedInput" type="checkbox">
+    </div>
+    
+    <br>
     <div id="infoDiv" style="width: 200px; height: 50px; background-color: brown"></div>
 
     <!--<p>Изображение<input id="imageInput" type="file"/></p><button id="saveImageInDbTestButton" onclick=openImage()>Сохранить в БД </button>-->
