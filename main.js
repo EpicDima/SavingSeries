@@ -1,517 +1,186 @@
-// Основные переменные
-var counter = 0      // счётчик для установки id
-var seriesList = []  // список объектов сериалов
-var divList = []     // список элементов div
-var activeList = []  // список активных элементов div
+const settingsButton = document.getElementById("settings")
+const plusButton = document.getElementById("plus")
+const sortButton = document.getElementById("sort")
 
-// Режим страницы - без режима, удаление, изменение
-const Mode = {NONE: 0, REMOVING: 1, CHANGING: 2} 
-var currentMode = Mode.NONE
-
-
-// Цвета карточек
-const defaultDivColor = "yellow";
-const hoverDivColor = "blue";
-const onUpDivColor = "red";
-
-
-// Основные элементы пользовательского интерфейса
-// Кнопки
-const addButton = document.getElementById("addButton")
-const removeButton = document.getElementById("removeButton")
-const changeButton = document.getElementById("changeButton")
-
-const okButton = document.getElementById("okButton")
-const cancelButton = document.getElementById("cancelButton")
-
-const createBackupButton = document.getElementById("createBackupButton")
-const openBackupButton = document.getElementById("openBackupButton")
-
-// Элемент со списком серий
-const seriesListDiv = document.getElementById("seriesListDiv")
-
-// Элемент для вывод информации
-const infoDiv = document.getElementById("infoDiv")
-
-// Поля ввода для добавления и изменения
-const nameInput = document.getElementById("nameInput")
-const seasonNumberInput = document.getElementById("seasonNumberInput")
-const serialNumberInput = document.getElementById("serialNumberInput")
-const siteInput = document.getElementById("siteInput")
-const nextReleaseDateInput = document.getElementById("nextReleaseDateInput")
-const completedInput = document.getElementById("completedInput")
-
-// Поле ввода для поиска
-const searchInput = document.getElementById("searchInput")
-
-// База данных Indexed DB
-var database;
+const settingsMenu = document.getElementById("settings-menu")
+const addContainer = document.getElementById("add-container")
+const sortTypes = document.getElementById("sort-types")
+const contentContainer = document.getElementById("content-container")
 
 
 
-connectDB(initialize)
-
-
-
-function connectDB(func) {
-    let request = indexedDB.open("SavingSeriesDb", 1);
+document.addEventListener("click", event => {
+    let target = event.target
     
-	request.onerror = function(err) {
-		console.log(err);
-    }
-    
-	request.onsuccess = function() {
-		func(request.result);
-    }
-    
-	request.onupgradeneeded = function(event) {
-		event.currentTarget.result.createObjectStore("series", {keyPath: "id"});
-		connectDB(func);
-	}
-}
-
-
-
-function initialize(db) {
-    database = db;
-
-    let request = database.transaction("series", "readonly").objectStore("series").getAll()
-
-    request.onerror = function(event) {
-        console.log("initialize: " + event.target.error);
-    }
-
-    request.onsuccess = function(event) {
-        seriesList = event.target.result
-        if (seriesList.length != 0) {
-            counter = seriesList[seriesList.length - 1].id + 1
-        }
-        seriesList.forEach(series => {
-            addSeriesToListDiv(series)
-        });
-    }
-}
-
-
-function createBackup() {
-    let element = document.createElement("a")
-    element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(seriesList))
-    element.download = "backup.bin"
-    element.style.display = "none"
-    document.body.appendChild(element)
-    element.click()
-    element.remove()
-}
-
-function openBackup() {
-    if (!confirm("Все имеющиеся данные будут очищены и заменены на новые. Вы согласны?")) {
-        return;
-    }
-
-    let element = document.createElement("input")
-    element.type = "file"
-    element.style.display = "none"
-    element.onchange = onOpenFile
-    document.body.appendChild(element)
-    element.click()
-    element.remove()
-}
-
-function onOpenFile(event) {
-    let reader = new FileReader();
-    reader.onloadend = function(event) {
-        let data;
-        try {
-            data = JSON.parse(event.target.result)
-        } catch (SyntaxError) {
-            data = null;
-        }
-        if (!(data instanceof Array)) {
-            alert("Неправильное содержимое файла!")
-        } else {
-            clearAll()
-            seriesList = data
-            for (let i = 0; i < seriesList.length; i++) {
-                seriesList[index].id = i;
-            }
-            counter = seriesList.length
-            seriesList.forEach(series => {
-                series.nextDate = new Date(series.nextDate)
-                addSeriesToListDiv(series)
-                database.transaction("series", "readwrite").objectStore("series").add(series).onerror = function(event) {
-                    alert("Что-то пошло не так!\nonOpenFile: " + event.target.error);
-                }
-            });
-        }
-    };
-    reader.readAsText(event.target.files[0]);
-}
-
-/*
-function openImage() {
-    let file = document.getElementById("imageInput").files[0]
-    let series = {id: counter++,
-        name: nameInput.value,
-        number: serialNumberInput.value,
-        image: file}
-    database.transaction("series", "readwrite").objectStore("series").add(series).onerror = function(event) {
-            alert("Что-то пошло не так!\naddNew: " + event.target.error);
-    }
-}
-*/
-
-function clearAll() {
-    database.transaction("series", "readwrite").objectStore("series").clear()
-    seriesList = []
-    divList.forEach(div => {
-        div.remove()
-    })
-    divList = []
-    activeList = []   
-}
-
-function getSeriesValuesFromInput() {
-    return {name: nameInput.value,
-            seasonNumber: seasonNumberInput.value,
-            serialNumber: serialNumberInput.value,
-            site: siteInput.value,
-            nextDate: nextReleaseDateInput.value,
-            completed: completedInput.checked}
-}
-
-
-function showInfoMessage(message) {
-    infoDiv.innerText = message;
-}
-
-
-function seriesValidator(series, callback) {
-    callback("")
-
-    if (series.name.length == 0) {
-        callback("Некорректное название")
-        return null;
-    } else if (!series.hasOwnProperty("id")) { // условие, чтобы при изменении не проверялось наличие такого же имени, так как оно конечно же будет
-        for (let i = 0; i < seriesList.length; i++) {
-            if (seriesList[i].name == series.name) {
-                callback("Сериал с таким названием уже существует")
-                return null;
-            }
-        }
-    }
-
-    if (series.seasonNumber.length == 0) {
-        callback("Некорректное число сезонов")
-        return null;
+    if (settingsButton.contains(target)) {
+        settingsMenu.style.display = (settingsMenu.style.display == "block") ? "none" : "block"
     } else {
-        series.seasonNumber = Number(series.seasonNumber)
-        if (isNaN(series.seasonNumber)) {
-            callback("Некорректное число сезонов")
-            return null;
-        } else if (series.seasonNumber <= 0) {
-            callback("Число сезонов не может быть меньшим либо равным нуля")
-            return null;
-        }
+        settingsMenu.style.display = "none"
     }
 
-    if (series.serialNumber.length == 0) {
-        callback("Некорректное число серий")
-        return null;
+    if (plusButton.contains(target)) {
+        addContainer.style.display = (addContainer.style.display == "block") ? "none" : "block"
+    } else if (!addContainer.contains(target)) {
+        addContainer.style.display = "none"
+    }
+
+    if (sortButton.contains(target)) {
+        sortTypes.style.display = (sortTypes.style.display == "block") ? "none" : "block"
     } else {
-        series.serialNumber = Number(series.serialNumber)
-        if (isNaN(series.serialNumber)) {
-            callback("Некорректное число серий")
-            return null;
-        } else if (series.serialNumber <= 0) {
-            callback("Число серий не может быть меньшим либо равным нуля")
-            return null;
-        }
+        sortTypes.style.display = "none"
     }
+});
 
-    if (series.site.length == 0) {
-        callback("Некорректная ссылка на сайт")
-        return null;
-    }
-
-    series.nextDate = new Date(series.nextDate);
-    if (isNaN(series.nextDate)) {
-        callback("Некорректная дата")
-        return null;
-    }
-
-    return series;
-}
 
 function addNew() {
-    console.log("addNew")
+    let card = document.createElement("div")
+    card.className = "card"
+    card.onclick = openChangeContainer
 
-    let series = seriesValidator(getSeriesValuesFromInput(), showInfoMessage)
-    if (series == null) {
-        return;
-    }
-    series.id = counter++;
+    let cross = document.createElement("div")
+    cross.className = "card-cross"
+    cross.innerHTML = "<svg class=\"card-cross-svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>"
+    cross.onclick = onCrossClick
 
-    seriesList.push(series)
-    
-    addSeriesToListDiv(series)
+    let name = document.createElement("div")
+    name.className = "card-name"
+    name.innerText = "Назв ssssssssss sssdss sssss ssssss sddddddddd ddан ие dfsff ffffff fffff Назвssss sssssssssd ssssss sssssss sdd dddddd dddание dfsf ffffffff fff"
 
-    database.transaction("series", "readwrite").objectStore("series").add(series).onerror = function(event) {
-        alert("Что-то пошло не так!\naddNew: " + event.target.error);
-    }
+    let table = document.createElement("table")
+    table.className = "card-table"
+
+    // логика проверки существования даты и ссылки
+    let tr1 = document.createElement("tr")
+    let td11 = document.createElement("td")
+    td11.innerText = "Сезон"
+    let td12 = document.createElement("td")
+    td12.innerText = "Серия"
+    let td13 = document.createElement("td")
+    td13.innerText = "Дата"
+    let td14 = document.createElement("td")
+    td14.innerText = "Ссылка"
+
+    tr1.appendChild(td11)
+    tr1.appendChild(td12)
+    tr1.appendChild(td13)
+    tr1.appendChild(td14)
+
+    table.appendChild(tr1)
+
+    let tr2 = document.createElement("tr")
+    let td21 = document.createElement("td")
+    td21.innerText = "1"
+    let td22 = document.createElement("td")
+    td22.innerText = "23"
+    let td23 = document.createElement("td")
+    td23.innerText = "12.12.2019"
+    let td24 = document.createElement("td")
+    let a = document.createElement("a")
+    a.href = "https://yandex.by/search/?text=javascript%20%D0%BD%D0%B0%D0%B7%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%20%D0%B8%D0%B7%20%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B8&lr=155&clid=2186621"
+    a.innerText = a.host
+    a.target = "_blank"
+    td24.appendChild(a)
+
+    tr2.appendChild(td21)
+    tr2.appendChild(td22)
+    tr2.appendChild(td23)
+    tr2.appendChild(td24)
+
+    table.appendChild(tr2)
+
+    card.appendChild(cross)
+    card.appendChild(name)
+    card.appendChild(table)
+
+    contentContainer.appendChild(card)
+    addContainer.style.display = "none"
+    card.scrollIntoView()
 }
 
 
-function sortWithoutCompletedSeries(prev, next, predicate) {
-    if (prev.completed) {
-        return 1;
-    } else if (next.completed) {
-        return -1;
-    } else if (predicate(prev, next)) {
-        return -1;
-    } else {
-        return 1;
-    }
-}
-
-function sortSeries(sortType) {
-    switch (sortType) {
-        case 1: // по названию
-            seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
-            break;
-        case 2: // по ближайшей серии
-            seriesList.sort((prev, next) => sortWithoutCompletedSeries(prev, next, (prev, next) => (prev.nextDate < next.nextDate) ? -1 : 1));
-            break;
-        case 3: // по количеству серий
-            seriesList.sort((prev, next) => sortWithoutCompletedSeries(prev, next, (prev, next) => next.serialNumber - prev.serialNumber));
-            break;
-        case 4: // по количеству сезонов
-            seriesList.sort((prev, next) => sortWithoutCompletedSeries(prev, next, (prev, next) => next.seasonNumber - prev.seasonNumber));
-            break;
-        case 5: // по завершённости
-            seriesList.sort((prev, _next) => (prev.completed) ? -1 : 1);
-            break;
-        default:
-            alert("sortSeries. Как возможен default????")
-            break;
-    }
-    sortDivList()
-}
-
-function sortDivList() {
-    divList.forEach(div => {
-        div.remove()
-    });
-    divList = []
-    seriesList.forEach(series => {
-        addSeriesToListDiv(series)
-    })
+function onCrossClick(event) {
+    console.log(this)
 }
 
 
-function siteChecker(site) {
-    if (site == null || site == "") {
-        return "";
-    } else if (site.startsWith("http://") || site.startsWith("https://")) {
-        return site;
-    } else {
-        return "http://" + site;
-    }
-}
-
-
-function addSeriesToListDiv(series) {
-    let div = createDiv(series)
-    divList.push(div)
-    seriesListDiv.appendChild(div)
-}
-
-
-function createDiv(series)
-{
-    let div = document.createElement("div")
-    div.style.width = "300px";
-    div.style.height = "100px";
-    div.style.background = defaultDivColor
-    div.style.marginTop = "5px";
-
-    divInner(div, series)
-    
-    div.onmouseout = divOnMouseOut
-    div.onmouseover = divOnMouseOver
-
-    return div
-}
-
-
-function divInner(div, series) {
-    let inner = "<b>" + series.name + "</b>"
-    if (series.completed) {
-        inner += "</br>Сериал завершён"
-    } else {
-        inner += "</br>Сезон: " + series.seasonNumber
-        inner += "</br>Серия: " + series.serialNumber
-        inner += "</br>Дата выхода следующей серии: " + series.nextDate.toLocaleDateString() + "</br>"
-        inner += "Ссылка: <a href=" + siteChecker(series.site) + ">" + series.site + "</a>"
-    }
-    div.innerHTML = inner
-}
-
-function divOnMouseOut() {
-    if (!activeList.includes(this)) {
-        this.style.backgroundColor = defaultDivColor;
-    }
-}
-
-
-function divOnMouseOver() {
-    if (!activeList.includes(this)) {
-        this.style.backgroundColor = hoverDivColor;
-    }
-}
-
-
-function divOnMouseUp() {
-    index = activeList.indexOf(this)
-    if (index == -1) {
-        if (currentMode == Mode.CHANGING) {
-            if (activeList != 0) {
-                activeList[0].style.backgroundColor = defaultDivColor;
-                activeList.pop()
+function openChangeContainer(event) {
+    let changeContainer = document.getElementById("change-container")
+    if (changeContainer != null) {
+        if (this.contains(changeContainer)) {
+            if (!changeContainer.contains(event.target)) {
+                changeContainer.remove()
             }
-        }
-        activeList.push(this)
-        this.style.backgroundColor = onUpDivColor;
-    } else {
-        activeList[index].style.backgroundColor = defaultDivColor;
-        activeList.splice(index, 1)
-    }
-}
-
-
-function findSeries() {
-    let substr = searchInput.value.trim().toLowerCase()
-    if (substr.length == 0) {
-        divList.forEach(div => {
-            div.style.display = "block"
-        })
-        return;
-    }
-    for (let i = 0; i < seriesList.length; i++) {
-        if (seriesList[i].name.search(substr) != -1) {
-            divList[i].style.display  = "block"
-        } else {
-            divList[i].style.display  = "none"
-        }
-    }
-}
-
-
-function beforeRemove() {
-    console.log("before remove")
-
-    if (currentMode == Mode.REMOVING) {
-        cancelRemove()
-        return
-    } else if (currentMode == Mode.CHANGING) {
-        return;
-    }
-    currentMode = Mode.REMOVING
-
-    divList.forEach(div => {
-        div.onmouseup = divOnMouseUp
-    });
-
-    okButton.onclick = remove
-    cancelButton.onclick = cancelRemove
-}
-
-function cancelRemove() {
-    console.log("cancel remove")
-
-    divList.forEach(div => {
-        div.onmouseup = null
-        div.style.backgroundColor = defaultDivColor
-    });
-
-        
-    activeList = []
-
-    currentMode = Mode.NONE
-
-    okButton.onclick = null
-    cancelButton.onclick = null
-}
-
-function remove() {
-    console.log("remove")
-
-    activeList.forEach(div => {
-        let index = divList.indexOf(div)
-        database.transaction("series", "readwrite").objectStore("series").delete(seriesList[index].id)
-        seriesList.splice(index, 1)
-        divList.splice(index, 1)
-        div.remove()
-    });
-
-    cancelRemove()
-}
-
-
-function beforeChange() {
-    console.log("before change")
-
-    if (currentMode == Mode.CHANGING) {
-        cancelChange()
-        return
-    } else if (currentMode == Mode.REMOVING) {
-        return;
-    }
-
-    currentMode = Mode.CHANGING
-
-    divList.forEach(div => {
-        div.onmouseup = divOnMouseUp
-    });
-
-    okButton.onclick = change
-    cancelButton.onclick = cancelChange
-}
-
-
-function cancelChange() {
-    console.log("cancel change")
-
-    divList.forEach(div => {
-        div.onmouseup = null
-        div.style.backgroundColor = defaultDivColor
-    });
-
-        
-    activeList = []
-
-    currentMode = Mode.NONE
-
-    okButton.onclick = null
-    cancelButton.onclick = null
-}
-
-
-function change() {
-    console.log("change")
-    if (activeList.length != 0) {
-        let index = divList.indexOf(activeList[0])
-        let updatedSeries = getSeriesValuesFromInput();
-        updatedSeries.id = seriesList[index].id
-        updatedSeries.name = seriesList[index].name // запрет изменения имени
-        updatedSeries = seriesValidator(updatedSeries, (_)=>{})
-        if (updatedSeries == null) {
             return;
+        } else {
+            changeContainer.remove()
         }
-        updatedSeries.id = seriesList[index].id
-        seriesList[index] = updatedSeries
-        database.transaction("series", "readwrite").objectStore("series").put(seriesList[index])
-        divInner(divList[index], seriesList[index])
     }
+    
+    changeContainer = document.createElement("div")
+    changeContainer.id = "change-container"
+    changeContainer.style.width = "100%";
+    changeContainer.style.backgroundColor = "#ff0000"
 
-    cancelChange()
+    let ul = document.createElement("ul")
+    let li1 = document.createElement("li")
+    li1.innerText = "Сезон"
+    let input1 = document.createElement("input")
+    input1.id = "season-input-change"
+    input1.type = "number"
+    input1.value = "1"
+    input1.min = "1"
+    input1.max = "50"
+    input1.required = true
+    li1.appendChild(input1)
+
+    let li2 = document.createElement("li")
+    li2.innerText = "Серия"
+    let input2 = document.createElement("input")
+    input2.id = "episode-input-change"
+    input2.type = "number"
+    input2.value = "1"
+    input2.min = "1"
+    input2.max = "50000"
+    input2.required = true
+    li2.appendChild(input2)
+
+    let li3 = document.createElement("li")
+    li3.innerText = "Дата"
+    let input3 = document.createElement("input")
+    input3.id = "date-input-change"
+    input3.type = "date"
+    li3.appendChild(input3)
+
+    let li4 = document.createElement("li")
+    li4.innerText = "Сайт"
+    let input4 = document.createElement("input")
+    input4.id = "site-input-change"
+    input4.type = "url"
+    li4.appendChild(input4)
+
+    let bottomDiv = document.createElement("div")
+    bottomDiv.id = "bottom"
+    let changeOkButton = document.createElement("button")
+    changeOkButton.id = "change-ok"
+    changeOkButton.innerText = "Подтвердить"
+    changeOkButton.onclick = changeAccept
+    bottomDiv.appendChild(changeOkButton)
+
+    ul.appendChild(li1)
+    ul.appendChild(li2)
+    ul.appendChild(li3)
+    ul.appendChild(li4)
+
+    changeContainer.appendChild(ul)
+    changeContainer.appendChild(bottomDiv)
+
+    this.appendChild(changeContainer)
+    //changeContainer.scrollIntoView()
+}
+
+
+function changeAccept(event) {
+    let changeContainer = document.getElementById("change-container")
+    changeContainer.remove()
+    event.stopPropagation()
 }

@@ -1,72 +1,381 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Series</title>
+    <meta charset="UTF-8">
+    <title>SavingSeries</title>
+
+    <style>
+        body {
+            overflow-y: scroll;
+        }
+
+        #flex-container {
+            position: absolute;
+            display: flex;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            justify-content: center;
+        }
+
+        #top-container {
+            position: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 56px;
+            top: 0%;
+            background-color: rgba(165, 42, 42, 0.4);
+            z-index: 2019;
+        }
+
+        #search-container {
+            width: 420px;
+            height: 26px;
+            top: 15px;
+        }
+
+        #search-input {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #settings {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            right: 36px;
+            top: 12px;
+        }
+
+        #settings:hover {
+            background-color: gray;
+        }
+
+        #settings-menu {
+            position: fixed;
+            display: none;
+            width: 192px;
+            height: 96px;
+            right: 36px;
+            top: 56px;
+            background-color: grey;
+        }
+
+        #settings-menu li {
+            position: relative;
+            display: block;
+            color: black;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+        }
+
+        #settings-menu li:hover {
+            background-color: rgb(90, 90, 90);
+        }
+
+        #content-container {
+            position: absolute;
+            width: 600px;
+            top: 56px;
+            padding-bottom: 64px;
+            background-color: rgb(224, 219, 148);
+        }
+
+        #bottom-menu {
+            position: fixed;
+            display: block;
+            width: 208px;
+            height: 64px;
+            bottom: 0px;
+            background-color: rgba(165, 42, 42, 0.4);
+            z-index: 2019;
+        }
+
+        #plus {
+            position: absolute;
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            left: 16px;
+            top: 8px;
+            background-color: red;
+        }
+
+        #plus:hover {
+            background-color: rgb(160, 0, 0);
+        }
+
+        
+        #sort {
+            position: absolute;
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            left: 144px;
+            top: 8px;
+            background-color: purple;
+        }
+
+        #sort:hover {
+            background-color: rgb(100, 0, 100);
+        }
+
+        #sort-types {
+            position: fixed;
+            display: none;
+            width: 256px;
+            height: 240px;
+            bottom: 64px;
+            background-color: orange;
+        }
+
+        #sort-types #title {
+            position: relative;
+            display: block;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+            background-color: rgb(170, 50, 0);
+        }
+
+        ul {
+            display: block;
+            list-style: none; 
+            margin: 0; 
+            padding: 0;
+        }
+
+        #sort-types li {
+            position: relative;
+            display: block;
+            color: black;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+        }
+
+        #sort-types li:hover {
+            background-color: orangered;
+        }
+
+        #add-container {
+            position: fixed;
+            display: block;
+            width: 256px;
+            height: 336px;
+            bottom: 64px;
+            background-color: darkorange;
+            display: none;
+        }
+
+        #add-container #title {
+            position: relative;
+            display: block;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+            background-color: rgb(170, 50, 0);
+        }
+
+        #add-container #bottom {
+            position: relative;
+            display: block;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+            background-color: rgb(170, 50, 0);
+        }
+
+        #add-ok {
+            position: absolute; 
+            display: block;
+            width: 112px;
+            height: 28px;
+            left: 72px;
+        }
+
+        #add-container li {
+            position: relative;
+            display: block;
+            color: black;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+        }
+
+        #add-container input {
+            position: absolute; 
+            display: inline-block;
+            right: 8px;
+            width: 112px;
+        }
+
+        #change-container li {
+            position: relative;
+            display: block;
+            color: black;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+        }
+
+        #change-container input {
+            position: absolute; 
+            display: inline-block;
+            right: 8px;
+            width: 112px;
+        }
+
+        #change-container #bottom {
+            position: relative;
+            display: block;
+            height: 32px;
+            padding: 8px 8px;
+            text-decoration: none;
+        }
+
+        #change-ok {
+            position: absolute; 
+            display: block;
+            width: 112px;
+            height: 28px;
+            right: 8px;
+        }
+
+        .card {
+            position: relative;
+            min-height: 100px;
+            height: auto;
+            margin: 15px;
+            background-color: gold;
+            overflow-y: hidden;
+        }
+
+        .card:hover {
+            background-color: rgb(255, 225, 40);
+        }
+
+        .card-name {
+            position: relative;
+            width: auto;
+            left: 8px;
+            top: 8px;
+            margin-right: 48px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .card-table {
+            position: relative; 
+            width: 100%;
+            bottom: 0px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .card-cross {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            right: 8px;
+            top: 8px;
+            background-color: #ff5555;
+        }
+
+        .card-cross:hover {
+            background-color: #cc3333;
+        }
+        
+        .card-cross-svg:hover {
+            fill: #ff0000;
+        }
+
+
+
+    </style>
 </head>
 <body>
-    <button id="addButton" onclick="addNew()">Добавить</button>
-    <button id="removeButton" onclick="beforeRemove()">Удалить</button>
-    <button id="changeButton" onclick="beforeChange()">Изменить</button>
-    </br>
-    </br>
-    <button id="cancelButton">Отмена</button>
-    <button id="okButton">OK</button>
-    </br>
-    </br>
-    <button id="createBackupButton" onclick="createBackup()">Сделать Backup</button>
-    <button id="openBackupButton" onclick="openBackup()">Загрузить Backup</button>
-    <br>
-    <br>
-    <p>
-        Сортировка: 
-        <br><span onclick="sortSeries(1)">По названию</span>
-        <br><span onclick="sortSeries(2)">По дате ближайшей серии</span>
-        <br><span onclick="sortSeries(3)">По количеству серий</span>
-        <br><span onclick="sortSeries(4)">По количеству сезонов</span>
-        <br><span onclick="sortSeries(5)">По завершённости</span>
-    </p>
-    <br>
+    <div id="flex-container">
+        <div id="top-container">
+            <div id="search-container">
+                <input id="search-input" type="text" placeholder="Введите запрос">
+            </div>
+            <div id="settings">
+                <svg width="36px" height="36px" viewBox="0 0 20 20"><path fill="none" d="M0 0h20v20H0V0z"/><path d="M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+            </div>
+        </div>
 
-    <p>
-        Поиск
-        <input id="searchInput" type="text" oninput="findSeries()">
-    </p>
+        <div id="settings-menu">
+            <ul>
+                <li>Создать Backup</li>
+                <li>Загрузить Backup</li>
+            </ul>
+        </div>
 
-    <br>
 
-     <!-- Выделить добавление в отдельный блок 
-        и сделать возможность добавления серий 
-        с пометками просмотрено/непросмотрено, короче как на эскизе  -->
-    
-    <div id="addingDiv">
-            Название
-            <input id="nameInput" type="text" required/>
-            <br>
-            Номер сезона
-            <input id="seasonNumberInput" type="number"/>
-            <br>
-            Номер серии
-            <input id="serialNumberInput" type="number"/>
-            <br>
-            Сайт
-            <input id="siteInput" type="url"/>
-            <br>
-            Дата выхода следующей серии
-            <input id="nextReleaseDateInput" type="date"/>
-            <br>
-            Сериал завершён
-            <input id="completedInput" type="checkbox">
+        <div id="content-container">
+        
+        </div>
+
+
+        <div id="bottom-menu">
+            <div id="plus">
+                <svg width="48px" height="48px" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+            </div>
+
+            <div id="sort">
+                <svg width="48px" height="48px" viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+            </div>
+        </div>
+
+        <div id="sort-types">
+            <div id="title">Сортировка</div>
+            <ul>
+                <li>По названию</li>
+                <li>По номеру сезона</li>
+                <li>По номеру серии</li>
+                <li>По дате ближайшей серии</li>
+            </ul>
+        </div>
+
+        <div id="add-container">
+            <div id="title">Добавление</div>
+            <ul>
+                <li>
+                    Название
+                    <input id="name-input" type="text" maxlength="100" required/>
+                </li>
+                <li>
+                    Сезон
+                    <input id="season-input" type="number" value="1" min="1" max="50" required/>
+                </li>
+                <li>
+                    Серия
+                    <input id="episode-input" type="number" value="1" min="1" max="50000" required/>
+                </li>
+                <li>
+                    Дата
+                    <input id="date-input" type="date"/>
+                </li>
+                <li>
+                    Сайт
+                    <input id="site-input" type="url"/>
+                </li>
+            </ul>
+            <div id="bottom">
+                <button id="add-ok" onclick="addNew()">ОК</button>
+            </div>
+        </div>
     </div>
+
     
-    <br>
-    <div id="infoDiv" style="width: 200px; height: 50px; background-color: brown"></div>
-
-    <!--<p>Изображение<input id="imageInput" type="file"/></p><button id="saveImageInDbTestButton" onclick=openImage()>Сохранить в БД </button>-->
-
-    <br>
-    <div id="seriesListDiv"></div>
-
     <script src="main.js"></script>
 </body>
 </html>
