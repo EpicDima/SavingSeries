@@ -1,0 +1,320 @@
+body {
+    overflow-y: scroll;
+}
+
+#flex-container {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    justify-content: center;
+}
+
+#top-container {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 56px;
+    top: 0%;
+    background-color: rgba(165, 42, 42, 0.4);
+    z-index: 2019;
+}
+
+#search-container {
+    width: 420px;
+    height: 26px;
+    top: 15px;
+}
+
+#search-input {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#settings {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    right: 36px;
+    top: 12px;
+}
+
+#settings:hover {
+    background-color: gray;
+}
+
+#settings-menu {
+    position: fixed;
+    display: none;
+    width: 192px;
+    height: 96px;
+    right: 36px;
+    top: 56px;
+    background-color: grey;
+}
+
+#settings-menu li {
+    position: relative;
+    display: block;
+    color: black;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+}
+
+#settings-menu li:hover {
+    background-color: rgb(90, 90, 90);
+}
+
+#content-container {
+    position: absolute;
+    width: 600px;
+    top: 56px;
+    padding-bottom: 64px;
+    background-color: rgb(224, 219, 148);
+}
+
+#bottom-menu {
+    position: fixed;
+    display: block;
+    width: 208px;
+    height: 64px;
+    bottom: 0px;
+    background-color: rgba(165, 42, 42, 0.4);
+    z-index: 2019;
+}
+
+#plus {
+    position: absolute;
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    left: 16px;
+    top: 8px;
+    background-color: red;
+}
+
+#plus:hover {
+    background-color: rgb(160, 0, 0);
+}
+
+
+#sort {
+    position: absolute;
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    left: 144px;
+    top: 8px;
+    background-color: purple;
+}
+
+#sort:hover {
+    background-color: rgb(100, 0, 100);
+}
+
+#sort-types {
+    position: fixed;
+    display: none;
+    width: 256px;
+    height: 240px;
+    bottom: 64px;
+    background-color: orange;
+}
+
+#sort-types #title {
+    position: relative;
+    display: block;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+    background-color: rgb(170, 50, 0);
+}
+
+ul {
+    display: block;
+    list-style: none; 
+    margin: 0; 
+    padding: 0;
+}
+
+#sort-types li {
+    position: relative;
+    display: block;
+    color: black;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+}
+
+#sort-types li:hover {
+    background-color: orangered;
+}
+
+#add-container {
+    position: fixed;
+    display: block;
+    width: 256px;
+    height: auto;
+    bottom: 64px;
+    background-color: darkorange;
+    display: none;
+}
+
+#add-container #title {
+    position: relative;
+    display: block;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+    background-color: rgb(170, 50, 0);
+}
+
+#add-container #bottom {
+    position: relative;
+    display: block;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+    background-color: rgb(170, 50, 0);
+}
+
+#add-accept {
+    position: absolute; 
+    display: block;
+    width: 112px;
+    height: 28px;
+    left: 72px;
+}
+
+#add-container li {
+    position: relative;
+    display: block;
+    color: black;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+}
+
+#add-container input {
+    position: absolute;
+    display: inline-block;
+    right: 8px;
+    width: 112px;
+}
+
+#add-container input:invalid {
+    background-color: red;
+    border: 1px solid red;
+    color: white;
+}
+
+.input-error {
+    position: absolute;
+    display: inline-block;
+    
+    width: 100%;
+    left: 256px;
+    padding: 0;
+   
+    font-size: 80%;
+    color: white;
+    background-color: #900;
+    border-radius: 0 0 5px 5px;
+}
+
+
+#change-container li {
+    position: relative;
+    display: block;
+    color: black;
+    min-height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+}
+
+#change-container input {
+    position: absolute; 
+    display: inline-block;
+    right: 8px;
+    width: 112px;
+}
+
+#change-container #bottom {
+    position: relative;
+    display: block;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+}
+
+#change-ok {
+    position: absolute; 
+    display: block;
+    width: 118px;
+    height: 22px;
+    right: 8px;
+}
+
+#change-container input:invalid {
+    background-color: red;
+    border: 1px solid red;
+    color: white;
+}
+
+.card {
+    position: relative;
+    min-height: 100px;
+    height: auto;
+    margin: 15px;
+    background-color: gold;
+    overflow-y: hidden;
+}
+
+.card:hover {
+    background-color: rgb(255, 225, 40);
+}
+
+.card-name {
+    position: relative;
+    width: auto;
+    left: 8px;
+    top: 8px;
+    margin-right: 48px;
+    font-size: 28px;
+    text-align: center;
+    word-break: break-all;
+}
+
+.card-table {
+    position: relative; 
+    width: 100%;
+    bottom: 0px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+    table-layout: fixed;
+}
+
+.card-cross {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 8px;
+    top: 8px;
+    background-color: #ff5555;
+}
+
+.card-cross:hover {
+    background-color: #cc3333;
+}
+
+.card-cross-svg:hover {
+    fill: #ff0000;
+}

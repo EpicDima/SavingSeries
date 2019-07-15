@@ -4,308 +4,13 @@
     <meta charset="UTF-8">
     <title>SavingSeries</title>
 
-    <style>
-        body {
-            overflow-y: scroll;
-        }
-
-        #flex-container {
-            position: absolute;
-            display: flex;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            justify-content: center;
-        }
-
-        #top-container {
-            position: fixed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 56px;
-            top: 0%;
-            background-color: rgba(165, 42, 42, 0.4);
-            z-index: 2019;
-        }
-
-        #search-container {
-            width: 420px;
-            height: 26px;
-            top: 15px;
-        }
-
-        #search-input {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        #settings {
-            position: absolute;
-            width: 36px;
-            height: 36px;
-            right: 36px;
-            top: 12px;
-        }
-
-        #settings:hover {
-            background-color: gray;
-        }
-
-        #settings-menu {
-            position: fixed;
-            display: none;
-            width: 192px;
-            height: 96px;
-            right: 36px;
-            top: 56px;
-            background-color: grey;
-        }
-
-        #settings-menu li {
-            position: relative;
-            display: block;
-            color: black;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-        }
-
-        #settings-menu li:hover {
-            background-color: rgb(90, 90, 90);
-        }
-
-        #content-container {
-            position: absolute;
-            width: 600px;
-            top: 56px;
-            padding-bottom: 64px;
-            background-color: rgb(224, 219, 148);
-        }
-
-        #bottom-menu {
-            position: fixed;
-            display: block;
-            width: 208px;
-            height: 64px;
-            bottom: 0px;
-            background-color: rgba(165, 42, 42, 0.4);
-            z-index: 2019;
-        }
-
-        #plus {
-            position: absolute;
-            display: inline-block;
-            width: 48px;
-            height: 48px;
-            left: 16px;
-            top: 8px;
-            background-color: red;
-        }
-
-        #plus:hover {
-            background-color: rgb(160, 0, 0);
-        }
-
-        
-        #sort {
-            position: absolute;
-            display: inline-block;
-            width: 48px;
-            height: 48px;
-            left: 144px;
-            top: 8px;
-            background-color: purple;
-        }
-
-        #sort:hover {
-            background-color: rgb(100, 0, 100);
-        }
-
-        #sort-types {
-            position: fixed;
-            display: none;
-            width: 256px;
-            height: 240px;
-            bottom: 64px;
-            background-color: orange;
-        }
-
-        #sort-types #title {
-            position: relative;
-            display: block;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-            background-color: rgb(170, 50, 0);
-        }
-
-        ul {
-            display: block;
-            list-style: none; 
-            margin: 0; 
-            padding: 0;
-        }
-
-        #sort-types li {
-            position: relative;
-            display: block;
-            color: black;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-        }
-
-        #sort-types li:hover {
-            background-color: orangered;
-        }
-
-        #add-container {
-            position: fixed;
-            display: block;
-            width: 256px;
-            height: 336px;
-            bottom: 64px;
-            background-color: darkorange;
-            display: none;
-        }
-
-        #add-container #title {
-            position: relative;
-            display: block;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-            background-color: rgb(170, 50, 0);
-        }
-
-        #add-container #bottom {
-            position: relative;
-            display: block;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-            background-color: rgb(170, 50, 0);
-        }
-
-        #add-ok {
-            position: absolute; 
-            display: block;
-            width: 112px;
-            height: 28px;
-            left: 72px;
-        }
-
-        #add-container li {
-            position: relative;
-            display: block;
-            color: black;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-        }
-
-        #add-container input {
-            position: absolute; 
-            display: inline-block;
-            right: 8px;
-            width: 112px;
-        }
-
-        #change-container li {
-            position: relative;
-            display: block;
-            color: black;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-        }
-
-        #change-container input {
-            position: absolute; 
-            display: inline-block;
-            right: 8px;
-            width: 112px;
-        }
-
-        #change-container #bottom {
-            position: relative;
-            display: block;
-            height: 32px;
-            padding: 8px 8px;
-            text-decoration: none;
-        }
-
-        #change-ok {
-            position: absolute; 
-            display: block;
-            width: 112px;
-            height: 28px;
-            right: 8px;
-        }
-
-        .card {
-            position: relative;
-            min-height: 100px;
-            height: auto;
-            margin: 15px;
-            background-color: gold;
-            overflow-y: hidden;
-        }
-
-        .card:hover {
-            background-color: rgb(255, 225, 40);
-        }
-
-        .card-name {
-            position: relative;
-            width: auto;
-            left: 8px;
-            top: 8px;
-            margin-right: 48px;
-            font-size: 28px;
-            text-align: center;
-        }
-
-        .card-table {
-            position: relative; 
-            width: 100%;
-            bottom: 0px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .card-cross {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            right: 8px;
-            top: 8px;
-            background-color: #ff5555;
-        }
-
-        .card-cross:hover {
-            background-color: #cc3333;
-        }
-        
-        .card-cross-svg:hover {
-            fill: #ff0000;
-        }
-
-
-
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="flex-container">
         <div id="top-container">
             <div id="search-container">
-                <input id="search-input" type="text" placeholder="Введите запрос">
+                <input id="search-input" type="text" placeholder="Введите запрос" oninput="searchSeries()">
             </div>
             <div id="settings">
                 <svg width="36px" height="36px" viewBox="0 0 20 20"><path fill="none" d="M0 0h20v20H0V0z"/><path d="M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
@@ -314,8 +19,8 @@
 
         <div id="settings-menu">
             <ul>
-                <li>Создать Backup</li>
-                <li>Загрузить Backup</li>
+                <li onclick="createBackup()">Создать Backup</li>
+                <li onclick="loadBackup()">Загрузить Backup</li>
             </ul>
         </div>
 
@@ -338,10 +43,10 @@
         <div id="sort-types">
             <div id="title">Сортировка</div>
             <ul>
-                <li>По названию</li>
-                <li>По номеру сезона</li>
-                <li>По номеру серии</li>
-                <li>По дате ближайшей серии</li>
+                <li onclick="sortSeries(1)">По названию</li>
+                <li onclick="sortSeries(2)">По номеру сезона</li>
+                <li onclick="sortSeries(3)">По номеру серии</li>
+                <li onclick="sortSeries(4)">По дате</li>
             </ul>
         </div>
 
@@ -350,7 +55,8 @@
             <ul>
                 <li>
                     Название
-                    <input id="name-input" type="text" maxlength="100" required/>
+                    <input id="name-input" type="text" maxlength="100" required oninput="nameExistenceValidator()"/>
+                    <!--<span class="input-error" aria-live="polite">Teeeeexfsdf sdf sdf sdf dsf sfdsfsd ffs fsd fs dsffffffds f sd f s f f  dfdsdfsdfs fdsf  s fddffsddfdfssfd fsdft Errorrr</span>-->
                 </li>
                 <li>
                     Сезон
@@ -362,15 +68,15 @@
                 </li>
                 <li>
                     Дата
-                    <input id="date-input" type="date"/>
+                    <input id="date-input" type="date" optional/>
                 </li>
                 <li>
                     Сайт
-                    <input id="site-input" type="url"/>
+                    <input id="site-input" type="url" optional/>
                 </li>
             </ul>
             <div id="bottom">
-                <button id="add-ok" onclick="addNew()">ОК</button>
+                <button id="add-accept" onclick="addNew()">ОК</button>
             </div>
         </div>
     </div>
