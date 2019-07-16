@@ -109,6 +109,16 @@ function onClickOutside() {
         } else {
             sortTypes.style.display = "none"
         }
+
+        let changeContainer = document.getElementById("change-container")
+        if (changeContainer != null) {
+            for (let i = 0; i < cardList.length; i++) {
+                if (cardList[i].contains(target)) {
+                    return;
+                }
+            }
+            changeContainer.remove()
+        }
     });
 }
 
@@ -164,11 +174,13 @@ function onOpenFile(event) {
             clearAll()
             seriesList = data
             for (let i = 0; i < seriesList.length; i++) {
-                seriesList[index].id = i;
+                seriesList[i].id = i;
             }
             counter = seriesList.length
             seriesList.forEach(series => {
-                series.nextDate = new Date(series.nextDate)
+                if (series.date != "") {
+                    series.date = new Date(series.date)
+                }
                 addSeriesToList(series)
                 database.transaction("series", "readwrite").objectStore("series").add(series).onerror = function(event) {
                     alert("Что-то пошло не так!\nonOpenFile: " + event.target.error);
@@ -344,7 +356,7 @@ function createCard(series)
 
     let cross = document.createElement("div")
     cross.className = "card-cross"
-    cross.innerHTML = "<svg class=\"card-cross-svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>"
+    cross.innerHTML = "<svg class=\"card-cross-svg\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>"
     cross.onclick = remove
 
     let name = document.createElement("div")
@@ -373,28 +385,29 @@ function createCard(series)
     tr2.appendChild(td21)
     tr2.appendChild(td22)
 
+    let td13 = document.createElement("td")
+    let td23 = document.createElement("td")
     if (series.date != "") {
-        let td13 = document.createElement("td")
         td13.innerText = "Дата"
-
-        let td23 = document.createElement("td")
         td23.innerText = series.date.toLocaleDateString("ru", {
             year: "numeric",
             month: "long",
             day: "numeric"
         });
-
-        tr1.appendChild(td13)
-        tr2.appendChild(td23)
     }
+    tr1.appendChild(td13)
+    tr2.appendChild(td23)
 
+    let td14 = document.createElement("td")
+    let td24 = document.createElement("td")
     if (series.site != "") {
-        let td14 = document.createElement("td")
         td14.innerText = "Ссылка"
-
-        let td24 = document.createElement("td")
+        
         let a = document.createElement("a")
         a.href = series.site
+        a.onclick = (event) => {
+            event.stopPropagation()
+        }
         
         if (a.host == "") {
             a.innerText = a.href
@@ -404,10 +417,9 @@ function createCard(series)
         
         a.target = "_blank"
         td24.appendChild(a)
-
-        tr1.appendChild(td14)
-        tr2.appendChild(td24)
     }
+    tr1.appendChild(td14)
+    tr2.appendChild(td24)
 
     table.appendChild(tr1)   
     table.appendChild(tr2)
@@ -429,7 +441,7 @@ function searchSeries() {
         return;
     }
     for (let i = 0; i < seriesList.length; i++) {
-        if (seriesList[i].name.search(substr) != -1) {
+        if (seriesList[i].name.toLowerCase().search(substr) != -1) {
             cardList[i].style.display  = "block"
         } else {
             cardList[i].style.display  = "none"
@@ -513,8 +525,6 @@ function openChangeContainer(event) {
     
     changeContainer = document.createElement("div")
     changeContainer.id = "change-container"
-    changeContainer.style.width = "100%";
-    changeContainer.style.backgroundColor = "#ff0000"
 
     let ul = document.createElement("ul")
     let li1 = document.createElement("li")

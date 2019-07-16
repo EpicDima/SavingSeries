@@ -1,5 +1,6 @@
 body {
     overflow-y: scroll;
+    background-color: #1d1d1d;
 }
 
 #flex-container {
@@ -20,14 +21,22 @@ body {
     width: 100%;
     height: 56px;
     top: 0%;
-    background-color: rgba(165, 42, 42, 0.4);
     z-index: 2019;
 }
 
+#center-top-container {
+    width: 600px;
+    height: 100%;
+    background-color: #272727de;
+    border-radius: 0 0 15px 15px;
+}
+
 #search-container {
-    width: 420px;
+    position: relative;
+    width: 414px;
     height: 26px;
     top: 15px;
+    left: 93px;
 }
 
 #search-input {
@@ -35,6 +44,12 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+    background-color: #111111;
+    border: 1px solid #333333;
+    color: #cccccc;
+    font-size: large;
+    padding-left: 6px;
+    border-radius: 5px;
 }
 
 #settings {
@@ -45,8 +60,12 @@ body {
     top: 12px;
 }
 
-#settings:hover {
-    background-color: gray;
+#settings-icon {
+    fill: #ffffff;
+}
+
+#settings-icon:hover {
+    fill: #dd0000;
 }
 
 #settings-menu {
@@ -57,15 +76,17 @@ body {
     right: 36px;
     top: 56px;
     background-color: grey;
+    z-index: 99;
 }
 
 #settings-menu li {
     position: relative;
     display: block;
-    color: black;
     height: 32px;
     padding: 8px 8px;
     text-decoration: none;
+    background-color: #272727;
+    color: white;
 }
 
 #settings-menu li:hover {
@@ -76,47 +97,40 @@ body {
     position: absolute;
     width: 600px;
     top: 56px;
-    padding-bottom: 64px;
-    background-color: rgb(224, 219, 148);
-}
-
-#bottom-menu {
-    position: fixed;
-    display: block;
-    width: 208px;
-    height: 64px;
-    bottom: 0px;
-    background-color: rgba(165, 42, 42, 0.4);
-    z-index: 2019;
+    padding-bottom: 24px;
 }
 
 #plus {
     position: absolute;
-    display: inline-block;
-    width: 48px;
-    height: 48px;
-    left: 16px;
-    top: 8px;
-    background-color: red;
+    width: 36px;
+    height: 36px;
+    right: 84px;
+    top: 12px;
 }
 
-#plus:hover {
-    background-color: rgb(160, 0, 0);
+#plus-icon {
+    fill: white;
+}
+
+#plus-icon:hover {
+    fill: #ee0000;
 }
 
 
 #sort {
-    position: absolute;
-    display: inline-block;
-    width: 48px;
-    height: 48px;
-    left: 144px;
-    top: 8px;
-    background-color: purple;
+    position: relative;
+    width: 36px;
+    height: 36px;
+    left: 540px;
+    bottom: 14px;
 }
 
-#sort:hover {
-    background-color: rgb(100, 0, 100);
+#sort-icon {
+    fill: white;
+}
+
+#sort-icon:hover {
+    fill: #ee0000;
 }
 
 #sort-types {
@@ -126,6 +140,7 @@ body {
     height: 240px;
     bottom: 64px;
     background-color: orange;
+    z-index: 10;
 }
 
 #sort-types #title {
@@ -218,24 +233,26 @@ ul {
 .input-error {
     position: absolute;
     display: inline-block;
-    
     width: 100%;
     left: 256px;
     padding: 0;
-   
     font-size: 80%;
     color: white;
     background-color: #900;
     border-radius: 0 0 5px 5px;
 }
 
+#change-container {
+    width: 100%;
+    border-top: 1px solid #111111;
+}
 
 #change-container li {
     position: relative;
     display: block;
     color: black;
-    min-height: 32px;
-    padding: 8px 8px;
+    min-height: 24px;
+    padding: 6px 6px;
     text-decoration: none;
 }
 
@@ -258,13 +275,13 @@ ul {
     position: absolute; 
     display: block;
     width: 118px;
-    height: 22px;
+    height: 28px;
     right: 8px;
 }
 
 #change-container input:invalid {
-    background-color: red;
-    border: 1px solid red;
+    background-color: #ee0000;
+    border: 1px solid #ee0000;
     color: white;
 }
 
@@ -273,12 +290,15 @@ ul {
     min-height: 100px;
     height: auto;
     margin: 15px;
-    background-color: gold;
     overflow-y: hidden;
+    background-color: #cccccc;
+    border: 2px solid #1d1d1d;
+    border-radius: 5px;
 }
 
 .card:hover {
-    background-color: rgb(255, 225, 40);
+    background-color: #eeeeee;
+    border: 2px solid #eeeeee;
 }
 
 .card-name {
@@ -286,8 +306,8 @@ ul {
     width: auto;
     left: 8px;
     top: 8px;
-    margin-right: 48px;
-    font-size: 28px;
+    margin-right: 52px;
+    font-size: 1.5rem;
     text-align: center;
     word-break: break-all;
 }
@@ -304,17 +324,12 @@ ul {
 
 .card-cross {
     position: absolute;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     right: 8px;
     top: 8px;
-    background-color: #ff5555;
-}
-
-.card-cross:hover {
-    background-color: #cc3333;
 }
 
 .card-cross-svg:hover {
-    fill: #ff0000;
+    fill: #ee0000;
 }
