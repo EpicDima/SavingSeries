@@ -172,14 +172,23 @@ ul {
     background-color: orangered;
 }
 
+#background-add-container {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: #11111171;
+    justify-content: center;
+    z-index: 3000;
+}
+
 #add-container {
     position: fixed;
-    display: block;
-    width: 256px;
-    height: auto;
-    bottom: 64px;
-    background-color: darkorange;
-    display: none;
+    width: 512px;
+    height: 375px;
+    top: 64px;
+    background-color: #1d1d1d;
+    border-radius: 5px;
 }
 
 #add-container #title {
@@ -188,31 +197,54 @@ ul {
     height: 32px;
     padding: 8px 8px;
     text-decoration: none;
-    background-color: rgb(170, 50, 0);
+    text-align: center;
+    color: white;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #111111;
+}
+
+#add-container #cross-svg {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    right: 8px;
+    top: 8px;
+    fill: white;
+}
+
+#add-container #cross-svg:hover {
+    fill: #ee0000;
 }
 
 #add-container #bottom {
     position: relative;
     display: block;
-    height: 32px;
+    min-height: 32px;
     padding: 8px 8px;
     text-decoration: none;
-    background-color: rgb(170, 50, 0);
+    border-top: 1px solid #111111;
+}
+
+#add-container #error {
+    height: 20px;
+    margin-bottom: 8px;
+    color: #ee0000;
+    font-size: 1.075rem;
 }
 
 #add-accept {
-    position: absolute; 
+    position: absolute;
     display: block;
     width: 112px;
     height: 28px;
-    left: 72px;
+    left: 200px;
 }
 
 #add-container li {
     position: relative;
     display: block;
-    color: black;
-    height: 32px;
+    color: white;
+    min-height: 32px;
     padding: 8px 8px;
     text-decoration: none;
 }
@@ -221,25 +253,13 @@ ul {
     position: absolute;
     display: inline-block;
     right: 8px;
-    width: 112px;
+    width: 168px;
 }
 
 #add-container input:invalid {
     background-color: red;
     border: 1px solid red;
     color: white;
-}
-
-.input-error {
-    position: absolute;
-    display: inline-block;
-    width: 100%;
-    left: 256px;
-    padding: 0;
-    font-size: 80%;
-    color: white;
-    background-color: #900;
-    border-radius: 0 0 5px 5px;
 }
 
 #change-container {

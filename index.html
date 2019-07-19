@@ -29,7 +29,7 @@
             <div id="title">Упорядочить</div>
             <ul>
 
-                <!-- Икона для возрастания и убывания 
+                <!-- Иконка для возрастания и убывания 
                     <svg id="sort-icon" width="36px" height="36px" viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>-->
                 <li onclick="sortSeries(1)">По названию</li>
                 <li onclick="sortSeries(2)">По номеру сезона</li>
@@ -50,37 +50,41 @@
         
         </div>
         
-
-        <div id="add-container">
-            <div id="title">Добавление</div>
-            <ul>
-                <li>
-                    Название
-                    <input id="name-input" type="text" maxlength="100" required oninput="nameExistenceValidator()"/>
-                    <!--<span class="input-error" aria-live="polite">Teeeeexfsdf sdf sdf sdf dsf sfdsfsd ffs fsd fs dsffffffds f sd f s f f  dfdsdfsdfs fdsf  s fddffsddfdfssfd fsdft Errorrr</span>-->
-                </li>
-                <li>
-                    Сезон
-                    <input id="season-input" type="number" value="1" min="1" max="50" required/>
-                </li>
-                <li>
-                    Серия
-                    <input id="episode-input" type="number" value="1" min="1" max="50000" required/>
-                </li>
-                <li>
-                    Дата
-                    <input id="date-input" type="date" optional/>
-                </li>
-                <li>
-                    Сайт
-                    <input id="site-input" type="url" optional/>
-                </li>
-            </ul>
-            <div id="bottom">
-                <button id="add-accept" onclick="addNew()">ОК</button>
+        <div id="background-add-container">
+            <div id="add-container">
+                <div id="title">Добавление</div>
+                <svg id="cross-svg" onclick="closeAddContainer()" width="32px" height="32px" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+                <ul>
+                    <li>
+                        Название
+                        <input id="name-input" type="text" maxlength="100" required oninput="nameExistenceValidator()"/>
+                    </li>
+                    <li>
+                        Сезон
+                        <input id="season-input" type="number" value="1" min="1" max="50" required/>
+                    </li>
+                    <li>
+                        Серия
+                        <input id="episode-input" type="number" value="1" min="1" max="50000" required/>
+                    </li>
+                    <li>
+                        Дата
+                        <input id="date-input" type="date" optional/>
+                    </li>
+                    <li>
+                        Сайт
+                        <input id="site-input" type="url" optional/>
+                    </li>
+                </ul>
+                <div id="bottom">
+                    <div id="error">
+                    </div>
+                    <button id="add-accept" onclick="addNew()">ОК</button>
+                </div>
             </div>
         </div>
     </div>
+    
 
     
     <script src="main.js"></script>

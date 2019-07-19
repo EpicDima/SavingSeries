@@ -1,7 +1,18 @@
 // Основные переменные
-var counter = 0      // счётчик для установки id
-var seriesList = []  // список объектов сериалов
+var counter = 0       // счётчик для установки id
+var seriesList = []   // список объектов сериалов
 var cardList = []     // список элементов div
+
+// Виды сортировок
+const SORT_TYPES = {NONE: 0,
+                    NAME_UP: 1, NAME_DOWN: 2,
+                    SEASON_UP: 3, SEASON_DOWN: 4,
+                    EPISODE_UP: 5, EPISODE_DOWN: 6,
+                    DATE_UP: 7, DATE_DOWN: 8}
+
+// Текущий используемый вид сортировки
+var currentSortType = SORT_TYPES.NONE
+
 
 // База данных Indexed DB
 var database;
@@ -18,7 +29,9 @@ const addAcceptButton = document.getElementById("add-accept")
 
 // Показывающиеся при нажатии элементы
 const settingsMenu = document.getElementById("settings-menu")
+const backgroundAddContainer = document.getElementById("background-add-container")
 const addContainer = document.getElementById("add-container")
+const addContainerError = document.getElementById("error")
 const sortTypes = document.getElementById("sort-types")
 
 // Элемент для хранения карточек серий
@@ -99,9 +112,9 @@ function onClickOutside() {
         }
     
         if (plusButton.contains(target)) {
-            addContainer.style.display = (addContainer.style.display == "block") ? "none" : "block"
+            backgroundAddContainer.style.display = (backgroundAddContainer.style.display == "flex") ? "none" : "flex"
         } else if (!addContainer.contains(target)) {
-            addContainer.style.display = "none"
+            backgroundAddContainer.style.display = "none"
         }
     
         if (sortButton.contains(target)) {
@@ -120,6 +133,11 @@ function onClickOutside() {
             changeContainer.remove()
         }
     });
+}
+
+
+function closeAddContainer() {
+    backgroundAddContainer.style.display = "none"
 }
 
 
@@ -223,6 +241,7 @@ function nameExistenceValidator() {
 
 
 function addSeriesValidator(series, callback) {
+    callback("")
     if (!nameValidator(series, callback)) {
         return null;
     } else if (!seasonValidator(series, callback)) {
@@ -321,8 +340,13 @@ function siteValidator(series, callback) {
 }
 
 
+function showAddError(message) {
+    addContainerError.innerText = message;
+}
+
+
 function addNew() {
-    let series = addSeriesValidator(getSeriesValuesFromInput(), alert)
+    let series = addSeriesValidator(getSeriesValuesFromInput(), showAddError)
     if (series == null) {
         return;
     }
@@ -335,9 +359,10 @@ function addNew() {
     database.transaction("series", "readwrite").objectStore("series").add(series).onerror = function(event) {
         alert("Что-то пошло не так!\naddNew: " + event.target.error);
     }
-    addContainer.style.display = "none"
+    backgroundAddContainer.style.display = "none"
     resetAddInputs()
     cardList[cardList.length - 1].scrollIntoView()
+    currentSortType = SORT_TYPES.NONE
 }
 
 
@@ -435,8 +460,8 @@ function createCard(series)
 function searchSeries() {
     let substr = searchInput.value.trim().toLowerCase()
     if (substr.length == 0) {
-        cardList.forEach(div => {
-            div.style.display = "block"
+        cardList.forEach(card => {
+            card.style.display = "block"
         })
         return;
     }
@@ -461,27 +486,56 @@ function sortCardList() {
 }
 
 
+function dateSort(predicate) {
+    seriesList.sort((prev, next) => {
+        if (prev.date == "") {
+            return 1;
+        } else if (next.date == "") {
+            return -1;
+        } else {
+            return predicate(prev, next)
+        }
+    });
+}
+
+
 function sortSeries(sortType) {
     switch (sortType) {
         case 1: // по названию
-            seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
+            if (currentSortType != SORT_TYPES.NAME_UP) {
+                seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
+                currentSortType = SORT_TYPES.NAME_UP
+            } else {
+                seriesList.sort((prev, next) => (next.name < prev.name) ? -1 : 1);
+                currentSortType = SORT_TYPES.NAME_DOWN
+            }
             break;
         case 2: // по номеру сезона
-            seriesList.sort((prev, next) => next.season - prev.season);
+            if (currentSortType != SORT_TYPES.SEASON_UP) {
+                seriesList.sort((prev, next) => next.season - prev.season);
+                currentSortType = SORT_TYPES.SEASON_UP
+            } else {
+                seriesList.sort((prev, next) => prev.season - next.season);
+                currentSortType = SORT_TYPES.SEASON_DOWN
+            }
             break;
         case 3: // по номеру серии
-            seriesList.sort((prev, next) => next.episode - prev.episode);
+            if (currentSortType != SORT_TYPES.EPISODE_UP) {
+                seriesList.sort((prev, next) => prev.episode - next.episode);
+                currentSortType = SORT_TYPES.EPISODE_UP
+            } else {
+                seriesList.sort((prev, next) => next.episode - prev.episode);
+                currentSortType = SORT_TYPES.EPISODE_DOWN
+            }
             break;
         case 4: // по дате
-            seriesList.sort((prev, next) => {
-                if (prev.date == "") {
-                    return 1;
-                } else if (next.date == "") {
-                    return -1;
-                } else {
-                    return prev.date - next.date;
-                }
-            });
+            if (currentSortType != SORT_TYPES.DATE_UP) {
+                dateSort((prev, next) => {prev.date - next.date})
+                currentSortType = SORT_TYPES.DATE_UP
+            } else {
+                dateSort((prev, next) => {next.date - prev.date})
+                currentSortType = SORT_TYPES.DATE_DOWN
+            }
             break;
         default:
             alert("sortSeries. Как возможен default????")
@@ -641,4 +695,5 @@ function changeAccept(event) {
     cardList[index].innerHTML = createCard(seriesList[index]).innerHTML
 
     changeContainer.remove()
+    currentSortType = SORT_TYPES.NONE
 }
