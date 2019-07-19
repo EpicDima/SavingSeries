@@ -118,9 +118,22 @@ function onClickOutside() {
         }
     
         if (sortButton.contains(target)) {
-            sortTypes.style.display = (sortTypes.style.display == "block") ? "none" : "block"
+            if (sortTypes.style.display == "block") {
+                sortTypes.style.display = "none"
+            } else {
+                if (currentSortType != SORT_TYPES.NONE) {
+                    let element = document.getElementById("sort-type-" + currentSortType)
+                    element.style.backgroundColor = "#ee0000"
+                }
+                sortTypes.style.display = "block"
+                
+            }
         } else {
             sortTypes.style.display = "none"
+            for (let i = 1; i <= 8; i++) {
+                let element = document.getElementById("sort-type-" + i)
+                element.style.backgroundColor = "#272727"
+            }
         }
 
         let changeContainer = document.getElementById("change-container")
@@ -500,42 +513,41 @@ function dateSort(predicate) {
 
 
 function sortSeries(sortType) {
+    if (currentSortType == sortType) {
+        return;
+    }
     switch (sortType) {
         case 1: // по названию
-            if (currentSortType != SORT_TYPES.NAME_UP) {
-                seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
-                currentSortType = SORT_TYPES.NAME_UP
-            } else {
-                seriesList.sort((prev, next) => (next.name < prev.name) ? -1 : 1);
-                currentSortType = SORT_TYPES.NAME_DOWN
-            }
+            seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
+            currentSortType = SORT_TYPES.NAME_UP
             break;
-        case 2: // по номеру сезона
-            if (currentSortType != SORT_TYPES.SEASON_UP) {
-                seriesList.sort((prev, next) => next.season - prev.season);
-                currentSortType = SORT_TYPES.SEASON_UP
-            } else {
-                seriesList.sort((prev, next) => prev.season - next.season);
-                currentSortType = SORT_TYPES.SEASON_DOWN
-            }
+        case 2:
+            seriesList.sort((prev, next) => (next.name < prev.name) ? -1 : 1);
+            currentSortType = SORT_TYPES.NAME_DOWN
+            break
+        case 3: // по номеру сезона
+            seriesList.sort((prev, next) => next.season - prev.season);
+            currentSortType = SORT_TYPES.SEASON_UP
+            break
+        case 4:
+            seriesList.sort((prev, next) => prev.season - next.season);
+            currentSortType = SORT_TYPES.SEASON_DOWN
             break;
-        case 3: // по номеру серии
-            if (currentSortType != SORT_TYPES.EPISODE_UP) {
-                seriesList.sort((prev, next) => prev.episode - next.episode);
-                currentSortType = SORT_TYPES.EPISODE_UP
-            } else {
-                seriesList.sort((prev, next) => next.episode - prev.episode);
-                currentSortType = SORT_TYPES.EPISODE_DOWN
-            }
+        case 5: // по номеру серии
+            seriesList.sort((prev, next) => prev.episode - next.episode);
+            currentSortType = SORT_TYPES.EPISODE_UP
+            break
+        case 6:
+            seriesList.sort((prev, next) => next.episode - prev.episode);
+            currentSortType = SORT_TYPES.EPISODE_DOWN
             break;
-        case 4: // по дате
-            if (currentSortType != SORT_TYPES.DATE_UP) {
-                dateSort((prev, next) => {prev.date - next.date})
-                currentSortType = SORT_TYPES.DATE_UP
-            } else {
-                dateSort((prev, next) => {next.date - prev.date})
-                currentSortType = SORT_TYPES.DATE_DOWN
-            }
+        case 7: // по дате
+            dateSort((prev, next) => prev.date - next.date)
+            currentSortType = SORT_TYPES.DATE_UP
+            break
+        case 8:
+            dateSort((prev, next) => next.date - prev.date)
+            currentSortType = SORT_TYPES.DATE_DOWN
             break;
         default:
             alert("sortSeries. Как возможен default????")

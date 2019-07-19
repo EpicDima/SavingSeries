@@ -71,11 +71,10 @@ body {
 #settings-menu {
     position: fixed;
     display: none;
-    width: 192px;
+    width: 168px;
     height: 96px;
     right: 36px;
     top: 56px;
-    background-color: grey;
     z-index: 99;
 }
 
@@ -90,7 +89,7 @@ body {
 }
 
 #settings-menu li:hover {
-    background-color: rgb(90, 90, 90);
+    background-color: #ee0000;
 }
 
 #content-container {
@@ -134,12 +133,13 @@ body {
 }
 
 #sort-types {
-    position: fixed;
+    position: relative;
     display: none;
-    width: 256px;
+    width: 384px;
     height: 240px;
-    bottom: 64px;
-    background-color: orange;
+    left: 354px;
+    top: -6px;
+    background-color: #272727;
     z-index: 10;
 }
 
@@ -149,7 +149,8 @@ body {
     height: 32px;
     padding: 8px 8px;
     text-decoration: none;
-    background-color: rgb(170, 50, 0);
+    color: white;
+    background-color: #111111;
 }
 
 ul {
@@ -159,17 +160,31 @@ ul {
     padding: 0;
 }
 
-#sort-types li {
+.sort-types-li-0 {
     position: relative;
-    display: block;
-    color: black;
+    display: inline-block;
+    width: 144px;
     height: 32px;
     padding: 8px 8px;
     text-decoration: none;
+    color: white;
+    margin-right: -4px;
 }
 
-#sort-types li:hover {
-    background-color: orangered;
+.sort-types-li-1, .sort-types-li-2 {
+    position: relative;
+    display: inline-block;
+    width: 96px;
+    height: 32px;
+    padding: 8px 8px;
+    text-decoration: none;
+    text-align: center;
+    color: white;
+    margin-right: -4px;
+}
+
+.sort-types-li-1:hover, .sort-types-li-2:hover {
+    background-color: #ee0000 !important;
 }
 
 #background-add-container {

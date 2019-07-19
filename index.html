@@ -16,6 +16,55 @@
                 <div id="sort" title="Упорядочить">
                     <svg id="sort-icon" width="36px" height="36px" viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
                 </div>
+                <div id="sort-types">
+                    <div id="title">Упорядочить</div>
+                    <ul>
+                        <li>
+                            <li class="sort-types-li-0">
+                                По названию
+                            </li>
+                            <li class="sort-types-li-1" id="sort-type-1" onclick="sortSeries(1)">
+                                Возрастание
+                            </li>
+                            <li class="sort-types-li-2" id="sort-type-2"  onclick="sortSeries(2)">
+                                Убывание
+                            </li>
+                        </li>
+                        <li>
+                            <li class="sort-types-li-0">
+                                По номеру сезона
+                            </li>
+                            <li class="sort-types-li-1" id="sort-type-3" onclick="sortSeries(3)">
+                                Возрастание
+                            </li>
+                            <li class="sort-types-li-2" id="sort-type-4" onclick="sortSeries(4)">
+                                Убывание
+                            </li>
+                        </li>
+                        <li>
+                            <li class="sort-types-li-0">
+                                По номеру серии
+                            </li>
+                            <li class="sort-types-li-1" id="sort-type-5" onclick="sortSeries(5)">
+                                Возрастание
+                            </li>
+                            <li class="sort-types-li-2" id="sort-type-6" onclick="sortSeries(6)">
+                                Убывание
+                            </li>
+                        </li>
+                        <li>
+                            <li class="sort-types-li-0">
+                                По дате
+                            </li>
+                            <li class="sort-types-li-1" id="sort-type-7" onclick="sortSeries(7)">
+                                Возрастание
+                            </li>
+                            <li class="sort-types-li-2" id="sort-type-8" onclick="sortSeries(8)">
+                                Убывание
+                            </li>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div id="plus" title="Добавить">
                 <svg id="plus-icon" width="36px" height="36px" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
@@ -25,18 +74,7 @@
             </div>
         </div>
 
-        <div id="sort-types">
-            <div id="title">Упорядочить</div>
-            <ul>
-
-                <!-- Иконка для возрастания и убывания 
-                    <svg id="sort-icon" width="36px" height="36px" viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>-->
-                <li onclick="sortSeries(1)">По названию</li>
-                <li onclick="sortSeries(2)">По номеру сезона</li>
-                <li onclick="sortSeries(3)">По номеру серии</li>
-                <li onclick="sortSeries(4)">По дате</li>
-            </ul>
-        </div>
+        
 
         <div id="settings-menu">
             <ul>
