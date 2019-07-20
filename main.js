@@ -53,19 +53,6 @@ onClickOutside()
 resetAddInputs()
 connectDB(initialize)
 
-sendNotification("Новая серия", {body: "Очень странные дела\nСезон: 2\nСерия: 8"});
-
-function sendNotification(title, options) {
-    if (!("Notification" in window)) {
-        alert("Ваш браузер не поддерживает HTML Notifications (Уведомления), его необходимо удалить!");
-    } else if (Notification.permission == "granted") {
-        let notification = new Notification(title, options);
-        notification.onclick = () => console.log("Нажали на уведомление");
-    }  else if (Notification.permission == "default") {
-        Notification.requestPermission((_) => {});
-    }
-}
-
 
 
 function connectDB(func) {
