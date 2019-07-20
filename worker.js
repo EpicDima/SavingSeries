@@ -7,6 +7,6 @@ if ('serviceWorker' in navigator) {
         console.log('Ошибка при регистрации service worker-а:', error);
     });
 } else {
-// Текущий браузер не поддерживает service worker-ы.
-console.log('Текущий браузер не поддерживает service worker-ы');
+    // Текущий браузер не поддерживает service worker-ы.
+    console.log('Текущий браузер не поддерживает service worker-ы');
 }
