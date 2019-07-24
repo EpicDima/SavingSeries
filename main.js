@@ -58,22 +58,23 @@ connectDB(initialize)
 function connectDB(func) {
     let request = indexedDB.open("SavingSeriesDb", 1);
     
-	request.onerror = function(err) {
-		console.log(err);
+    request.onerror = function(err) {
+        console.log(err);
     }
     
-	request.onsuccess = function() {
-		func(request.result);
+    request.onsuccess = function() {
+        func(request.result);
     }
     
-	request.onupgradeneeded = function(event) {
-        if (!confirm("Данные будут храниться на вашем компьютере.\nВы согласны?")) {
-            window.close()
-            return;
+    request.onupgradeneeded = function(event) {
+        if (confirm("Данные будут храниться на вашем компьютере.\nВы согласны?")) {
+            event.currentTarget.result.createObjectStore("series", {keyPath: "id"});
+            connectDB(func);
+        } else {
+            indexedDB.deleteDatabase("SavingSeriesDb");
+            document.getElementsByTagName("body")[0].remove()
         }
-		event.currentTarget.result.createObjectStore("series", {keyPath: "id"});
-		connectDB(func);
-	}
+    }
 }
 
 
