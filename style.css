@@ -26,7 +26,7 @@ body {
 }
 
 #center-top-container {
-    width: 600px;
+    width: 630px;
     height: 100%;
     background-color: #272727de;
     border-radius: 0 0 15px 15px;
@@ -95,7 +95,7 @@ body {
 
 #content-container {
     position: absolute;
-    width: 600px;
+    width: 630px;
     top: 56px;
     padding-bottom: 24px;
 }
@@ -121,7 +121,7 @@ body {
     position: relative;
     width: 36px;
     height: 36px;
-    left: 540px;
+    left: 570px;
     bottom: 14px;
 }
 
@@ -138,7 +138,7 @@ body {
     display: none;
     width: 384px;
     height: 240px;
-    left: 354px;
+    left: 384px;
     top: -6px;
     background-color: #272727;
     z-index: 10;
