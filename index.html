@@ -4,23 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>SavingSeries</title>
-
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
-<body onclick="$('body .collapse').collapse('hide')">
-<!--  onclick="$('body .collapse').collapse('hide')" -->
-
+<body onclick="collapseAllContainers()">
     <header>
-        <nav class="navbar navbar-dark navbar-expand-lg justify-content-center fixed-top">
+        <nav class="navbar navbar-dark navbar-expand-xl justify-content-center fixed-top">
             <div class="d-flex w-50 mr-auto">
-                <a class="navbar-brand" href="">SavingSeries</a>
+                <a class="navbar-brand" href>SavingSeries</a>
             </div>
-            
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="navbar-collapse collapse w-100" id="collapsingNavbar">
                 <ul class="navbar-nav w-100 justify-content-center">
                     <form class="form-inline w-100">
@@ -29,18 +24,18 @@
                 </ul>
                 <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
                     <li class="nav-item">
-                        <a class="nav-link" id="plus" href data-toggle="modal" data-target="#addModal">Добавить</a>
+                        <div class="nav-link" data-toggle="modal" data-target="#addModal" onclick="clearAddInputs()">Добавление</div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="sort" href data-toggle="modal" data-target="#sortModal">Сортировка</a>
+                        <div class="nav-link" data-toggle="modal" data-target="#sortModal" onclick="updateSortType()">Сортировка</div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href id="settings" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="100,200">
+                        <div class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="100,200">
                             Настройки
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="settings">
-                            <a class="dropdown-item" href onclick="createBackup()">Создать Backup</a>
-                            <a class="dropdown-item" href onclick="loadBackup()">Загрузить Backup</a>
+                        </div>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-item" onclick="createBackup()">Создать Backup</div>
+                            <div class="dropdown-item" onclick="loadBackup()">Загрузить Backup</div>
                         </div>
                     </li>
                 </ul>
@@ -59,21 +54,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="list-group">
-                        <a href class="list-group-item list-group-item-action active" data-toggle="list">По порядку добавления</a>
-                        <a href class="list-group-item list-group-item-action" data-toggle="list">По названию</a>
-                        <a href class="list-group-item list-group-item-action" data-toggle="list">По номеру сезона</a>
-                        <a href class="list-group-item list-group-item-action" data-toggle="list">По номеру серии</a>
-                        <a href class="list-group-item list-group-item-action" data-toggle="list">По дате</a>
+                        <div class="list-group-item list-group-item-action sort-type" data-toggle="list">По порядку добавления</div>
+                        <div class="list-group-item list-group-item-action sort-type" data-toggle="list">По названию</div>
+                        <div class="list-group-item list-group-item-action sort-type" data-toggle="list">По номеру сезона</div>
+                        <div class="list-group-item list-group-item-action sort-type" data-toggle="list">По номеру серии</div>
+                        <div class="list-group-item list-group-item-action sort-type" data-toggle="list">По дате</div>
                     </div>
                     <br/>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="reverseSortCheck">
-                        <label class="form-check-label" for="reverseSortCheck">В обратном порядке</label>
+                    <div class="form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="reverseSort">
+                        <label class="form-check-label" for="reverseSort">В обратном порядке</label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                    <button type="button" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSortType()">Сортировать</button>
                 </div>
             </div>
         </div>
@@ -89,130 +84,51 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form name="add">
+                    <form id="addForm" name="add" onsubmit="return false;">
                         <div class="form-group row">
-                            <label for="inputName" class="col-sm-2 col-form-label">Название</label>
+                            <label class="col-sm-2 col-form-label">Название</label>
                             <div class="col-sm-10">
-                                <input class="form-control" id="inputName" name="name" type="text" minlength="1" maxlength="100" required oninput="nameExistenceValidator()"/>
+                                <input class="form-control"name="name" type="text" minlength="1" maxlength="100" oninput="nameExists()" required/>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputSeason" class="col-sm-2 col-form-label">Сезон</label>
+                            <label class="col-sm-2 col-form-label">Сезон</label>
                             <div class="col-sm-10">
-                                <input class="form-control" id="inputSeason" name="season" type="number" value="1" min="1" max="50" required/>
+                                <input class="form-control" name="season" type="number" value="1" min="1" max="50" required/>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputSeason" class="col-sm-2 col-form-label">Серия</label>
+                            <label class="col-sm-2 col-form-label">Серия</label>
                             <div class="col-sm-10">
-                                <input class="form-control" id="inputEpisode" name="episode" type="number" value="1" min="1" max="50000" required/>
+                                <input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required/>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputDate" class="col-sm-2 col-form-label">Дата</label>
+                            <label class="col-sm-2 col-form-label">Дата</label>
                             <div class="col-sm-10">
-                                <input class="form-control" id="inputDate" name="date" type="date" optional/>
+                                <input class="form-control" name="date" type="date" optional/>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputSite" class="col-sm-2 col-form-label">Сайт</label>
+                            <label class="col-sm-2 col-form-label">Сайт</label>
                             <div class="col-sm-10">
-                                <input class="form-control" id="inputSite" name="site" type="url" optional/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="modal-footer row">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                                <button type="submit" class="btn btn-primary" onsubmit="addNew()">Добавить</button>
+                                <input class="form-control" name="site" type="url" optional/>
                             </div>
                         </div>
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary" form="addForm" onclick="addSeries()">Добавить</button>
                 </div>
             </div>
         </div>
     </div>
 
     <main class="container text-center" >
-        <div class="row justify-content-center" id="content">
-
-            <!-- <div class="card" id="id">
-                <div data-toggle="collapse" href="#change1" aria-expanded="false" aria-controls="change1">
-                    <div class="card-header row">
-                        <h4 class="col">
-                            Очень странные дела
-                        </h4>
-                        <button type="button" class="close col-1" onclick="delete(0)">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                Сезон
-                            </div>
-                            <div class="col">
-                                Серия
-                            </div>
-                            <div class="col">
-                                Дата
-                            </div>
-                            <div class="col">
-                                Сайт
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                2
-                            </div>
-                            <div class="col">
-                                12
-                            </div>
-                            <div class="col">
-                                2 сентября 2020
-                            </div>
-                            <div class="col">
-                                <a href="http://www.kinogo.by">kinogo.by</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="collapse" id="change1">
-                    <br/>
-                    <form>
-                        <div class="form-group row">
-                            <label for="inputSeason" class="col col-form-label text-left ml-3">Сезон</label>
-                            <div class="col mr-3">
-                                <input class="form-control" id="inputSeason" type="number" value="1" min="1" max="50" required/>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="inputSeason" class="col col-form-label text-left ml-3">Серия</label>
-                            <div class="col mr-3">
-                                <input class="form-control" id="inputEpisode" type="number" value="1" min="1" max="50000" required/>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="inputDate" class="col col-form-label text-left ml-3">Дата</label>
-                            <div class="col mr-3">
-                                <input class="form-control" id="inputDate" type="date" optional/>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="inputSite" class="col col-form-label text-left ml-3">Сайт</label>
-                            <div class="col mr-3">
-                                <input class="form-control" id="inputSite" type="url" optional/>
-                            </div>
-                        </div>
-                        <div class="form-group row justify-content-center">
-                            <button type="submit" class="btn btn-primary col-sm-5">Подтвердить</button>
-                        </div>
-                    </form>
-                </div>
-            </div> -->
-            
-        </div>
+        <div class="row justify-content-center" id="content"></div>
     </main>
-    
+
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="main.js"></script>
