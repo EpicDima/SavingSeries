@@ -1,4 +1,66 @@
 body {
+    min-height: 75rem;
+    padding-top: 4.5rem;
+    background-color: #1f1f1f;
+}
+
+.navbar {
+    min-width: 720px;
+    background-color: #282828;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: #fff;
+}
+
+.dropdown-menu {
+    background-color: #282828;
+}
+
+.dropdown-item {
+    color: #fff;
+}
+
+.dropdown-item:focus, .dropdown-item:hover {
+    color: #fff;
+    background-color: #3e3e3e;
+}
+
+#search {
+    color: #999999;
+    background-color: #121212;
+    border-color: #393939;
+}
+
+#search:focus {
+    border-color: #fff;
+    box-shadow: 0 0;
+}
+
+.close {
+    font-size: xx-large;
+}
+
+.container {
+    min-width: 720px;
+}
+.card {
+    min-width: 630px;
+    width: 720px;
+    margin-bottom: 24px;
+    background-color: #eeeeee;
+}
+
+.card:hover {
+    background-color: #ffffff;
+}
+
+.card > .collapse, .collapsing {
+    border-top: 1px solid #ababab;
+}
+
+
+/* body {
     overflow-y: scroll;
     background-color: #1d1d1d;
     font-family: Arial, Helvetica, sans-serif;
@@ -51,7 +113,7 @@ body {
     font-size: large;
     padding-left: 6px;
     border-radius: 5px;
-}
+} 
 
 #settings {
     position: absolute;
@@ -368,4 +430,4 @@ ul {
 
 .card-cross-svg:hover {
     fill: #ee0000;
-}
+} */

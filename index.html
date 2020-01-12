@@ -2,129 +2,219 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>SavingSeries</title>
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="flex-container">
-        <div id="top-container">
-            <div id="center-top-container">
-                <div id="search-container">
-                    <input id="search-input" type="text" placeholder="Введите запрос" oninput="searchSeries()">
-                </div>
-                <div id="sort" title="Упорядочить">
-                    <svg id="sort-icon" width="36px" height="36px" viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
-                </div>
-                <div id="sort-types">
-                    <div id="title">Упорядочить</div>
-                    <ul>
-                        <li>
-                            <li class="sort-types-li-0">
-                                По названию
-                            </li>
-                            <li class="sort-types-li-1" id="sort-type-1" onclick="sortSeries(1)">
-                                Возрастание
-                            </li>
-                            <li class="sort-types-li-2" id="sort-type-2"  onclick="sortSeries(2)">
-                                Убывание
-                            </li>
-                        </li>
-                        <li>
-                            <li class="sort-types-li-0">
-                                По номеру сезона
-                            </li>
-                            <li class="sort-types-li-1" id="sort-type-3" onclick="sortSeries(3)">
-                                Возрастание
-                            </li>
-                            <li class="sort-types-li-2" id="sort-type-4" onclick="sortSeries(4)">
-                                Убывание
-                            </li>
-                        </li>
-                        <li>
-                            <li class="sort-types-li-0">
-                                По номеру серии
-                            </li>
-                            <li class="sort-types-li-1" id="sort-type-5" onclick="sortSeries(5)">
-                                Возрастание
-                            </li>
-                            <li class="sort-types-li-2" id="sort-type-6" onclick="sortSeries(6)">
-                                Убывание
-                            </li>
-                        </li>
-                        <li>
-                            <li class="sort-types-li-0">
-                                По дате
-                            </li>
-                            <li class="sort-types-li-1" id="sort-type-7" onclick="sortSeries(7)">
-                                Возрастание
-                            </li>
-                            <li class="sort-types-li-2" id="sort-type-8" onclick="sortSeries(8)">
-                                Убывание
-                            </li>
-                        </li>
-                    </ul>
-                </div>
+<body onclick="$('body .collapse').collapse('hide')">
+<!--  onclick="$('body .collapse').collapse('hide')" -->
+
+    <header>
+        <nav class="navbar navbar-dark navbar-expand-lg justify-content-center fixed-top">
+            <div class="d-flex w-50 mr-auto">
+                <a class="navbar-brand" href="">SavingSeries</a>
             </div>
-            <div id="plus" title="Добавить">
-                <svg id="plus-icon" width="36px" height="36px" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
-            </div>
-            <div id="settings" title="Настройки">
-                <svg id="settings-icon" width="36px" height="36px" viewBox="0 0 20 20"><path fill="none" d="M0 0h20v20H0V0z"/><path d="M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
-            </div>
-        </div>
+            
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        
-
-        <div id="settings-menu">
-            <ul>
-                <li onclick="createBackup()">Создать Backup</li>
-                <li onclick="loadBackup()">Загрузить Backup</li>
-            </ul>
-        </div>
-
-
-        <div id="content-container">
-        
-        </div>
-        
-        <div id="background-add-container">
-            <div id="add-container">
-                <div id="title">Добавление</div>
-                <svg id="cross-svg" onclick="closeAddContainer()" width="32px" height="32px" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
-                <ul>
-                    <li>
-                        Название
-                        <input id="name-input" type="text" maxlength="100" required oninput="nameExistenceValidator()"/>
+            <div class="navbar-collapse collapse w-100" id="collapsingNavbar">
+                <ul class="navbar-nav w-100 justify-content-center">
+                    <form class="form-inline w-100">
+                        <input class="form-control w-100" id="search" type="search" placeholder="Поиск" aria-label="Поиск" oninput="searchSeries()">
+                    </form>
+                </ul>
+                <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+                    <li class="nav-item">
+                        <a class="nav-link" id="plus" href data-toggle="modal" data-target="#addModal">Добавить</a>
                     </li>
-                    <li>
-                        Сезон
-                        <input id="season-input" type="number" value="1" min="1" max="50" required/>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sort" href data-toggle="modal" data-target="#sortModal">Сортировка</a>
                     </li>
-                    <li>
-                        Серия
-                        <input id="episode-input" type="number" value="1" min="1" max="50000" required/>
-                    </li>
-                    <li>
-                        Дата
-                        <input id="date-input" type="date" optional/>
-                    </li>
-                    <li>
-                        Сайт
-                        <input id="site-input" type="url" optional/>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href id="settings" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="100,200">
+                            Настройки
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="settings">
+                            <a class="dropdown-item" href onclick="createBackup()">Создать Backup</a>
+                            <a class="dropdown-item" href onclick="loadBackup()">Загрузить Backup</a>
+                        </div>
                     </li>
                 </ul>
-                <div id="bottom">
-                    <div id="error">
+            </div>
+        </nav>
+    </header>
+
+    <div class="modal fade" id="sortModal" tabindex="-1" role="dialog" aria-labelledby="centerTitleModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="centerTitleModal">Сортировка</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group">
+                        <a href class="list-group-item list-group-item-action active" data-toggle="list">По порядку добавления</a>
+                        <a href class="list-group-item list-group-item-action" data-toggle="list">По названию</a>
+                        <a href class="list-group-item list-group-item-action" data-toggle="list">По номеру сезона</a>
+                        <a href class="list-group-item list-group-item-action" data-toggle="list">По номеру серии</a>
+                        <a href class="list-group-item list-group-item-action" data-toggle="list">По дате</a>
                     </div>
-                    <button id="add-accept" onclick="addNew()">ОК</button>
+                    <br/>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="reverseSortCheck">
+                        <label class="form-check-label" for="reverseSortCheck">В обратном порядке</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary">Сохранить</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="centerTitleModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="centerTitleModal">Добавление</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form name="add">
+                        <div class="form-group row">
+                            <label for="inputName" class="col-sm-2 col-form-label">Название</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="inputName" name="name" type="text" minlength="1" maxlength="100" required oninput="nameExistenceValidator()"/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputSeason" class="col-sm-2 col-form-label">Сезон</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="inputSeason" name="season" type="number" value="1" min="1" max="50" required/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputSeason" class="col-sm-2 col-form-label">Серия</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="inputEpisode" name="episode" type="number" value="1" min="1" max="50000" required/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputDate" class="col-sm-2 col-form-label">Дата</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="inputDate" name="date" type="date" optional/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputSite" class="col-sm-2 col-form-label">Сайт</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="inputSite" name="site" type="url" optional/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="modal-footer row">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-primary" onsubmit="addNew()">Добавить</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container text-center" >
+        <div class="row justify-content-center" id="content">
+
+            <!-- <div class="card" id="id">
+                <div data-toggle="collapse" href="#change1" aria-expanded="false" aria-controls="change1">
+                    <div class="card-header row">
+                        <h4 class="col">
+                            Очень странные дела
+                        </h4>
+                        <button type="button" class="close col-1" onclick="delete(0)">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                Сезон
+                            </div>
+                            <div class="col">
+                                Серия
+                            </div>
+                            <div class="col">
+                                Дата
+                            </div>
+                            <div class="col">
+                                Сайт
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                2
+                            </div>
+                            <div class="col">
+                                12
+                            </div>
+                            <div class="col">
+                                2 сентября 2020
+                            </div>
+                            <div class="col">
+                                <a href="http://www.kinogo.by">kinogo.by</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapse" id="change1">
+                    <br/>
+                    <form>
+                        <div class="form-group row">
+                            <label for="inputSeason" class="col col-form-label text-left ml-3">Сезон</label>
+                            <div class="col mr-3">
+                                <input class="form-control" id="inputSeason" type="number" value="1" min="1" max="50" required/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputSeason" class="col col-form-label text-left ml-3">Серия</label>
+                            <div class="col mr-3">
+                                <input class="form-control" id="inputEpisode" type="number" value="1" min="1" max="50000" required/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputDate" class="col col-form-label text-left ml-3">Дата</label>
+                            <div class="col mr-3">
+                                <input class="form-control" id="inputDate" type="date" optional/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputSite" class="col col-form-label text-left ml-3">Сайт</label>
+                            <div class="col mr-3">
+                                <input class="form-control" id="inputSite" type="url" optional/>
+                            </div>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <button type="submit" class="btn btn-primary col-sm-5">Подтвердить</button>
+                        </div>
+                    </form>
+                </div>
+            </div> -->
+            
+        </div>
+    </main>
     
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="main.js"></script>
 </body>
 </html>
