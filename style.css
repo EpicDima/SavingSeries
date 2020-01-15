@@ -104,6 +104,18 @@ body {
 }
 
 
+.form-group.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+
+.card-col {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+
 .close {
     font-size: 1.8rem;
     margin-top: -1%;
