@@ -4,35 +4,43 @@ body {
     overflow-y: scroll;
 }
 
+
 .navbar {
     background-color: #282828fd;
 }
+
 
 .navbar-dark .navbar-nav .nav-link {
     color: #fff;
 }
 
+
 .nav-link:hover {
     cursor: pointer;
 }
 
+
 .dropdown-menu {
     background-color: #282828;
 }
+
 
 .dropdown-item {
     color: #fff;
     cursor: pointer;
 }
 
+
 .dropdown-item:focus, .dropdown-item:hover {
     color: #fff;
     background-color: #3e3e3e;
 }
 
+
 .list-group-item-action {
     cursor: pointer;
 }
+
 
 #search {
     color: #dddddd;
@@ -40,29 +48,50 @@ body {
     border-color: #393939;
 }
 
+
 #search:focus {
     border-color: #fff;
     box-shadow: 0 0;
 }
 
+
 .close {
     font-size: xx-large;
 }
 
+
 .container {
     min-width: 720px;
 }
+
+
 .card {
     min-width: 630px;
     width: 720px;
     margin-bottom: 24px;
     background-color: #eeeeee;
+    
+    /* color: white; */
+    /* background: repeating-linear-gradient(45deg, #d3d00d, #d3d00d 45px, #212215 45px, #212215 90px); */
 }
+
 
 .card:hover {
     background-color: #ffffff;
 }
 
+
 .card > .collapse, .collapsing {
     border-top: 1px solid #ababab;
 }
+
+
+.card.warning {
+    background-color: #ffc107;
+}
+
+
+.card.warning:hover {
+    background-color: #ffd207;
+}
+

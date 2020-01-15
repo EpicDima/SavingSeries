@@ -7,8 +7,8 @@ const SORT_TYPE_KEY = "sort_type";
 
 var database;
 var counterId = 0;
-var seriesList = [];
-var cardList = [];
+var seriesList = new Map();
+var cardList = new Map();
 var currentSortType;
 
 const search = document.getElementById("search");
@@ -59,18 +59,30 @@ function initialize(db) {
     }
     request.onsuccess = event => {
         scrollToTop();
-        seriesList = event.target.result;
-        if (seriesList.length > 0) {
-            counterId = seriesList[seriesList.length - 1].id + 1;
-        }
-        sortSeries(getSortType());
+        let valuesRequest = event.target.source.getAll();
+        valuesRequest.onsuccess = event => {
+            let values = event.target.result;
+            let keysRequest = event.target.source.getAllKeys();
+            keysRequest.onsuccess = event => {
+                let keys = event.target.result;
+                for (let i = 0; i < values.length; i++) {
+                    seriesList.set(keys[i], values[i]);
+                }
+                if (keys.length > 0) {
+                    counterId = keys[keys.length - 1] + 1;
+                }
+                sortSeries(getSortType());
+                updateCardListWarning();
+                setDayTimer();
+            };
+        };
     }
 }
 
 
 function createBackup() {
     let element = document.createElement("a");
-    element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(seriesList));
+    element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(Array.from(seriesList.values())));
     element.download = "backup.bin";
     element.style.display = "none";
     document.body.appendChild(element);
@@ -94,11 +106,9 @@ function loadBackup() {
 
 function clearAll() {
     database.transaction("series", "readwrite").objectStore("series").clear();
-    seriesList = [];
-    cardList.forEach(card => {
-        card.remove();
-    })
-    cardList = [];
+    seriesList.clear();
+    document.getElementById("content").innerHTML = "";
+    cardList.clear();
     localStorage.removeItem(SORT_TYPE_KEY);
 }
 
@@ -116,18 +126,19 @@ function onOpenFile(event) {
             alert("Содержимое файла повреждено!");
         } else {
             clearAll();
-            seriesList = data;
             counterId = 0;
             let request = database.transaction("series", "readwrite").objectStore("series");
-            for (let series of seriesList) {
+            for (let series of data) {
                 series.id = counterId++;
                 if (series.date !== "") {
                     series.date = new Date(series.date);
                 }
                 request.add(series);
+                seriesList.set(series.id, series);
             }
             currentSortType = null;
             sortSeries(getSortType());
+            updateCardListWarning();
         }
     };
     reader.readAsText(event.target.files[0]);
@@ -156,8 +167,8 @@ function nameExists() {
         nameInput.value = "";
         return;
     }
-    for (let i = 0; i < seriesList.length; i++) {
-        if (name === seriesList[i].name) {
+    for (let series of seriesList.values()) {
+        if (name.localeCompare(series.name) === 0) {
             nameInput.setCustomValidity("Пожалуйста, введите уникальное название.");
             return;
         }
@@ -168,7 +179,7 @@ function nameExists() {
 
 function addSeriesToList(series) {
     let card = createCard(series);
-    cardList.push(card);
+    cardList.set(series.id, card);
     document.getElementById("content").appendChild(card);
 }
 
@@ -201,7 +212,7 @@ function createCard(series) {
     card.className = "card";
     card.id = "card" + series.id;
     let linkElement = createLinkElement(series.site);
-    card.innerHTML = `<div data-toggle="collapse" href="#change${series.id}" aria-expanded="false" aria-controls="change${series.id}" onclick="updateCardChangeContainer(${series.id})"><div class="card-header row"><h4 class="col">${series.name}</h4> <button type="button" class="close col-1" onclick="event.stopPropagation(); deleteSeries(${series.id})"><span>&times;</span></button></div><div class="card-body"><div class="row"><div class="col">Сезон</div><div class="col">Серия</div><div class="col" id="dateTitle${series.id}">${series.date === "" ? "" : "Дата"}</div><div class="col" id="siteTitle${series.id}">${series.site.length === 0 ? "" : "Сайт"}</div></div><div class="row"><div class="col" id="season${series.id}">${series.season}</div><div class="col" id="episode${series.id}">${series.episode}</div><div class="col" id="date${series.id}">${dateToLocaleString(series.date)}</div><div class="col" id="site${series.id}">${linkElement}</div></div></div></div><div class="collapse" id="change${series.id}" onclick="event.stopPropagation();"><br/><form name="changeForm${series.id}" onsubmit="return false;"><div class="form-group row"><label class="col col-form-label text-left ml-3">Сезон</label><div class="col mr-3"><input class="form-control" name="season" type="number" value="1" min="1" max="50" required/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Серия</label><div class="col mr-3"><input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Дата</label><div class="col mr-3"><input class="form-control" name="date" type="date" optional/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Сайт</label><div class="col mr-3"><input class="form-control" name="site" type="url" optional/></div></div><div class="form-group row justify-content-center"><button type="submit" class="btn btn-primary col-sm-5" onclick="changeSeries(${series.id})">Подтвердить</button></div></form></div>`;
+    card.innerHTML = `<div data-toggle="collapse" href="#change${series.id}" aria-expanded="false" aria-controls="change${series.id}" onclick="updateCardChangeContainer(${series.id})"><div class="card-header row"><h4 class="col">${series.name}</h4> <button type="button" class="close col-1" onclick="event.stopPropagation(); deleteSeries(${series.id})"><span>&times;</span></button></div><div class="card-body"><div class="row"><div class="col">Сезон</div><div class="col">Серия</div><div class="col" id="dateTitle${series.id}">${series.date === "" ? "" : "Дата"}</div><div class="col" id="siteTitle${series.id}">${series.site.length === 0 ? "" : "Сайт"}</div></div><div class="row"><div class="col" id="season${series.id}">${series.season}</div><div class="col" id="episode${series.id}">${series.episode}</div><div class="col" id="date${series.id}">${dateToLocaleString(series.date)}</div><div class="col" id="site${series.id}">${linkElement}</div></div></div></div><div class="collapse change" id="change${series.id}" onclick="event.stopPropagation();"><br/><form name="changeForm${series.id}" onsubmit="return false;"><div class="form-group row"><label class="col col-form-label text-left ml-3">Сезон</label><div class="col mr-3"><input class="form-control" name="season" type="number" value="1" min="1" max="50" required/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Серия</label><div class="col mr-3"><input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Дата</label><div class="col mr-3"><input class="form-control" name="date" type="date" optional/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Сайт</label><div class="col mr-3"><input class="form-control" name="site" type="url" optional/></div></div><div class="form-group row justify-content-center"><button type="submit" class="btn btn-primary col-sm-5" onclick="changeSeries(${series.id})">Подтвердить</button></div></form></div>`;
     return card;
 }
 
@@ -211,7 +222,7 @@ function updateCardChangeContainer(id) {
         return;
     }
     let form = document.forms["changeForm" + id];
-    let series = seriesList.find(item => item.id === id);
+    let series = seriesList.get(id);
     form.season.value = series.season;
     form.episode.value = series.episode;
     form.date.value = series.date === "" ? "" : series.date.toISOString().split("T")[0];
@@ -236,14 +247,10 @@ function addSeries() {
             console.log("Что-то пошло не так!\n addSeries: " + event.target.error);
         }
         request.onsuccess = () => {
-            seriesList.push(series);
+            seriesList.set(series.id, series);
             forcelySortSeries();
-            let index = -1;
-            seriesList.find((item, idx) => {
-                index = idx;
-                return item.id === series.id;
-            });
-            cardList[index].scrollIntoView({block: "center"});
+            updateCardWarning(series);
+            cardList.get(series.id).scrollIntoView({block: "center"});
         }
     }
 }
@@ -257,7 +264,7 @@ function collapseChangeContainerById(id) {
 function changeSeries(id) {
     let form = document.forms["changeForm" + id];
     if (form.checkValidity()) {
-        let series = seriesList.find(item => item.id === id);
+        let series = seriesList.get(id);
 
         let noChanges = 0;
         let needToSort = false;
@@ -317,26 +324,23 @@ function changeSeries(id) {
             if (needToSort) {
                 forcelySortSeries();
             }
+            updateCardWarning(series);
         };
     }
 }
 
 
 function deleteSeries(id) {
-    let index = -1;
-    let series = seriesList.find((item, idx) => {
-        index = idx;
-        return item.id === id;
-    });
+    let series = seriesList.get(id);
     if (confirm(`Вы действительно хотите удалить "${series.name}"?`)) {
         let request = database.transaction("series", "readwrite").objectStore("series").delete(id);
         request.onerror = event => {
             console.log("Что-то пошло не так!\n deleteSeries: " + event.target.error);
         };
         request.onsuccess = () => {
-            seriesList.splice(index, 1);
-            cardList[index].remove();
-            cardList.splice(index, 1);
+            seriesList.delete(id);
+            cardList.get(id).remove();
+            cardList.delete(id);
         };
     }
 }
@@ -345,17 +349,13 @@ function deleteSeries(id) {
 function searchSeries() {
     let substr = search.value.trim().toLowerCase();
     if (substr.length === 0) {
-        cardList.forEach(card => {
+        for (let card of cardList.values()) {
             card.style.display = "block";
-        });
+        }
         return;
     }
-    for (let i = 0; i < seriesList.length; i++) {
-        if (seriesList[i].name.toLowerCase().search(substr) !== -1) {
-            cardList[i].style.display = "block";
-        } else {
-            cardList[i].style.display = "none";
-        }
+    for (let series of seriesList.values()) {
+        cardList.get(series.id).style.display = series.name.toLowerCase().search(substr) === -1 ? "none" : "block";
     }
 }
 
@@ -385,75 +385,155 @@ function saveSortType() {
 
 
 function sortCardList() {
-    cardList.forEach(card => {
-        card.remove();
-    });
-    cardList = [];
-    seriesList.forEach(series => {
-        addSeriesToList(series);
-    })
+    let content = document.getElementById("content");
+    content.innerHTML = "";
+    for (let series of seriesList.values()) {
+        let card = cardList.get(series.id);
+        if (card === undefined) {
+            addSeriesToList(series);
+        } else {
+            content.appendChild(card);
+        }
+    }
 }
 
 
 function dateSort(predicate) {
-    seriesList.sort((prev, next) => {
-        if (prev.date === "") {
+    seriesList = new Map([...seriesList.entries()].sort((prev, next) => {
+        if (prev[1].date === "") {
             return 1;
-        } else if (next.date === "") {
+        } else if (next[1].date === "") {
             return -1;
         } else {
             return predicate(prev, next)
         }
-    });
+    }));
 }
 
 
 function sortSeries(sortType) {
     if (currentSortType !== sortType) {
+        let prevSortType = currentSortType;
         currentSortType = sortType;
         localStorage.setItem(SORT_TYPE_KEY, currentSortType);
-        forcelySortSeries();
+        forcelySortSeries(prevSortType);
     }
     $("#sortModal").modal("hide");
 }
 
 
-function forcelySortSeries() {
+function forcelySortSeries(prevSortType = undefined) {
     search.value = "";
+    let reverseSort = false;
     switch (currentSortType) {
         case SORT_TYPES.ID_UP:
-            seriesList.sort((prev, next) => prev.id - next.id);
+            if (prevSortType === SORT_TYPES.ID_DOWN) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].id - next[1].id));
+            }
             break;
         case SORT_TYPES.ID_DOWN:
-            seriesList.sort((prev, next) => next.id - prev.id);
+            if (prevSortType === SORT_TYPES.ID_UP) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => next[1].id - prev[1].id));
+            }
             break
         case SORT_TYPES.NAME_UP:
-            seriesList.sort((prev, next) => (prev.name < next.name) ? -1 : 1);
+            if (prevSortType === SORT_TYPES.NAME_DOWN) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].name.localeCompare(next[1].name)));
+            }
             break
         case SORT_TYPES.NAME_DOWN:
-            seriesList.sort((prev, next) => (prev.name > next.name) ? -1 : 1);
+            if (prevSortType === SORT_TYPES.NAME_UP) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => next[1].name.localeCompare(prev[1].name)));
+            }
             break;
         case SORT_TYPES.SEASON_UP:
-            seriesList.sort((prev, next) => prev.season - next.season);
+            if (prevSortType === SORT_TYPES.SEASON_DOWN) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].season - next[1].season));
+            }
             break
         case SORT_TYPES.SEASON_DOWN:
-            seriesList.sort((prev, next) => next.season - prev.season);
+            if (prevSortType === SORT_TYPES.SEASON_UP) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => next[1].season - prev[1].season));
+            }
             break;
         case SORT_TYPES.EPISODE_UP:
-            seriesList.sort((prev, next) => prev.episode - next.episode);
+            if (prevSortType === SORT_TYPES.EPISODE_DOWN) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].episode - next[1].episode));
+            }
             break
         case SORT_TYPES.EPISODE_DOWN:
-            seriesList.sort((prev, next) => next.episode - prev.episode);
+            if (prevSortType === SORT_TYPES.EPISODE_UP) {
+                reverseSort = true;
+            } else {
+                seriesList = new Map([...seriesList.entries()].sort((prev, next) => next[1].episode - prev[1].episode));
+            }
             break;
         case SORT_TYPES.DATE_UP:
-            dateSort((prev, next) => (prev.date < next.date) ? -1 : 1);
+            dateSort((prev, next) => (prev[1].date < next[1].date) ? -1 : 1);
             break
         case SORT_TYPES.DATE_DOWN:
-            dateSort((prev, next) => (prev.date > next.date) ? -1 : 1);
+            dateSort((prev, next) => (prev[1].date > next[1].date) ? -1 : 1);
             break;
         default: 
             console.log("Неизвестный тип сортировки: " + sortType);
             break;
     }
+    if (reverseSort) {
+        seriesList = new Map([...seriesList.entries()].reverse());
+    }
     sortCardList();
+}
+
+
+function getTodayDate() {
+    let today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return today;
+}
+
+
+function updateCardWarning(series, today = getTodayDate()) {
+    let classList = cardList.get(series.id).classList;
+    if (series.date !== "") {
+        if (series.date < today) {
+            classList.add("warning");
+            return;
+        }
+    } 
+    classList.remove("warning");
+}
+
+
+function updateCardListWarning() {
+    let today = getTodayDate();
+    for (let series of seriesList.values()) {
+        updateCardWarning(series, today);
+    }
+}
+
+
+function setDayTimer() {
+    let tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setTimeout(() => {
+        updateCardListWarning();
+        setInterval(() => {
+            updateCardListWarning();
+        }, 86390000);
+    }, tomorrow - new Date());
 }
