@@ -4,6 +4,9 @@ body {
     overflow-y: scroll;
 }
 
+button {
+    outline: none !important;
+}
 
 .navbar {
     background-color: #282828fd;
