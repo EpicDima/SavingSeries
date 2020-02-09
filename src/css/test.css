@@ -235,12 +235,12 @@ button {
 }
 
 .fullitem .value {
-    display: none;
+    /*display: none;*/
     word-wrap: break-word;
 }
 
 .fullitem .input {
-    /* display: none; */
+     display: none;
 }
 
 textarea {

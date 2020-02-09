@@ -1,0 +1,36 @@
+{
+  "name": "saving-series",
+  "version": "0.9.5",
+  "description": "Это программа (веб-страничка), которая используется как блокнот для записи сериалов и последней просмотренной серии, чтобы не забыть эту информацию и не записывать в отдельный текстовый файл или в обычный бумажный блокнот.",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --progress --mode development",
+    "build": "webpack --progress --mode production",
+    "watch": "webpack --mode development --watch",
+    "start": "webpack-dev-server --mode development --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EpicDima/SavingSeries.git"
+  },
+  "author": "Dima",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EpicDima/SavingSeries/issues"
+  },
+  "homepage": "https://github.com/EpicDima/SavingSeries#readme",
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.4.2",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.9.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "dependencies": {
+    "bootstrap": "^4.4.1",
+    "jquery": "^3.4.1",
+    "popper.js": "^1.16.1"
+  }
+}
