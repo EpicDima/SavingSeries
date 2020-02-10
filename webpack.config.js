@@ -6,17 +6,17 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
     mode: "development", // "production"
-    entry: "./src/js/test.js",
+    entry: "./src/js/main.js",
     output: {
         filename: "main.js",
         path: path.resolve(__dirname, "dist"),
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: "./src/html/test.html"
+            template: "./src/html/index.html"
         }),
         new MiniCssExtractPlugin({
-            filename: "[name].css"
+            filename: "style.css"
         }),
         new CleanWebpackPlugin(),
         new webpack.ProvidePlugin({

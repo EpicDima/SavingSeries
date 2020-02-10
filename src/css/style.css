@@ -59,6 +59,7 @@ button {
 
 .hlist-container {
     position: relative;
+    display: none;
 }
 
 .hlist-container > .title {
@@ -245,7 +246,6 @@ button {
 
 textarea {
     resize: none;
-
 }
 
 input, textarea, select {
