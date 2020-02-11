@@ -51,25 +51,3 @@ function onOpenFile(event) {
     };
     reader.readAsText(event.target.files[0]);
 }
-
-$("#rightButton").click(function() {
-    event.preventDefault();
-    $(".list").animate({
-        scrollLeft: "+=800"
-    }, 350);
-});
-
-$("#leftButton").click(function() {
-    event.preventDefault();
-    $(".list").animate({
-        scrollLeft: "-=800"
-    }, 350);
-});
-
-function findImageAndSave(element) {
-    let reader = new FileReader();
-    reader.onloadend = function(event) {
-        saveImage(event.target.result)
-    };
-    reader.readAsDataURL(element.files[0]); // конвертирует Blob в base64 и вызывает onload
-}

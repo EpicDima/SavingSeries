@@ -1,9 +1,11 @@
+import {getSeriesListType} from "./common";
 import FullItem from "./fullitem";
 
 export default class HorizontalContainer {
-    constructor(id, title) {
-        this.id = id;
+    constructor(id, title, relocateSeries) {
+        this.id = id; // list type
         this.title = title;
+        this.relocateSeries = relocateSeries;
         this.map = new Map();
     }
 
@@ -16,32 +18,92 @@ export default class HorizontalContainer {
                 <div class="left-icon-control" id="leftButton${this.id}"></div>
                 <div class="right-icon-control" id="rightButton${this.id}"></div>
             </div>
-            <div id="outerFullitem${this.id}" class="collapse">
-                ${this.fullitem.createHtml()}
-            </div>
+            ${this.fullitem.createHtml()}
         </div>`;
+    }
+
+    setLeftRightButtons() {
+        $(`#leftButton${this.id}`).click(function(event) {
+            event.preventDefault();
+            let list = $(`#hlcList${this.id}`);
+            list.animate({
+                scrollLeft: `-=${list.width()}` // раньше не работало
+            }, 350);
+        });
+        $(`#rightButton${this.id}`).click(function(event) {
+            event.preventDefault();
+            $(`#hlcList${this.id}`).animate({
+                scrollLeft: "+=800"
+            }, 350);
+        });
     }
 
     show() {
         $(`#horizontalContainer${this.id}`).show();
+        this.setLeftRightButtons();
     }
 
     hide() {
         $(`#horizontalContainer${this.id}`).hide();
     }
 
+    initialAddSeries(series) {
+        this.map.set(series.data.id, series);
+        this.setListenersOnSeries(series);
+    }
+
     addSeries(series) {
         this.show();
-        this.map.set(series.id, series);
+        this.map.set(series.data.id, series);
+        this.setListenersOnSeries(series);
         $(`#hlcList${this.id}`).append(series.createHtml());
     }
 
-    showFullItemIfExists(id) {
-        let t = this.map.get(id);
-        if (t === undefined) {
-            return false;
+    initialAdditionFinish() {
+        let inner = "";
+        for (let series of this.map.values()) {
+            inner += series.createHtml();
         }
-        this.fullitem.open(t);
-        return true;
+        $(`#hlcList${this.id}`).html(inner);
+        if (this.map.size > 0) {
+            this.show();
+        }
+    }
+
+    setListenersOnSeries(series) {
+        series.onUpdateListener = () => this.onSeriesUpdate(series.data.id);
+    }
+
+    removeListenersFromSeries(series) {
+        series.onUpdateListener = null;
+    }
+
+    onSeriesUpdate(id) {
+        let series = this.map.get(id);
+        let listtype = getSeriesListType(series);
+        if (listtype !== this.id) {
+            this.deleteSeries(series);
+            this.relocateSeries(series, listtype);
+        } else {
+            // можно произвести сортироку по дате в списке
+        }
+    }
+
+    deleteSeries(series) {
+        this.removeListenersFromSeries(series);
+        this.map.delete(series.data.id);
+        series.deleteHtml();
+        if (this.map.size === 0) {
+            this.hide();
+        }
+    }
+
+    showFullItemIfExists(id) {
+        let series = this.map.get(id);
+        if (series) {
+            this.fullitem.open(series);
+            return true;
+        }
+        return false;
     }
 }

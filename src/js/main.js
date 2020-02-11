@@ -6,7 +6,7 @@ import "popper.js";
 import "bootstrap";
 
 import * as constants from "./constants";
-import {scrollToTop, getTodayDate} from "./common";
+import {scrollToTop, getSeriesListType} from "./common";
 import Series from "./series";
 import HorizontalContainer from "./h-container";
 import Database from "./database";
@@ -16,20 +16,23 @@ let database = new Database();
 database.connect(initialize);
 
 const containers = new Map();
-let currentSeries = null;
+let activeContainer = null;
 
 
 function initialize() {
+
+    // database.putSeriesInDb(new Series(1, "Игра престолов", 8, 3, "", "https://kinogo.by", "", STATUS.RUN, "Так себе сезон"));
+    // database.putSeriesInDb(new Series(2, "Мастера меча онлайн", 3, 37, "", "https://amedia.online/163-mastera-mecha-onlayn-3/episode/37/seriya-onlayn.html", "", STATUS.RUN, "Ждём-с"));
+
     let inner = "";
     for (let i in constants.LIST_TYPE) {
         let k = constants.LIST_TYPE[i];
-        let container = new HorizontalContainer(k, constants.LIST_NAMES.get(k));
+        let container = new HorizontalContainer(k, constants.LIST_NAMES.get(k), relocateSeries);
         containers.set(k, container);
         inner += container.createHtml();
     }
     document.getElementsByTagName("main")[0].innerHTML = inner;
-
-    database.foreach(splitSeries, scrollToTop);
+    database.foreach(initialSplitSeries, onInitialSplitSeriesEnd);
 }
 
 function clearAll() {
@@ -37,38 +40,29 @@ function clearAll() {
 }
 
 
-
-function splitSeries(series) {
+function initialSplitSeries(series) {
     series = Series.createSeries(series);
-    let listtype;
-    if (series.status === constants.STATUS.COMPLETED) {
-        listtype = constants.LIST_TYPE.COMPLETED;
-    } else if (series.status === constants.STATUS.PAUSE) {
-        listtype = constants.LIST_TYPE.ON_PAUSE;
-    } else if (series.status === constants.STATUS.JUST_WATCH) {
-        listtype = constants.LIST_TYPE.RELEASED_LONG_AGO;
-    } else if (series.date === "") {
-        listtype = constants.LIST_TYPE.WITHOUT_DATE;
-    } else {
-        let today = getTodayDate();
-        if (series.date < today) {
-            listtype = constants.LIST_TYPE.RELEASED;
-        } else {
-            today.setDate(today.getDate() + 7);
-            if (series.date < today) {
-                listtype = constants.LIST_TYPE.RELEASED_NEXT_7_DAYS;
-            } else {
-                listtype = constants.LIST_TYPE.WITH_DATE_OTHERS;
-            }
-        }
-    }
-    containers.get(listtype).addSeries(series);
+    containers.get(getSeriesListType(series)).initialAddSeries(series);
 }
 
+function onInitialSplitSeriesEnd() {
+    for (let container of containers.values()) {
+        container.initialAdditionFinish();
+    }
+    scrollToTop();
+}
+
+function relocateSeries(series, listType) {
+    if (listType === undefined) {
+        listType = getSeriesListType(series);
+    }
+    containers.get(getSeriesListType(series)).addSeries(series);
+}
 
 window.onItemClick = function(id) {
     for (let container of containers.values()) {
         if (container.showFullItemIfExists(id)) {
+            activeContainer = container;
             return;
         }
     }

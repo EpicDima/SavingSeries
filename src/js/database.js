@@ -4,7 +4,11 @@ import {DATABASE_NAME, OBJECT_STORE_NAME} from "./constants";
 export default class Database {
 
     constructor() {
-        this.database = null;
+        const instance = this.constructor.instance;
+        if (instance) {
+            return instance;
+        }
+        this.constructor.instance = this;
     }
 
     connect(func) {
@@ -42,11 +46,11 @@ export default class Database {
     }
 
     putSeriesInDb(series) {
-        return this.getReadWriteObjectStore().put(series);
+        return this.getReadWriteObjectStore().put(series.data);
     }
 
     deleteSeriesInDb(series) {
-        return this.getReadWriteObjectStore().delete(series.id)
+        return this.getReadWriteObjectStore().delete(series.data.id)
     }
 
     foreach(func, funcOnEnd = undefined) {

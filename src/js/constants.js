@@ -5,7 +5,7 @@ export const OBJECT_STORE_NAME = "series";
 // PAUSE - выходит, но на паузе, то есть временно не смотрится
 // COMPLETED - просмотрен
 // JUST_WATCH - вышел ранее, только смотрится
-export const STATUS = {RUN: 0, PAUSE: 1, COMPLETED: 2, JUST_WATCH: 3};
+export const STATUS = {RUN: "0", PAUSE: "1", COMPLETED: "2", JUST_WATCH: "3"};
 export const STATUS_STRING = new Map();
 STATUS_STRING.set(STATUS.RUN, "Выходит");
 STATUS_STRING.set(STATUS.PAUSE, "На паузе");
@@ -29,13 +29,13 @@ export function getStatusOptionsHtml() {
 // шестой список - на паузе
 // седьмой список - просмотренные
 export const LIST_TYPE = {
-    RELEASED: 0,
-    RELEASED_LONG_AGO: 1,
-    RELEASED_NEXT_7_DAYS: 2,
-    WITH_DATE_OTHERS: 3,
-    WITHOUT_DATE: 4,
-    ON_PAUSE: 5,
-    COMPLETED: 6
+    RELEASED: 1,
+    RELEASED_LONG_AGO: 2,
+    RELEASED_NEXT_7_DAYS: 3,
+    WITH_DATE_OTHERS: 4,
+    WITHOUT_DATE: 5,
+    ON_PAUSE: 6,
+    COMPLETED: 7
 };
 
 export const LIST_NAMES = new Map();
