@@ -1,5 +1,4 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../css/style.css";
+import "../css/style.scss";
 
 import "jquery";
 import "jquery-validation";

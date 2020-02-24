@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 module.exports = {
     mode: "development", // "production"
@@ -18,6 +19,21 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "style.css"
         }),
+        new OptimizeCssAssetsPlugin({
+            assetNameRegExp: /\.optimize\.css$/g,
+            cssProcessor: require('cssnano'),
+            cssProcessorPluginOptions: {
+                preset: [
+                    'default',
+                    {
+                        discardComments: {
+                            removeAll: true
+                        }
+                    }
+                ],
+            },
+            canPrint: true
+        }),
         new CleanWebpackPlugin(),
         new webpack.ProvidePlugin({
             $: "jquery",
@@ -31,13 +47,12 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/,
+                test: /\.s[ac]ss$/i,
                 use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader
-                    },
-                    "css-loader"
-                ]
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'sass-loader'
+                ],
             }
         ]
     }
