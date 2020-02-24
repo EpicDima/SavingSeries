@@ -18,6 +18,7 @@ export default class Series {
             note: note
         };
         this.onUpdateListener = null;
+        this.onDeleteListener = null;
     }
 
     createHtml() {
@@ -31,7 +32,9 @@ export default class Series {
     }
 
     delete() {
-        // вызов какого-нибудь onDeleteListener
+        if (this.onDeleteListener !== null) {
+            this.onDeleteListener();
+        }
     }
 
     deleteHtml() {

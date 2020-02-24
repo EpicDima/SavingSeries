@@ -67,9 +67,6 @@ button {
     width: 100%;
     margin-bottom: 24px;
     background-color: #eeeeee;
-    
-    /* color: white; */
-    /* background: repeating-linear-gradient(45deg, #d3d00d, #d3d00d 45px, #212215 45px, #212215 90px); */
 }
 
 
@@ -79,7 +76,7 @@ button {
 
 
 .card > .collapse, .card > .collapsing {
-    border-top: 1px solid #ababab;
+    border-top: 1px solid rgba(0,0,0,.125);
 }
 
 

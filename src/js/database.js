@@ -20,9 +20,9 @@ export default class Database {
             this.database = request.result;
             func();
         };
-        request.onupgradeneeded = event => {
+        request.onupgradeneeded = () => {
             if (confirm("Данные будут храниться на вашем компьютере.\nВы согласны?")) {
-                event.currentTarget.result.createObjectStore(OBJECT_STORE_NAME, {keyPath: "id"});
+                request.result.createObjectStore(OBJECT_STORE_NAME, {keyPath: "id"});
                 this.connect(func);
             } else {
                 indexedDB.deleteDatabase(DATABASE_NAME);
@@ -55,13 +55,15 @@ export default class Database {
 
     foreach(func, funcOnEnd = undefined) {
         let request = this.getReadOnlyObjectStore().openCursor();
+        let id = 0;
         request.onsuccess = function () {
             let cursor = request.result;
             if (cursor) {
                 func(cursor.value);
+                id = cursor.value.id;
                 cursor.continue();
             } else if (funcOnEnd) {
-                funcOnEnd();
+                funcOnEnd(id);
             }
         }
     }

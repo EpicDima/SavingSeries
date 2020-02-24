@@ -1,5 +1,5 @@
 import {getSeriesListType} from "./common";
-import FullItem from "./fullitem";
+import {FullItem} from "./fullitem";
 
 export default class HorizontalContainer {
     constructor(id, title, relocateSeries) {
@@ -22,25 +22,26 @@ export default class HorizontalContainer {
         </div>`;
     }
 
-    setLeftRightButtons() {
-        $(`#leftButton${this.id}`).click(function(event) {
+    setLeftRightButtons(id) {
+        $(`#leftButton${id}`).click(function(event) {
             event.preventDefault();
-            let list = $(`#hlcList${this.id}`);
+            let list = $(`#hlcList${id}`);
             list.animate({
-                scrollLeft: `-=${list.width()}` // раньше не работало
-            }, 350);
+                scrollLeft: `-=${list.width() * 0.95}`
+            }, 300);
         });
-        $(`#rightButton${this.id}`).click(function(event) {
+        $(`#rightButton${id}`).click(function(event) {
             event.preventDefault();
-            $(`#hlcList${this.id}`).animate({
-                scrollLeft: "+=800"
-            }, 350);
+            let list = $(`#hlcList${id}`);
+            list.animate({
+                scrollLeft: `+=${list.width() * 0.95}`
+            }, 300);
         });
     }
 
     show() {
         $(`#horizontalContainer${this.id}`).show();
-        this.setLeftRightButtons();
+        this.setLeftRightButtons(this.id);
     }
 
     hide() {
@@ -72,10 +73,12 @@ export default class HorizontalContainer {
 
     setListenersOnSeries(series) {
         series.onUpdateListener = () => this.onSeriesUpdate(series.data.id);
+        series.onDeleteListener = () => this.deleteSeries(series);
     }
 
     removeListenersFromSeries(series) {
         series.onUpdateListener = null;
+        series.onDeleteListener = null;
     }
 
     onSeriesUpdate(id) {

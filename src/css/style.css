@@ -1,5 +1,5 @@
 body {
-    padding-top: 4.5rem;
+    padding-top: 3.5rem;
     background-color: #141414;
     overflow-y: scroll;
 }
@@ -60,12 +60,13 @@ button {
 .hlist-container {
     position: relative;
     display: none;
+    margin-bottom: 1rem;
 }
 
 .hlist-container > .title {
     width: max-content;
     position: relative;
-    font-size: 2rem;
+    font-size: 1.4rem;
     color: white;
     left: 1rem;
 }
@@ -123,12 +124,15 @@ button {
 .item {
     position: relative;
     display: block;
-    width: 320px;
-    height: 220px;
+    min-width: 210px;
+    min-height: 118px;
+    width: calc(100vw / 4);
+    height: calc(0.5625 * 100vw / 4);
+    max-width: 315px;
+    max-height: 177px;
     cursor: pointer;
     border-radius: 10px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin: 0 1rem;
     background-color: rgb(0, 0, 0.6);
 }
 
@@ -158,7 +162,7 @@ button {
     left: 2%;
     right: 2%;
     color: white;
-    font-size: large;
+    font-size: 1.25rem;
     text-overflow: ellipsis;
     overflow: hidden;
 }
@@ -170,7 +174,7 @@ button {
 .fullitem {
     position: relative;
     width: 100%;
-    height: 600px;
+    height: 500px;
     background-color: black;
 }
 
@@ -187,15 +191,15 @@ button {
     text-shadow: none;
 }
 
-.fullitem > .name {
+.fullitem > .name-title {
     position: absolute;
     width: 60%;
     top: 0;
     left: 0;
     margin-left: 2%;
     margin-top: 1%;
-    font-size: 2rem;
-    max-height: 9rem;
+    font-size: 1.7rem;
+    max-height: 7rem;
     color: white;
     overflow: hidden;
     word-wrap: break-word;
@@ -239,7 +243,28 @@ button {
 }
 
 .fullitem .input {
-     display: none;
+    /*display: none;*/
+}
+
+.fullitem-input {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.2rem;
+}
+
+.fullitem .input > input:focus {
+    /*box-shadow: 0 0 1px 1px white;*/
+}
+
+.fullitem-input:invalid, .fullitem-input.error {
+    border: 1px solid red;
+    color: red;
+}
+
+.fullitem-input:focus:invalid {
+    /*box-shadow: 0 0 1px 1px red;*/
 }
 
 textarea {
@@ -260,4 +285,14 @@ input, textarea, select {
     margin-left: 2%;
 }
 
+.invalid-tooltip {
+    background-color: #f22d;
+}
 
+.fullitem-input.error ~ .invalid-tooltip {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}

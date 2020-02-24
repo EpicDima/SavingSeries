@@ -1,11 +1,21 @@
 import * as constants from "./constants";
 
-export function dateToLocaleString(date) {
-    return date === "" ? "" : date.toLocaleDateString("ru", {year: "numeric", month: "long", day: "numeric"});
+export function dateToLocaleString(series) {
+    if (series) {
+        if (series.data.date) {
+            return series.data.date.toLocaleDateString("ru", {year: "numeric", month: "long", day: "numeric"});
+        }
+    }
+    return "";
 }
 
-export function dateObjectToInputString(date) {
-    return date === "" ? "" : date.toISOString().split("T")[0];
+export function dateObjectToInputString(series) {
+    if (series) {
+        if (series.data.date) {
+            return series.data.date.toISOString().split("T")[0];
+        }
+    }
+    return "";
 }
 
 export function dateInputStringToObject(date) {
@@ -14,7 +24,7 @@ export function dateInputStringToObject(date) {
 
 export function createLinkElement(site) {
     return `<a href="${site}" target="_blank" onclick="e.stopPropagation();">
-            ${siteToShortLink(site)}
+        ${siteToShortLink(site)}
     </a>`;
 }
 
