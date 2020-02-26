@@ -48,6 +48,10 @@ export default class HorizontalContainer {
         $(`#horizontalContainer${this.id}`).hide();
     }
 
+    remove() {
+        $(`#horizontalContainer${this.id}`).remove();
+    }
+
     initialAddSeries(series) {
         this.map.set(series.data.id, series);
         this.setListenersOnSeries(series);

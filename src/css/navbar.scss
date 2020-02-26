@@ -25,24 +25,49 @@
             font-family: "Segoe UI", serif;
         }
 
-        > .search {
-            color: #dddddd;
-            background-color: #121212;
-            border: 1px solid #393939;
-            border-radius: 0.3rem;
-            line-height: 1.4rem;
-            padding: 0.2rem 0.5rem;
+        &.search-container {
+            width: 30rem;
+            margin: auto 3rem;
 
-            &:focus {
-                border-color: #fff;
-                box-shadow: 0 0;
+            > .search {
+                color: #eee;
+                background-color: #121212;
+                border: 1px solid #393939;
+                border-radius: 0.3rem;
+                line-height: 1.4rem;
+                padding: 0.2rem 0.5rem;
+
+                &:focus {
+                    border-color: #fff;
+                    box-shadow: 0 0;
+
+                    ~ .search-list {
+                        display: block !important;
+                    }
+                }
+            }
+
+            > .search-list {
+                position: fixed;
+                display: none;
+                width: 30rem;
+                max-height: 20rem;
+                top: 3.5rem;
+                box-sizing: border-box;
+                overflow-y: auto;
+                background-color: #282828;
+
+                > .search-item {
+                    overflow: hidden;
+                    padding: 0.5rem 0.5rem;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #3e3e3e;
+                    }
+                }
             }
         }
-    }
-
-    > .search-item {
-        width: 40%;
-        margin: auto 3rem;
     }
 
     ul {

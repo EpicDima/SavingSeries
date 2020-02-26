@@ -7,8 +7,8 @@
 
     > .outer-close {
         position: absolute;
-        right: 0.2rem;
-        top: 0;
+        right: 0.4rem;
+        top: 0.2rem;
         z-index: 5;
         color: #555;
 
@@ -20,6 +20,7 @@
             text-shadow: none;
             cursor: pointer;
             font-size: 1.8rem;
+            user-select: none;
         }
     }
 
@@ -32,7 +33,6 @@
             background-size: auto 100%;
             background-position: right;
             background-repeat: no-repeat;
-            //background-image: url("https://i6.imageban.ru/out/2017/06/22/ce3aad0cd91a2ba0f213cbaeaa450343.jpg");
         }
 
         > .gradient {
@@ -96,6 +96,7 @@
                     > .label {
                         min-width: 8rem;
                         padding: 0.5rem 0;
+                        user-select: none;
                     }
                     > .value {
                         word-wrap: break-word;
@@ -130,9 +131,10 @@
                         background-color: transparent;
                         color: white;
                         border: 1px solid #fff5;
-                        padding: 0.35rem;
+                        padding: 0.4rem 2rem;
                         border-radius: 0.3rem;
                         cursor: pointer;
+                        user-select: none;
 
                         &:hover {
                             background-color: #fff3;

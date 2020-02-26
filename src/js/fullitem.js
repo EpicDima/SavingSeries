@@ -1,4 +1,4 @@
-import {getStatusOptionsHtml, STATUS, STATUS_STRING} from "./constants";
+import {getStatusOptionsHtml, STATUS} from "./constants";
 import {dateToLocaleString, dateInputStringToObject, dateObjectToInputString, createLinkElement, getSeriesListType} from "./common";
 import Database from "./database";
 import Series from "./series";
@@ -106,9 +106,6 @@ export class BaseFullItem {
         if (this.needTop) {
             return `<div class="top">
                 <div id="nameTitle${this.id}" class="name-title">Игра престолов</div>
-                <div class="status">
-                    <div id="statusValue${this.id}" class="value">Выходит</div>
-                </div>
             </div>`;
         }
         return "";
@@ -152,7 +149,6 @@ export class BaseFullItem {
                 },
                 status: {
                     div: $(`#statusRow${this.id}`),
-                    value: $(`#statusValue${this.id}`),
                     input: $(`#statusRow${this.id} select`)
                 },
                 note: {
@@ -182,6 +178,10 @@ export class BaseFullItem {
 
     close() {
         $(`#fullitem${this.id}`).slideUp("fast");
+    }
+
+    remove() {
+        $(`#fullitem${this.id}`).remove();
     }
 
     setListeners() {
@@ -268,7 +268,6 @@ export class BaseFullItem {
         this.fields.date.value.html(dateToLocaleString(series));
         this.fields.site.value.html(createLinkElement(series.data.site));
         this.fields.image.value.css("background-image", `url("${series ? series.data.image : ""}")`);
-        this.fields.status.value.html(`[${STATUS_STRING.get(series ? series.data.status : STATUS.RUN)}]`);
         this.fields.note.value.html(series ? series.data.note : "");
     }
 
