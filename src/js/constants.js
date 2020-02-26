@@ -10,7 +10,7 @@ export const STATUS_STRING = new Map();
 STATUS_STRING.set(STATUS.RUN, "Выходит");
 STATUS_STRING.set(STATUS.PAUSE, "На паузе");
 STATUS_STRING.set(STATUS.COMPLETED, "Просмотрен");
-STATUS_STRING.set(STATUS.JUST_WATCH, "Просматривается, но уже вышел");
+STATUS_STRING.set(STATUS.JUST_WATCH, "Завершился");
 
 export function getStatusOptionsHtml() {
     let s = "";

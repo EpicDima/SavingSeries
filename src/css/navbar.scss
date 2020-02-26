@@ -1,0 +1,101 @@
+.navbar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    z-index: 1000;
+    width: 100%;
+    height: 3.5rem;
+    box-sizing: border-box;
+    top: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-family: "Segoe UI", Roboto, serif;
+    user-select: none;
+    background-color: #282828fd;
+
+    > .nav-item {
+        margin-bottom: auto;
+        margin-top: auto;
+        color: #fff;
+
+        > .logo {
+            font-size: 1.3rem;
+            text-decoration: none;
+            color: #fff;
+            font-family: "Segoe UI", serif;
+        }
+
+        > .search {
+            color: #dddddd;
+            background-color: #121212;
+            border: 1px solid #393939;
+            border-radius: 0.3rem;
+            line-height: 1.4rem;
+            padding: 0.2rem 0.5rem;
+
+            &:focus {
+                border-color: #fff;
+                box-shadow: 0 0;
+            }
+        }
+    }
+
+    > .search-item {
+        width: 40%;
+        margin: auto 3rem;
+    }
+
+    ul {
+        display: flex;
+        list-style: none;
+
+        > li {
+            position: relative;
+
+            > div {
+                cursor: pointer;
+                padding: 0 0.5rem;
+
+                &:hover {
+                    color: #fffb;
+                }
+            }
+
+            &:hover {
+                .submenu {
+                    display: block;
+                }
+            }
+
+            .submenu {
+                position: absolute;
+                z-index: 1000;
+                display: none;
+                background-color: #282828;
+                right: 0.1rem;
+                left: auto;
+                top: 100%;
+                min-width: 10rem;
+                border-radius: 0.3rem;
+                border: 1px solid #000b;
+                padding: 0.5rem 0;
+                color: white;
+                clear: both;
+
+                &:hover {
+                    display: block;
+                    color: white;
+                }
+
+                > div {
+                    padding: 0.25rem 1.5rem;
+                    white-space: nowrap;
+
+                    &:hover {
+                        background-color: #3e3e3e;
+                    }
+                }
+            }
+        }
+    }
+}

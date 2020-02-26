@@ -1,0 +1,37 @@
+body {
+    padding-top: 3.5rem;
+    background-color: #141414;
+    overflow-y: scroll;
+    font-family: Roboto, "Segoe UI", serif;
+}
+
+body, main, header, nav {
+    min-width: 960px;
+}
+
+button, a {
+    outline: none !important;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+
+    &:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+}
+
+textarea {
+    resize: none;
+}
+
+input, textarea, select {
+    width: 100%;
+    outline: none !important;
+}
+
+.hidden {
+    display: none !important;
+}

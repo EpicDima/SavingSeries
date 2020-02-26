@@ -23,20 +23,20 @@ export default class HorizontalContainer {
     }
 
     setLeftRightButtons(id) {
-        $(`#leftButton${id}`).click(function(event) {
+        $(`#leftButton${id}`)[0].onclick = (event) => {
             event.preventDefault();
             let list = $(`#hlcList${id}`);
             list.animate({
                 scrollLeft: `-=${list.width() * 0.95}`
             }, 300);
-        });
-        $(`#rightButton${id}`).click(function(event) {
+        };
+        $(`#rightButton${id}`)[0].onclick = (event) => {
             event.preventDefault();
             let list = $(`#hlcList${id}`);
             list.animate({
                 scrollLeft: `+=${list.width() * 0.95}`
             }, 300);
-        });
+        };
     }
 
     show() {

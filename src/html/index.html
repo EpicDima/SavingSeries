@@ -7,40 +7,37 @@
     <title>Test</title>
 </head>
 <body>
-    
+
     <header>
-        <nav class="navbar navbar-dark navbar-expand-xl justify-content-center fixed-top">
-            <div class="d-flex w-50 mr-auto">
-                <a class="navbar-brand" href>SavingSeries</a>
+        <nav class="navbar">
+            <div class="nav-item">
+                <a class="logo" href="">
+                    SavingSeries
+                </a>
             </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse w-100" id="collapsingNavbar">
-                <ul class="navbar-nav w-100 justify-content-center">
-                    <form class="form-inline w-100">
-                        <input class="form-control w-100" id="search" type="search" placeholder="Поиск" aria-label="Поиск" oninput="searchSeries()">
-                    </form>
-                </ul>
-                <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
-                    <li class="nav-item">
-                        <div class="nav-link" data-toggle="modal" data-target="#addModal" onclick="openAddingElement()">Добавление</div>
+            <div class="nav-item search-item">
+                <input class="search" type="search" placeholder="Поиск" aria-label="Поиск" oninput="searchSeries()">
+            </div>
+            <div class="nav-item">
+                <ul class="">
+                    <li>
+                        <div onclick="openAddingElement()">Добавление</div>
                     </li>
-                    <li class="nav-item dropdown">
-                        <div class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="100,200">
+                    <li>
+                        <div>
                             Настройки
                         </div>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-item" onclick="createBackup()">Создать Backup</div>
-                            <div class="dropdown-item" onclick="loadBackup()">Загрузить Backup</div>
+                        <div class="submenu">
+                            <div onclick="createBackup()">Создать Backup</div>
+                            <div onclick="loadBackup()">Загрузить Backup</div>
                         </div>
                     </li>
-                </ul>
+               </ul>
             </div>
         </nav>
     </header>
 
-    <main id="main"></main>
+    <main></main>
 
 </body>
 </html>

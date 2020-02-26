@@ -5,92 +5,113 @@ import Series from "./series";
 
 
 export class BaseFullItem {
-    constructor(id, needName = true) {
+    constructor(id, needTop = true) {
         this.id = id;
-        this.needName = needName;
+        this.needTop = needTop;
         this.fields = null;
         this.buttons = null;
         this.database = new Database();
     }
 
     createHtml() {
-        return `<div id="fullitem${this.id}" class="collapse">
-            <div class="fullitem">
-                <div id="closeButton${this.id}" class="fullitem-close">
-                    <button type="button" class="close" aria-label="Close">
-                        <span aria-hidden="true">&#10006;</span>
-                    </button>
-                </div>
+        return `<div id="fullitem${this.id}" class="fullitem">
+            <div id="closeButton${this.id}" class="outer-close">
+                <span class="close">&#10006;</span>
+            </div>
+            <div class="background">
                 <div id="imageValue${this.id}" class="image"></div>
                 <div class="gradient"></div>
-                ${this.needName ? `<div id="name${this.id}" class="name-title"></div>` : ""}
-                <div class="content">
-                    <form onsubmit="return false;">
+            </div>
+            <div class="content">
+                ${this.getTop()}
+                <div class="general">
+                    <form class="input-container" onsubmit="return false;">
                         ${this.getInputsHtml()}
-                        <div id="season${this.id}" class="row">
-                            <div class="col-3 label">Сезон</div>
-                            <div class="col-8 value"></div>
-                            <div class="col-5 input">
-                                <input class="fullitem-input" name="season" type="number" value="1" min="1" max="50" required/>
+                        <div id="statusRow${this.id}" class="row on-edit">
+                            <div class="label">Статус</div>
+                            ${this.needTop ? "" : `<div id="statusValue${this.id}" class="value"></div>`}
+                            <div class="input">
+                                <label>
+                                    <select class="fullitem-input" name="status">
+                                        ${getStatusOptionsHtml()}
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="seasonRow${this.id}" class="row">
+                            <div class="label">Сезон</div>
+                            <div class="value not-on-edit"></div>
+                            <div class="input on-edit">
+                                <input id="season${this.id}" class="fullitem-input" name="season" type="number" value="1" min="1" max="50" required/>
                                 <div class="invalid-tooltip">
-                                    <label class="error" for="season"></label>
+                                    <label class="error" for="season${this.id}"></label>
                                 </div>
                             </div>
                         </div>
-                        <div id="episode${this.id}" class="row">
-                            <div class="col-3 label">Серия</div>
-                            <div class="col-8 value"></div>
-                            <div class="col-5 input">
-                                <input class="fullitem-input" name="episode" type="number" value="1" min="1" max="50000" required/>
-                            </div>
-                        </div>
-                        <div id="date${this.id}" class="row">
-                            <div class="col-3 label">Дата</div>
-                            <div class="col-8 value"></div>
-                            <div class="col-5 input">
-                                <input class="fullitem-input" name="date" type="date"/>
+                        <div id="episodeRow${this.id}" class="row">
+                            <div class="label">Серия</div>
+                            <div class="value not-on-edit"></div>
+                            <div class="input on-edit">
+                                <input id="episode${this.id}" class="fullitem-input" name="episode" type="number" value="1" min="1" max="50000" required/>
                                 <div class="invalid-tooltip">
-                                    <label class="error" for="date"></label>
+                                    <label class="error" for="episode${this.id}"></label>
                                 </div>
                             </div>
                         </div>
-                        <div id="site${this.id}" class="row">
-                            <div class="col-3 label">Сайт</div>
-                            <div class="col-8 value"></div>
-                            <div class="col-5 input">
-                                <input class="fullitem-input" name="site" type="url" required/>
+                        <div id="dateRow${this.id}" class="row">
+                            <div class="label">Дата</div>
+                            <div class="value not-on-edit"></div>
+                            <div class="input on-edit">
+                                <input id="date${this.id}" class="fullitem-input" name="date" type="date"/>
                                 <div class="invalid-tooltip">
-                                    <label class="error" for="site"></label>
+                                    <label class="error" for="date${this.id}"></label>
                                 </div>
                             </div>
                         </div>
-                        <div id="image${this.id}" class="row">
-                            <div class="col-3 label">Изображение</div>
-                            <div class="col-5 input">
+                        <div id="siteRow${this.id}" class="row">
+                            <div class="label">Сайт</div>
+                            <div class="value not-on-edit"></div>
+                            <div class="input on-edit">
+                                <input id="site${this.id}" class="fullitem-input" name="site" type="url" required/>
+                                <div class="invalid-tooltip">
+                                    <label class="error" for="site${this.id}"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="imageRow${this.id}" class="row on-edit">
+                            <div class="label">Изображение</div>
+                            <div class="input">
                                 <input class="fullitem-input" name="image" type="file" accept="image/*"/>
                             </div>
                         </div>
-                        <div id="status${this.id}" class="row">
-                            <div class="col-3 label">Статус</div>
-                            <div class="col-8 value"></div>
-                            <div class="col-5 input">
-                                <select class="fullitem-input" name="status">${getStatusOptionsHtml()}</select>
-                            </div>
-                        </div>
-                        <div id="note${this.id}" class="row">
-                            <div class="col-3 label">Заметки</div>
-                            <div class="col-8 value"></div>
-                            <div class="col-5 input">
-                                <textarea class="fullitem-input" name="note" rows="2" maxlength="200"></textarea>
+                        <div id="noteRow${this.id}" class="row">
+                            <div class="label">Заметки</div>
+                            <div class="value not-on-edit"></div>
+                            <div class="input on-edit">
+                                <label>
+                                    <textarea class="fullitem-input" name="note" rows="2" maxlength="200"></textarea>
+                                </label>
                             </div>
                         </div>
                     </form>
-                </div>
-                <div class="button-container row">
-                    ${this.getButtonContainerInnerHtml()}
+                    <div class="row button-container">
+                        ${this.getButtonContainerInnerHtml()}
+                    </div>
                 </div>
             </div>
         </div>`;
+    }
+
+    getTop() {
+        if (this.needTop) {
+            return `<div class="top">
+                <div id="nameTitle${this.id}" class="name-title">Игра престолов</div>
+                <div class="status">
+                    <div id="statusValue${this.id}" class="value">Выходит</div>
+                </div>
+            </div>`;
+        }
+        return "";
     }
 
     getInputsHtml() {
@@ -105,39 +126,39 @@ export class BaseFullItem {
         if (this.fields === null) {
             this.fields = {
                 season: {
-                    div: $(`#season${this.id}`),
-                    value: $(`#season${this.id} .value`),
-                    input: $(`#season${this.id} input`)
+                    div: $(`#seasonRow${this.id}`),
+                    value: $(`#seasonRow${this.id} .value`),
+                    input: $(`#seasonRow${this.id} input`)
                 },
                 episode: {
-                    div: $(`#episode${this.id}`),
-                    value: $(`#episode${this.id} .value`),
-                    input: $(`#episode${this.id} input`)
+                    div: $(`#episodeRow${this.id}`),
+                    value: $(`#episodeRow${this.id} .value`),
+                    input: $(`#episodeRow${this.id} input`)
                 },
                 date: {
-                    div: $(`#date${this.id}`),
-                    value: $(`#date${this.id} .value`),
-                    input: $(`#date${this.id} input`)
+                    div: $(`#dateRow${this.id}`),
+                    value: $(`#dateRow${this.id} .value`),
+                    input: $(`#dateRow${this.id} input`)
                 },
                 site: {
-                    div: $(`#site${this.id}`),
-                    value: $(`#site${this.id} .value`),
-                    input: $(`#site${this.id} input`)
+                    div: $(`#siteRow${this.id}`),
+                    value: $(`#siteRow${this.id} .value`),
+                    input: $(`#siteRow${this.id} input`)
                 },
                 image: {
-                    div: $(`#image${this.id}`),
+                    div: $(`#imageRow${this.id}`),
                     value: $(`#imageValue${this.id}`),
-                    input: $(`#image${this.id} input`)
+                    input: $(`#imageRow${this.id} input`)
                 },
                 status: {
-                    div: $(`#status${this.id}`),
-                    value: $(`#status${this.id} .value`),
-                    input: $(`#status${this.id} select`)
+                    div: $(`#statusRow${this.id}`),
+                    value: $(`#statusValue${this.id}`),
+                    input: $(`#statusRow${this.id} select`)
                 },
                 note: {
-                    div: $(`#note${this.id}`),
-                    value: $(`#note${this.id} .value`),
-                    input: $(`#note${this.id} textarea`)
+                    div: $(`#noteRow${this.id}`),
+                    value: $(`#noteRow${this.id} .value`),
+                    input: $(`#noteRow${this.id} textarea`)
                 }
             };
         }
@@ -145,27 +166,28 @@ export class BaseFullItem {
     }
 
     open() {
-        $(`.collapse:not(#fullitem${this.id})`).collapse("hide");
+        $(`.fullitem:not(#fullitem${this.id})`).slideUp("fast");
         $(`#fullitem${this.id} form`).validate().resetForm();
         $(`#fullitem${this.id} input`).removeClass("error");
-        this.showInputs(false);
+
         this.getButtons();
         this.getFields();
         this.setListeners();
-        this.onChangeStatus();
+
         let element = $(`#fullitem${this.id}`);
-        element.on("shown.bs.collapse", () => element[0].scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"}));
-        element.collapse("show");
+        element.slideDown("fast", () => {
+            element[0].scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
+        });
     }
 
     close() {
-        $(`#fullitem${this.id}`).collapse("hide");
+        $(`#fullitem${this.id}`).slideUp("fast");
     }
 
     setListeners() {
-        this.buttons.close.button.click(() => this.close());
-        this.fields.image.input.change(() => this.changeImage());
-        this.fields.status.input.change(() => this.onChangeStatus());
+        this.buttons.close.button[0].onclick = () => this.close();
+        this.fields.image.input[0].onchange = () => this.changeImage();
+        this.fields.status.input[0].onchange = () => this.onChangeStatus();
     }
 
     changeImage() {
@@ -215,15 +237,15 @@ export class BaseFullItem {
         }
     }
 
-    showInputs(show) {
-        let valueElements = $(`#fullitem${this.id} .value`);
-        let inputElements = $(`#fullitem${this.id} .input`);
+    showEditFields(show) {
+        let onEditElements = $(`#fullitem${this.id} .on-edit`);
+        let notOnEditElements = $(`#fullitem${this.id} .not-on-edit`);
         if (show) {
-            valueElements.addClass("hidden");
-            inputElements.removeClass("hidden");
+            onEditElements.removeClass("hidden");
+            notOnEditElements.addClass("hidden");
         } else {
-            valueElements.removeClass("hidden");
-            inputElements.addClass("hidden");
+            onEditElements.addClass("hidden");
+            notOnEditElements.removeClass("hidden");
         }
     }
 
@@ -232,7 +254,7 @@ export class BaseFullItem {
             this.buttons = {
                 close: {
                     div: $(`#closeButton${this.id}`),
-                    button: $(`#closeButton${this.id} button`)
+                    button: $(`#closeButton${this.id} span`)
                 }
             }
         }
@@ -246,7 +268,7 @@ export class BaseFullItem {
         this.fields.date.value.html(dateToLocaleString(series));
         this.fields.site.value.html(createLinkElement(series.data.site));
         this.fields.image.value.css("background-image", `url("${series ? series.data.image : ""}")`);
-        this.fields.status.value.html(STATUS_STRING.get(series ? series.data.status : STATUS.RUN));
+        this.fields.status.value.html(`[${STATUS_STRING.get(series ? series.data.status : STATUS.RUN)}]`);
         this.fields.note.value.html(series ? series.data.note : "");
     }
 
@@ -266,6 +288,7 @@ export class BaseFullItem {
         this.fields.date.input.val("");
         this.fields.site.input.val("");
         this.fields.image.input.val("");
+        this.fields.image.value.css("background-image", "");
         this.fields.status.input.val(STATUS.RUN);
         this.fields.note.input.val("");
     }
@@ -291,6 +314,21 @@ export class BaseFullItem {
             || !this.fields.image.input.valid() || !this.fields.status.input.valid()
             || !this.fields.note.input.valid());
     }
+
+    getValuesFromInputs() {
+        if (!this.checkInputs()) {
+            return;
+        }
+        let season = this.fields.season.input.val();
+        let episode = this.fields.episode.input.val();
+        let date = dateInputStringToObject(this.fields.date.input.val());
+        let site = this.fields.site.input.val();
+        let backgroundImage = this.fields.image.value.css("background-image");
+        let status = this.fields.status.input.val();
+        let note = this.fields.note.input.val();
+        return {season: season, episode: episode, date: date, site: site,
+                backgroundImage: backgroundImage, status: status, note: note};
+    }
 }
 
 
@@ -300,17 +338,17 @@ export class FullItem extends BaseFullItem {
     }
 
     getButtonContainerInnerHtml() {
-        return `<div id="changeButton${this.id}" class="col-3 change-button"><button>Редактировать</button></div>
-            <div id="cancelButton${this.id}" class="col-3 cancel-button"><button>Отмена</button></div>
-            <div id="acceptButton${this.id}" class="col-5 accept-button"><button>Подтвердить</button></div>
-            <div id="deleteButton${this.id}" class="col-3 delete-button"><button>Удалить</button></div>`;
+        return `<div id="changeButton${this.id}" class="change-button not-on-edit"><button>Редактировать</button></div>
+                <div id="cancelButton${this.id}" class="cancel-button on-edit"><button>Отмена</button></div>
+                <div id="acceptButton${this.id}" class="accept-button on-edit"><button>Подтвердить</button></div>
+                <div id="deleteButton${this.id}" class="delete-button on-edit"><button>Удалить</button></div>`;
     }
 
     getFields() {
         if (this.fields === null) {
             super.getFields();
             this.fields.name = {
-                value: $(`#name${this.id}`)
+                value: $(`#nameTitle${this.id}`)
             };
         }
         return this.fields;
@@ -341,24 +379,17 @@ export class FullItem extends BaseFullItem {
 
     setListeners() {
         super.setListeners();
-        this.buttons.change.button.click(() => this.change());
-        this.buttons.cancel.button.click(() => this.cancel());
-        this.buttons.accept.button.click(() => this.accept());
-        this.buttons.delete.button.click(() => this.delete());
+        this.buttons.change.button[0].onclick = () => this.change();
+        this.buttons.cancel.button[0].onclick = () => this.cancel();
+        this.buttons.accept.button[0].onclick = () => this.accept();
+        this.buttons.delete.button[0].onclick = () => this.delete();
     }
 
     showAllFields() {
-        this.fields.season.div.removeClass("hidden");
-        this.fields.episode.div.removeClass("hidden");
-        this.fields.date.div.removeClass("hidden");
-        this.fields.site.div.removeClass("hidden");
-        this.fields.image.div.removeClass("hidden");
-        this.fields.status.div.removeClass("hidden");
-        this.fields.note.div.removeClass("hidden");
+        $(`#fullitem${this.id} .input-container > div`).removeClass("hidden");
     }
 
     hideEmptyFields() {
-        this.fields.image.div.addClass("hidden");
         if (this.series.data.date === "") {
             this.fields.date.div.addClass("hidden");
         }
@@ -367,25 +398,27 @@ export class FullItem extends BaseFullItem {
         }
     }
 
-    open(series) {
-        // if (this.series) {
-        //     if (this.series.data.id === series.data.id) {
-        //         this.close();
-        //         return;
-        //     }
-        // }
+    needToOpen(series) {
+        let display = $(`#fullitem${this.id}`).css("display");
+        return !(display !== "none" && this.series && this.series.data.id === series.data.id);
+    }
 
-        super.open();
-        this.setSeries(series);
-        this.showButtonChange();
-        this.showAllFields();
-        this.onChangeStatus();
-        this.hideEmptyFields();
+    open(series) {
+        if (this.needToOpen(series)) {
+            super.open();
+            this.setSeries(series);
+            this.showAllFields();
+            this.showEditFields(false);
+            this.onChangeStatus();
+            this.hideEmptyFields();
+        }
     }
 
     close() {
         this.series = null;
         super.close();
+        $(`#horizontalContainer${this.id} > .outer-list`)[0].scrollIntoView({behavior: "smooth",
+                                                                             block: "center", inline: "nearest"});
     }
 
     setSeries(series) {
@@ -394,44 +427,30 @@ export class FullItem extends BaseFullItem {
         this.setInputValues(series);
     }
 
-    showButtonChange() {
-        this.buttons.change.div.removeClass("hidden");
-        this.buttons.cancel.div.addClass("hidden");
-        this.buttons.accept.div.addClass("hidden");
-        this.buttons.delete.div.addClass("hidden");
-    }
-
     change() {
-        this.showInputs(true);
         this.showAllFields();
-        this.buttons.change.div.addClass("hidden");
-        this.buttons.cancel.div.removeClass("hidden");
-        this.buttons.accept.div.removeClass("hidden");
-        this.buttons.delete.div.removeClass("hidden");
+        this.showEditFields(true);
     }
 
     cancel() {
-        this.showInputs(false);
-        this.showButtonChange();
         this.fields.image.value.css("background-image", `url("${this.series.data.image}")`);
         this.setInputValues(this.series);
+        this.showAllFields();
+        this.showEditFields(false);
         this.onChangeStatus();
         this.hideEmptyFields();
     }
 
     accept() {
-        if (!this.checkInputs()) {
+        let data = this.getValuesFromInputs();
+        if (data === null) {
             return;
         }
-        let season = this.fields.season.input.val();
-        let episode = this.fields.episode.input.val();
-        let date = dateInputStringToObject(this.fields.date.input.val());
-        let site = this.fields.site.input.val();
-        let backgroundImage = this.fields.image.value.css("background-image");
-        let image = backgroundImage.length > 5 ? backgroundImage.slice(4, -1).replace(/"/g, "") : this.series.data.image;
-        let status = this.fields.status.input.val();
-        let note = this.fields.note.input.val();
-        let changed = this.series.update(season, episode, date, site, image, status, note);
+        let image = data.backgroundImage.length > 5
+                  ? data.backgroundImage.slice(4, -1).replace(/"/g, "")
+                  : this.series.data.image;
+        let changed = this.series.update(data.season, data.episode, data.date,
+                                         data.site, image, data.status, data.note);
         this.database.putSeriesInDb(this.series);
 
         if (changed) {
@@ -442,8 +461,9 @@ export class FullItem extends BaseFullItem {
         }
 
         this.setDisplayValues(this.series);
-        this.showInputs(false);
-        this.showButtonChange();
+        this.showAllFields();
+        this.showEditFields(false);
+        this.hideEmptyFields();
     }
 
     delete() {
@@ -464,20 +484,19 @@ export class AddingFullItem extends BaseFullItem {
     }
 
     getInputsHtml() {
-        return `<div id="name${this.id}" class="row">
-            <div class="col-3 label">Название</div>
-            <div class="col-8 value"></div>
-            <div class="col-5 input">
-                <input class="fullitem-input" name="name" type="text" minlength="1" maxlength="100" required/>
+        return `<div id="nameRow${this.id}" class="row on-edit">
+            <div class="label">Название</div>
+            <div class="input">
+                <input id="name${this.id}" class="fullitem-input" name="name" type="text" minlength="1" maxlength="100" required/>
                 <div class="invalid-tooltip">
-                    <label class="error" for="name"></label>
+                    <label class="error" for="name${this.id}"></label>
                 </div>
             </div>
         </div>`;
     }
 
     getButtonContainerInnerHtml() {
-        return `<div id="addButton${this.id}" class="col-3 add-button"><button>Добавить</button></div>`;
+        return `<div id="addButton${this.id}" class="add-button on-edit"><button>Добавить</button></div>`;
     }
 
     setSeriesId(seriesId) {
@@ -488,8 +507,7 @@ export class AddingFullItem extends BaseFullItem {
         if (this.fields === null) {
             super.getFields();
             this.fields.name = {
-                value: $(`#name${this.id} .value`),
-                input: $(`#name${this.id} input`)
+                input: $(`#nameRow${this.id} input`)
             };
         }
         return this.fields;
@@ -508,7 +526,7 @@ export class AddingFullItem extends BaseFullItem {
 
     setListeners() {
         super.setListeners();
-        this.buttons.add.button.click(() => this.add());
+        this.buttons.add.button[0].onclick = () => this.add();
     }
 
     resetInputValues() {
@@ -517,9 +535,11 @@ export class AddingFullItem extends BaseFullItem {
     }
 
     open() {
-        super.open();
-        this.resetInputValues();
-        this.showInputs(true);
+        if ($(`#fullitem${this.id}`).css("display") === "none") {
+            super.open();
+            this.resetInputValues();
+            this.showEditFields(true);
+        }
     }
 
     checkInputs() {
@@ -530,20 +550,16 @@ export class AddingFullItem extends BaseFullItem {
     }
 
     add() {
-        if (!this.checkInputs()) {
+        let data = this.getValuesFromInputs();
+        if (data === null) {
             return;
         }
         let name = this.fields.name.input.val();
-        let season = this.fields.season.input.val();
-        let episode = this.fields.episode.input.val();
-        let date = dateInputStringToObject(this.fields.date.input.val());
-        let site = this.fields.site.input.val();
-        let backgroundImage = this.fields.image.value.css("background-image");
-        let image = backgroundImage.length > 5 ? backgroundImage.slice(4, -1).replace(/"/g, "") : this.series.data.image;
-        let status = this.fields.status.input.val();
-        let note = this.fields.note.input.val();
-
-        let series = new Series(this.seriesId++, name, season, episode, date, site, image, status, note);
+        let image = data.backgroundImage.length > 5
+                  ? data.backgroundImage.slice(4, -1).replace(/"/g, "")
+                  : "";
+        let series = new Series(this.seriesId++, name, data.season, data.episode, data.date,
+                                data.site, image, data.status, data.note);
         this.database.putSeriesInDb(series);
         this.close();
         this.showSeries(series);
