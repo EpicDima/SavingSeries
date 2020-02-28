@@ -5,10 +5,6 @@ body {
     font-family: Roboto, "Segoe UI", serif;
 }
 
-body, main, header, nav {
-    min-width: 960px;
-}
-
 button, a {
     outline: none !important;
 }
@@ -30,6 +26,14 @@ textarea {
 input, textarea, select {
     width: 100%;
     outline: none !important;
+}
+
+textarea {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 .hidden {

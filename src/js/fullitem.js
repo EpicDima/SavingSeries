@@ -416,8 +416,8 @@ export class FullItem extends BaseFullItem {
     close() {
         this.series = null;
         super.close();
-        $(`#horizontalContainer${this.id} > .outer-list`)[0].scrollIntoView({behavior: "smooth",
-                                                                             block: "center", inline: "nearest"});
+        $(`#horizontalContainer${this.id} .outer-list`)[0].scrollIntoView({behavior: "smooth",
+                                                                          block: "center", inline: "nearest"});
     }
 
     setSeries(series) {

@@ -86,8 +86,7 @@ window.openAddingElement = function () {
 window.onresize = resize;
 
 function resize() {
-    let size = window.innerWidth / 85;
-    document.documentElement.style.fontSize =  `${size < 12 ? 12 : size}px`;
+    document.documentElement.style.fontSize =  `${window.innerWidth / 85}px`;
 }
 
 

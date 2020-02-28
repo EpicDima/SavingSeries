@@ -1,3 +1,6 @@
+import {STATUS} from "./constants";
+import {dateToLocaleString} from "./common";
+
 export default class Series {
 
     static createSeries(series) {
@@ -26,9 +29,43 @@ export default class Series {
             <div class="item">
                 <div class="image" style="background-image: url('${this.data.image}');"></div>
                 <div class="gradient"></div>
+                <a class="link" href="${this.data.site}" target="_blank" onclick="event.stopPropagation();"></a>
+                <div class="info">${this.getInfoPart()}</div>
                 <div class="name">${this.data.name}</div>
             </div>
         </div>`;
+    }
+
+    getInfoPart() {
+        if (this.data.status === STATUS.COMPLETED) {
+            return "";
+        }
+        let html = `<div class="row">
+            <div class="label">Сезон</div>
+            <div class="value">${this.data.season}</div>
+        </div>
+        <div class="row">
+            <div class="label">Серия</div>
+            <div class="value">${this.data.episode}</div>
+        </div>`;
+        if (this.data.status !== STATUS.JUST_WATCH) {
+            let date = dateToLocaleString(this);
+            if (date !== "") {
+                html += `<div class="row">
+                    <div class="label">Дата</div>
+                    <div class="value">${date}</div>
+                </div>`;
+            }
+        }
+        return html;
+    }
+
+    updateInfoPart() {
+        $(`#item${this.data.id} .info`).html(this.getInfoPart());
+    }
+
+    updateLink() {
+        $(`#item${this.data.id} .link`).attr("href", this.data.site);
     }
 
     delete() {
@@ -43,18 +80,23 @@ export default class Series {
 
     update(season, episode, date, site, image, status, note) {
         let changed = false;
+        let changedInfo = false;
         if (this.data.season !== season) {
             this.data.season = season;
+            changedInfo = true;
         }
         if (this.data.episode !== episode) {
             this.data.episode = episode;
+            changedInfo = true;
         }
         if (this.data.date !== date) {
             this.data.date = date;
             changed = true;
+            changedInfo = true;
         }
         if (this.data.site !== site) {
             this.data.site = site;
+            this.updateLink();
         }
         if (this.data.image !== image) {
             this.data.image = image;
@@ -66,6 +108,9 @@ export default class Series {
         }
         if (this.data.note !== note) {
             this.data.note = note;
+        }
+        if (changedInfo) {
+            this.updateInfoPart();
         }
         if (changed) {
             if (this.onUpdateListener !== null) {

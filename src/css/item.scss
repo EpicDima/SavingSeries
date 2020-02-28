@@ -3,21 +3,28 @@
     flex: 0 0 auto;
     width: auto;
     height: auto;
-    margin: 0.625rem 1rem;
+    margin: 1.35rem 1rem;
     border-radius: 0.625rem;
+    transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
 
     &:hover {
         transform: scale(1.02);
+        box-shadow: 0 0 0.7rem 0.1rem black;
+
+        > .item > .info, > .item > .link {
+            opacity: 1;
+        }
+
+        > .item > .gradient {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.6) 15%);
+        }
     }
 
     > .item {
         position: relative;
         display: block;
-        min-width: 240px;
-        min-height: 135px;
-        width: calc(100vw / 4);
-        height: calc(0.5625 * 100vw / 4);
-        cursor: pointer;
+        width: 25vw;
+        height: 14.0625vw;
         border-radius: 0.625rem;
         background-color: rgb(0, 0, 0.6);
 
@@ -25,7 +32,7 @@
              position: absolute;
              width: 100%;
              height: 100%;
-             background-size: 100% 100%;
+             background-size: 100%;
              background-repeat: no-repeat;
              border-radius: 0.625rem;
          }
@@ -34,15 +41,53 @@
              position: absolute;
              width: 100%;
              height: 100%;
-             bottom: 0;
              border-radius: 0.625rem;
              background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 15%, transparent 20%);
+             transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+        }
+
+        > .link {
+            position: absolute;
+            height: 2.25rem;
+            width: 2.25rem;
+            top: 0.2rem;
+            right: 0.2rem;
+            mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M19.9805 2.9883A9.7067 9.7067 0 0019.871 3H15a1.006 1.006 0 00-.879.496 1.0095 1.0095 0 000 1.008c.1837.3124.5196.5.879.496h2.586l-9.293 9.293c-.2617.25-.3672.625-.2735.9726a.9898.9898 0 00.7149.7149c.3476.0937.7226-.0117.9726-.2735L19 6.414V9a1.006 1.006 0 00.496.879 1.0095 1.0095 0 001.008 0A1.006 1.006 0 0021 9V4.129a1.019 1.019 0 00-.246-.8087c-.1954-.2187-.4806-.3398-.7735-.332zM5 3c-1.0938 0-2 .9063-2 2v14c0 1.0938.9063 2 2 2h14c1.0938 0 2-.9063 2-2v-6a1.006 1.006 0 00-.496-.879 1.0095 1.0095 0 00-1.008 0A1.006 1.006 0 0019 13v6H5V5h6a1.006 1.006 0 00.879-.496 1.0095 1.0095 0 000-1.008A1.006 1.006 0 0011 3zm0 0"/></svg>') no-repeat 50% 50%;
+            mask-size: 2.25rem;
+            background-color: white;
+            opacity: 0;
+            transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+        }
+
+        > .info {
+            display: flex;
+            flex-direction: column;
+            width: 15rem;
+            padding-top: 2%;
+            padding-left: 3%;
+            color: white;
+            user-select: none;
+            opacity: 0;
+            transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+
+            > .row {
+                display: flex;
+                justify-content: flex-start;
+                min-height: 1.7rem;
+                z-index: 1;
+
+                > .label {
+                    width: 4rem;
+                }
+
+                > .value {
+                    width: 11rem;
+                }
+            }
         }
 
          > .name {
              position: absolute;
-             max-width: 100%;
-             max-height: 25%;
              bottom: 3%;
              left: 2%;
              right: 2%;

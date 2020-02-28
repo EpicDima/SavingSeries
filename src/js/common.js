@@ -23,7 +23,7 @@ export function dateInputStringToObject(date) {
 }
 
 export function createLinkElement(site) {
-    return `<a href="${site}" target="_blank" onclick="e.stopPropagation();">
+    return `<a href="${site}" target="_blank" onclick="event.stopPropagation();">
         ${siteToShortLink(site)}
     </a>`;
 }

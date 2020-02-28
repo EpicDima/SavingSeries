@@ -13,8 +13,10 @@ export default class HorizontalContainer {
         this.fullitem = new FullItem(this.id);
         return `<div id="horizontalContainer${this.id}" class="hlist-container">
             <div class="title">${this.title}</div>
-            <div class="outer-list">
-                <div id="hlcList${this.id}" class="list"></div>
+            <div class="outer-container-list">
+                <div class="outer-list">
+                    <div id="hlcList${this.id}" class="list"></div>
+                </div>
                 <div class="left-icon-control" id="leftButton${this.id}"></div>
                 <div class="right-icon-control" id="rightButton${this.id}"></div>
             </div>
@@ -25,23 +27,47 @@ export default class HorizontalContainer {
     setLeftRightButtons(id) {
         $(`#leftButton${id}`)[0].onclick = (event) => {
             event.preventDefault();
-            let list = $(`#hlcList${id}`);
+            let list = $(`#horizontalContainer${this.id} .outer-list`);
             list.animate({
-                scrollLeft: `-=${list.width() * 0.95}`
-            }, 300);
+                scrollLeft: `-=${list.width() * 0.8}`
+            }, 300, () => this.checkLeftRightButtons());
         };
         $(`#rightButton${id}`)[0].onclick = (event) => {
             event.preventDefault();
-            let list = $(`#hlcList${id}`);
+            let list = $(`#horizontalContainer${this.id} .outer-list`);
             list.animate({
-                scrollLeft: `+=${list.width() * 0.95}`
-            }, 300);
+                scrollLeft: `+=${list.width() * 0.8}`
+            }, 300, () => this.checkLeftRightButtons());
         };
+    }
+
+    checkLeftRightButtons() {
+        let list = $(`#horizontalContainer${this.id} .outer-list`);
+        let leftButton = $(`#leftButton${this.id}`);
+        let rightButton = $(`#rightButton${this.id}`);
+        let scrollLeft = list.prop("scrollLeft");
+        let scrollLeftMax = list.prop("scrollLeftMax");
+        if (scrollLeft === 0) {
+            leftButton.addClass("hidden");
+            if (scrollLeftMax === 0) {
+                rightButton.addClass("hidden");
+            } else {
+                rightButton.removeClass("hidden");
+            }
+        } else {
+            leftButton.removeClass("hidden");
+            if (scrollLeftMax === scrollLeft) {
+                rightButton.addClass("hidden");
+            } else {
+                rightButton.removeClass("hidden");
+            }
+        }
     }
 
     show() {
         $(`#horizontalContainer${this.id}`).show();
         this.setLeftRightButtons(this.id);
+        this.checkLeftRightButtons();
     }
 
     hide() {
@@ -62,6 +88,7 @@ export default class HorizontalContainer {
         this.map.set(series.data.id, series);
         this.setListenersOnSeries(series);
         $(`#hlcList${this.id}`).append(series.createHtml());
+        this.checkLeftRightButtons();
     }
 
     initialAdditionFinish() {
@@ -102,6 +129,8 @@ export default class HorizontalContainer {
         series.deleteHtml();
         if (this.map.size === 0) {
             this.hide();
+        } else {
+            this.checkLeftRightButtons();
         }
     }
 
