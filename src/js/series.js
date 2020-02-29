@@ -60,6 +60,10 @@ export default class Series {
         return html;
     }
 
+    getItemElement() {
+        return $(`#item${this.data.id} > .item`);
+    }
+
     updateInfoPart() {
         $(`#item${this.data.id} .info`).html(this.getInfoPart());
     }
@@ -78,6 +82,16 @@ export default class Series {
         $(`#item${this.data.id}`).remove();
     }
 
+    compareDates(date1, date2) {
+        if (date1 === "" && date2 === "") {
+            return true;
+        } else if (date1 === "" || date2 === "") {
+            return false;
+        } else {
+            return date1.getTime() === date2.getTime();
+        }
+    }
+
     update(season, episode, date, site, image, status, note) {
         let changed = false;
         let changedInfo = false;
@@ -89,7 +103,7 @@ export default class Series {
             this.data.episode = episode;
             changedInfo = true;
         }
-        if (this.data.date !== date) {
+        if (!this.compareDates(this.data.date, date)) {
             this.data.date = date;
             changed = true;
             changedInfo = true;

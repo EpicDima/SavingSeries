@@ -72,7 +72,7 @@ export class BaseFullItem {
                             <div class="label">Сайт</div>
                             <div class="value not-on-edit"></div>
                             <div class="input on-edit">
-                                <input id="site${this.id}" class="fullitem-input" name="site" type="url" required/>
+                                <input id="site${this.id}" class="fullitem-input" name="site" type="url" maxlength="1024" required/>
                                 <div class="invalid-tooltip">
                                     <label class="error" for="site${this.id}"></label>
                                 </div>
@@ -89,7 +89,7 @@ export class BaseFullItem {
                             <div class="value not-on-edit"></div>
                             <div class="input on-edit">
                                 <label>
-                                    <textarea class="fullitem-input" name="note" rows="2" maxlength="200"></textarea>
+                                    <textarea class="fullitem-input" name="note" rows="3" maxlength="200"></textarea>
                                 </label>
                             </div>
                         </div>
@@ -176,6 +176,14 @@ export class BaseFullItem {
         });
     }
 
+    clearActiveItems() {
+        $(`.item-outer.active`).removeClass("active");
+    }
+
+    turnOnActiveItem() {
+        this.clearActiveItems();
+    }
+
     close() {
         $(`#fullitem${this.id}`).slideUp("fast");
     }
@@ -221,19 +229,19 @@ export class BaseFullItem {
     onChangeStatus() {
         let visibilityState = this.getStatusState();
         if (visibilityState.season) {
-            this.fields.season.div.removeClass("hidden");
+            this.fields.season.div.removeClass("hide");
         } else {
-            this.fields.season.div.addClass("hidden");
+            this.fields.season.div.addClass("hide");
         }
         if (visibilityState.episode) {
-            this.fields.episode.div.removeClass("hidden");
+            this.fields.episode.div.removeClass("hide");
         } else {
-            this.fields.episode.div.addClass("hidden");
+            this.fields.episode.div.addClass("hide");
         }
         if (visibilityState.date) {
-            this.fields.date.div.removeClass("hidden");
+            this.fields.date.div.removeClass("hide");
         } else {
-            this.fields.date.div.addClass("hidden");
+            this.fields.date.div.addClass("hide");
         }
     }
 
@@ -241,11 +249,11 @@ export class BaseFullItem {
         let onEditElements = $(`#fullitem${this.id} .on-edit`);
         let notOnEditElements = $(`#fullitem${this.id} .not-on-edit`);
         if (show) {
-            onEditElements.removeClass("hidden");
-            notOnEditElements.addClass("hidden");
+            onEditElements.removeClass("hide");
+            notOnEditElements.addClass("hide");
         } else {
-            onEditElements.addClass("hidden");
-            notOnEditElements.removeClass("hidden");
+            onEditElements.addClass("hide");
+            notOnEditElements.removeClass("hide");
         }
     }
 
@@ -337,10 +345,22 @@ export class FullItem extends BaseFullItem {
     }
 
     getButtonContainerInnerHtml() {
-        return `<div id="changeButton${this.id}" class="change-button not-on-edit"><button>Редактировать</button></div>
-                <div id="cancelButton${this.id}" class="cancel-button on-edit"><button>Отмена</button></div>
-                <div id="acceptButton${this.id}" class="accept-button on-edit"><button>Подтвердить</button></div>
-                <div id="deleteButton${this.id}" class="delete-button on-edit"><button>Удалить</button></div>`;
+        return `<div id="changeButton${this.id}" class="change-button not-on-edit">
+            <button>Редактировать</button>
+        </div>
+        <div id="updateButton${this.id}" class="update-button not-on-edit">
+            <button>Следующая</button>
+            <div class="tooltip">Увеличивает серию на 1, дату на неделю</div>
+        </div>
+        <div id="cancelButton${this.id}" class="cancel-button on-edit">
+            <button>Отмена</button>
+        </div>
+        <div id="acceptButton${this.id}" class="accept-button on-edit">
+            <button>Подтвердить</button>
+        </div>
+        <div id="deleteButton${this.id}" class="delete-button on-edit">
+            <button>Удалить</button>
+        </div>`;
     }
 
     getFields() {
@@ -359,6 +379,10 @@ export class FullItem extends BaseFullItem {
             this.buttons.change = {
                 div: $(`#changeButton${this.id}`),
                 button: $(`#changeButton${this.id} button`)
+            };
+            this.buttons.update = {
+                div: $(`#updateButton${this.id}`),
+                button: $(`#updateButton${this.id} button`)
             };
             this.buttons.cancel = {
                 div: $(`#cancelButton${this.id}`),
@@ -379,22 +403,32 @@ export class FullItem extends BaseFullItem {
     setListeners() {
         super.setListeners();
         this.buttons.change.button[0].onclick = () => this.change();
+        this.buttons.update.button[0].onclick = () => this.update();
         this.buttons.cancel.button[0].onclick = () => this.cancel();
         this.buttons.accept.button[0].onclick = () => this.accept();
         this.buttons.delete.button[0].onclick = () => this.delete();
     }
 
     showAllFields() {
-        $(`#fullitem${this.id} .input-container > div`).removeClass("hidden");
+        $(`#fullitem${this.id} .input-container > div`).removeClass("hide");
     }
 
     hideEmptyFields() {
         if (this.series.data.date === "") {
-            this.fields.date.div.addClass("hidden");
+            this.fields.date.div.addClass("hide");
+            this.buttons.update.div.addClass("hide");
+        }
+        if (this.series.data.status === STATUS.JUST_WATCH) {
+            this.buttons.update.div.addClass("hide");
         }
         if (this.series.data.note === "") {
-            this.fields.note.div.addClass("hidden");
+            this.fields.note.div.addClass("hide");
         }
+    }
+
+    turnOnActiveItem() {
+        super.turnOnActiveItem();
+        $(`#item${this.series.data.id}`).addClass("active");
     }
 
     needToOpen(series) {
@@ -406,6 +440,7 @@ export class FullItem extends BaseFullItem {
         if (this.needToOpen(series)) {
             super.open();
             this.setSeries(series);
+            this.turnOnActiveItem();
             this.showAllFields();
             this.showEditFields(false);
             this.onChangeStatus();
@@ -418,6 +453,7 @@ export class FullItem extends BaseFullItem {
         super.close();
         $(`#horizontalContainer${this.id} .outer-list`)[0].scrollIntoView({behavior: "smooth",
                                                                           block: "center", inline: "nearest"});
+        this.clearActiveItems();
     }
 
     setSeries(series) {
@@ -429,6 +465,24 @@ export class FullItem extends BaseFullItem {
     change() {
         this.showAllFields();
         this.showEditFields(true);
+    }
+
+    update() {
+        let date = new Date(this.series.data.date);
+        date.setDate(date.getDate() + 7);
+        let changed = this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
+            this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
+        this.database.putSeriesInDb(this.series);
+
+        if (changed) {
+            if (getSeriesListType(this.series) !== this.id) {
+                this.close();
+                return;
+            }
+        }
+
+        this.setDisplayValues(this.series);
+        this.setInputValues(this.series);
     }
 
     cancel() {
@@ -495,7 +549,9 @@ export class AddingFullItem extends BaseFullItem {
     }
 
     getButtonContainerInnerHtml() {
-        return `<div id="addButton${this.id}" class="add-button on-edit"><button>Добавить</button></div>`;
+        return `<div id="addButton${this.id}" class="add-button on-edit">
+            <button>Добавить</button>
+        </div>`;
     }
 
     setSeriesId(seriesId) {
@@ -538,6 +594,7 @@ export class AddingFullItem extends BaseFullItem {
             super.open();
             this.resetInputValues();
             this.showEditFields(true);
+            this.turnOnActiveItem();
         }
     }
 

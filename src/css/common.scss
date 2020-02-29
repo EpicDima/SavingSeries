@@ -1,8 +1,12 @@
 body {
-    padding-top: 3.5rem;
-    background-color: #141414;
-    overflow-y: scroll;
+    @include color($body-background, $body-text);
     font-family: Roboto, "Segoe UI", serif;
+    overflow-y: scroll;
+    padding-top: 3rem;
+}
+
+main {
+    padding-bottom: 1.5rem;
 }
 
 button, a {
@@ -10,11 +14,11 @@ button, a {
 }
 
 a {
-    color: #007bff;
+    @include color($text: $a-text);
     text-decoration: none;
 
     &:hover {
-        color: #0056b3;
+        @include color($text: $a-text-hover);
         text-decoration: underline;
     }
 }
@@ -28,7 +32,7 @@ input, textarea, select {
     outline: none !important;
 }
 
-textarea {
+html, textarea {
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
@@ -36,6 +40,10 @@ textarea {
     }
 }
 
-.hidden {
+.hide {
     display: none !important;
+}
+
+.show {
+    display: block !important;
 }

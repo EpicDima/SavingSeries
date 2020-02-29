@@ -1,19 +1,22 @@
 .fullitem {
     position: relative;
-    width: 100%;
-    height: 34rem;
-    background-color: black;
+    @include wh(100%, 34rem);
+    @include color($fullitem-background);
     display: none;
+
+    &:first-of-type {
+        box-shadow: 0 0 1rem $fullitem-shadow;
+    }
 
     > .outer-close {
         position: absolute;
         right: 0.4rem;
         top: 0.2rem;
         z-index: 5;
-        color: #555;
+        @include color($text: $fullitem-close);
 
         &:hover {
-            color: #900;
+            @include color($text: $fullitem-close-hover);
         }
 
         > .close {
@@ -27,8 +30,7 @@
     > .background {
         > .image {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            @include wh(100%, 100%);
             right: 0;
             background-size: auto 100%;
             background-position: right;
@@ -37,10 +39,9 @@
 
         > .gradient {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            @include wh(100%, 100%);
             right: 0;
-            background: linear-gradient(to right, black 40%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.4) 55%, transparent 60%);
+            background: $fullitem-gradient;
         }
     }
 
@@ -49,38 +50,28 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        width: 52%;
+        @include wh(50%);
         margin: 0.5rem 0 1rem 1rem;
-        color: white;
+        @include color($text: $fullitem-content-text);
         bottom: 0;
         top: 0;
 
         > .top {
             display: flex;
-            justify-content: space-between;
-            height: 5.7rem;
-            margin-bottom: 2rem;
+            @include wh($height: 5.7rem);
+            margin-bottom: 1.5rem;
 
             > .name-title {
                 font-size: 1.6rem;
                 overflow: hidden;
                 word-wrap: break-word;
             }
-
-            > .status {
-                margin-left: 1.5rem;
-
-                > .value {
-                    font-size: 1.3rem;
-                    text-transform: uppercase;
-                }
-            }
         }
 
         > .general {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            @include wh(75%, 100%);
             justify-content: space-between;
             margin-top: 0.5rem;
 
@@ -97,13 +88,27 @@
                         padding: 0.5rem 0;
                         user-select: none;
                     }
+
                     > .value {
                         word-wrap: break-word;
                         padding: 0.5rem 0;
                     }
+
                     > .input {
                         min-width: 16rem;
-                        width: 40%;
+                        @include wh(100%);
+
+                        > label {
+                            > select {
+                                -webkit-appearance: none;
+                                -moz-appearance: none;
+                                appearance: none !important;
+
+                                > option {
+                                    @include color($fullitem-list-background);
+                                }
+                            }
+                        }
 
                         > .invalid-tooltip {
                             position: absolute;
@@ -114,7 +119,7 @@
                             font-size: 0.8rem;
                             line-height: 1.5;
                             border-radius: 0.25rem;
-                            background-color: #f22d;
+                            @include color($fullitem-invalid-background, $fullitem-invalid-text);
                         }
                     }
                 }
@@ -126,24 +131,40 @@
                 > div {
                     margin: auto 2rem auto 0;
 
+                    > .tooltip {
+                        position: absolute;
+                        opacity: 0;
+                        z-index: 5;
+                        padding: 0.25rem 0.5rem;
+                        bottom: 2.5rem;
+                        font-size: 0.8rem;
+                        line-height: 1.5;
+                        border-radius: 0.25rem;
+                        @include color($fullitem-tooltip-background, $fullitem-tooltip-text);
+                        transition: 200ms cubic-bezier(0.65, 0.05, 0.36, 1);
+                        transition-delay: 200ms;
+                    }
+
                     > button {
-                        background-color: transparent;
-                        color: white;
-                        border: 1px solid #fff5;
+                        @include color($fullitem-button-background, $fullitem-button-text);
+                        @include border($fullitem-button-border);
                         padding: 0.4rem 2rem;
                         border-radius: 0.3rem;
                         cursor: pointer;
                         user-select: none;
 
                         &:hover {
-                            background-color: #fff3;
-                            border-color: #fff9;
+                            @include color($fullitem-button-background-hover, $fullitem-button-text-hover);
+                            border-color: $fullitem-button-border-hover;
+
+                            ~ .tooltip {
+                                opacity: 1;
+                            }
                         }
 
                         &:active {
-                            background-color: white;
-                            border-color: white;
-                            color: black;
+                            @include color($fullitem-button-background-active, $fullitem-button-text-active);
+                            border-color: $fullitem-button-border-active;
                         }
                     }
                 }
@@ -153,41 +174,19 @@
 
     .fullitem-input {
         box-sizing: border-box;
-        background-color: transparent;
-        border: 1px solid white;
-        color: white;
+        @include border($fullitem-input-border);
+        @include color($fullitem-input-background, $fullitem-input-text);
         padding: 0.3rem 0.25rem;
         border-radius: 0.2rem;
         box-shadow: none;
 
         &:invalid, &.error {
-            border: 1px solid red;
-            color: red;
-        }
-
-        &:focus:invalid {
-            /*box-shadow: 0 0 1px 1px red;*/
+            @include border($fullitem-error);
+            @include color($text: $fullitem-error);
         }
 
         &.error ~ .invalid-tooltip {
             display: block !important;
         }
     }
-
-    select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath stroke='#ffffff' fill='%23000' fill-rule='evenodd' class='cls-1' d='M8,0L4.141,6.993,0.012,0.156Z'/%3E%3C/svg%3E%0A");
-        background-repeat: no-repeat;
-        background-position: right 0.25rem center;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none !important;
-
-        option {
-            background-color: #282828;
-        }
-    }
 }
-
-//.not-on-edit {
-//    display: none !important;
-//}

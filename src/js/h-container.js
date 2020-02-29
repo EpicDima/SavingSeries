@@ -24,19 +24,19 @@ export default class HorizontalContainer {
         </div>`;
     }
 
-    setLeftRightButtons(id) {
-        $(`#leftButton${id}`)[0].onclick = (event) => {
+    setLeftRightButtons() {
+        $(`#leftButton${this.id}`)[0].onclick = (event) => {
             event.preventDefault();
             let list = $(`#horizontalContainer${this.id} .outer-list`);
             list.animate({
-                scrollLeft: `-=${list.width() * 0.8}`
+                scrollLeft: `-=${list.width()}`
             }, 300, () => this.checkLeftRightButtons());
         };
-        $(`#rightButton${id}`)[0].onclick = (event) => {
+        $(`#rightButton${this.id}`)[0].onclick = (event) => {
             event.preventDefault();
             let list = $(`#horizontalContainer${this.id} .outer-list`);
             list.animate({
-                scrollLeft: `+=${list.width() * 0.8}`
+                scrollLeft: `+=${list.width()}`
             }, 300, () => this.checkLeftRightButtons());
         };
     }
@@ -48,25 +48,25 @@ export default class HorizontalContainer {
         let scrollLeft = list.prop("scrollLeft");
         let scrollLeftMax = list.prop("scrollLeftMax");
         if (scrollLeft === 0) {
-            leftButton.addClass("hidden");
+            leftButton.addClass("hide");
             if (scrollLeftMax === 0) {
-                rightButton.addClass("hidden");
+                rightButton.addClass("hide");
             } else {
-                rightButton.removeClass("hidden");
+                rightButton.removeClass("hide");
             }
         } else {
-            leftButton.removeClass("hidden");
+            leftButton.removeClass("hide");
             if (scrollLeftMax === scrollLeft) {
-                rightButton.addClass("hidden");
+                rightButton.addClass("hide");
             } else {
-                rightButton.removeClass("hidden");
+                rightButton.removeClass("hide");
             }
         }
     }
 
     show() {
         $(`#horizontalContainer${this.id}`).show();
-        this.setLeftRightButtons(this.id);
+        this.setLeftRightButtons();
         this.checkLeftRightButtons();
     }
 

@@ -68,6 +68,13 @@ function relocateSeries(series, listType) {
     containers.get(getSeriesListType(series)).addSeries(series);
 }
 
+
+function resize() {
+    document.documentElement.style.fontSize =  `${window.innerWidth / 85}px`;
+}
+
+window.onresize = resize;
+
 function openFullitem(id) {
     for (let container of containers.values()) {
         if (container.showFullItemIfExists(id)) {
@@ -83,11 +90,15 @@ window.openAddingElement = function () {
     addingFullItem.open();
 };
 
-window.onresize = resize;
+document.getElementById("settingsSubmenuTitle").onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById("settingsSubmenu").classList.toggle("show");
+};
 
-function resize() {
-    document.documentElement.style.fontSize =  `${window.innerWidth / 85}px`;
-}
+window.onclick = () => {
+    $(".submenu.show").removeClass("show");
+};
+
 
 
 window.createBackup = () => {

@@ -1,0 +1,69 @@
+$black: black;
+$white: white;
+$transparent: transparent;
+
+
+$a-text: #007bffff;
+$a-text-hover: #0056b3ff;
+
+$body-background: #141414ff;
+$body-text: $white;
+
+$navbar-background: #282828fd;
+$navbar-text: $white;
+$navbar-logo-text: $white;
+$navbar-nav-item-hover: #fffb;
+$navbar-search-background: #121212;
+$navbar-search-border: #393939;
+$navbar-search-border-hover: $white;
+$navbar-search-text: #eee;
+$navbar-search-list-background: #282828;
+$navbar-search-list-text: $white;
+$navbar-search-list-background-hover: #3e3e3e;
+$navbar-search-list-text-hover: $white;
+$navbar-submenu-background: #282828fd;
+$navbar-submenu-border: #000b;
+$navbar-submenu-text: $white;
+$navbar-submenu-background-hover: #3e3e3e;
+$navbar-submenu-text-hover: $white;
+
+$item-background: $black;
+$item-shadow: $black;
+$item-shadow-hover: $black;
+$item-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 15%, transparent 20%);
+$item-not-active-hover-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.6) 15%);
+$item-active-border: $white;
+$item-name: $white;
+$item-info: $white;
+$item-link: #fffd;
+$item-link-hover: $white;
+
+$h-container-shadow: #000c;
+$h-container-title: $white;
+$h-container-button-hover: #fffc;
+
+$fullitem-background: #000f;
+$fullitem-shadow: #000c;
+$fullitem-close: #555f;
+$fullitem-close-hover: #900f;
+$fullitem-gradient: linear-gradient(to right, black 40%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.4) 55%, transparent 60%);
+$fullitem-list-background: #282828fd;
+$fullitem-list-hover: #3e3e3edf;
+$fullitem-invalid-background: #f22d;
+$fullitem-invalid-text: $white;
+$fullitem-error: #f00f;
+$fullitem-input-background: $transparent;
+$fullitem-input-text: $white;
+$fullitem-input-border: $white;
+$fullitem-content-text: $white;
+$fullitem-button-background: $transparent;
+$fullitem-button-text: $white;
+$fullitem-button-border: #fff5;
+$fullitem-button-background-hover: #fff3;
+$fullitem-button-text-hover: $white;
+$fullitem-button-border-hover: #fff9;
+$fullitem-button-background-active: $white;
+$fullitem-button-text-active: $black;
+$fullitem-button-border-active: $white;
+$fullitem-tooltip-background: #3e3e3edf;
+$fullitem-tooltip-text: $white;

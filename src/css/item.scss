@@ -1,74 +1,108 @@
+$transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+
 .item-outer {
     display: inline-block;
-    flex: 0 0 auto;
-    width: auto;
-    height: auto;
-    margin: 1.35rem 1rem;
+    @include wh(auto, min-content);
+    margin: auto 1rem;
     border-radius: 0.625rem;
-    transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+    box-sizing: border-box;
+    box-shadow: 0 0 0.4rem 0.01rem $item-shadow;
+    transition: $transition;
 
     &:hover {
         transform: scale(1.02);
-        box-shadow: 0 0 0.7rem 0.1rem black;
+        box-shadow: 0 0 0.7rem 0.1rem $item-shadow-hover;
+    }
 
-        > .item > .info, > .item > .link {
-            opacity: 1;
-        }
+    &:hover:not(.active) {
 
-        > .item > .gradient {
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.6) 15%);
+        > .item {
+            > .image {
+                filter: blur(2px);
+            }
+
+            > .gradient {
+                background: $item-not-active-hover-gradient;
+                filter: blur(2px);
+            }
+
+            > .info, > .link {
+                opacity: 1;
+            }
         }
+    }
+
+    &.active {
+        > .item {
+            @include border($item-active-border, 2px);
+            box-sizing: border-box;
+        }
+    }
+
+    &.active > .item:after {
+        position: absolute;
+        content: "";
+        @include wh(1rem, 1rem);
+        transform: rotate(-45deg);
+        background: linear-gradient(45deg, $item-active-border 50%, transparent 50%);
+        bottom: -0.5rem;
     }
 
     > .item {
         position: relative;
-        display: block;
-        width: 25vw;
-        height: 14.0625vw;
+        display: flex;
+        justify-content: center;
+        @include wh(calc(25vw - 2rem), calc(0.5625 * (25vw - 2rem)));
         border-radius: 0.625rem;
-        background-color: rgb(0, 0, 0.6);
+        @include color($item-background);
+        transition: $transition;
 
-         > .image {
-             position: absolute;
-             width: 100%;
-             height: 100%;
-             background-size: 100%;
-             background-repeat: no-repeat;
-             border-radius: 0.625rem;
+        > .image {
+            position: absolute;
+            @include wh(100%, 100%);
+            background-size: 100%;
+            background-repeat: no-repeat;
+            border-radius: 0.625rem;
+            transition: $transition;
          }
 
-         > .gradient {
-             position: absolute;
-             width: 100%;
-             height: 100%;
-             border-radius: 0.625rem;
-             background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 15%, transparent 20%);
-             transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+        > .gradient {
+            position: absolute;
+            @include wh(100%, 100%);
+            border-radius: 0.625rem;
+            background: $item-gradient;
+            transition: $transition;
         }
 
         > .link {
             position: absolute;
-            height: 2.25rem;
-            width: 2.25rem;
+            @include wh(1.85rem, 1.85rem);
             top: 0.2rem;
             right: 0.2rem;
             mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M19.9805 2.9883A9.7067 9.7067 0 0019.871 3H15a1.006 1.006 0 00-.879.496 1.0095 1.0095 0 000 1.008c.1837.3124.5196.5.879.496h2.586l-9.293 9.293c-.2617.25-.3672.625-.2735.9726a.9898.9898 0 00.7149.7149c.3476.0937.7226-.0117.9726-.2735L19 6.414V9a1.006 1.006 0 00.496.879 1.0095 1.0095 0 001.008 0A1.006 1.006 0 0021 9V4.129a1.019 1.019 0 00-.246-.8087c-.1954-.2187-.4806-.3398-.7735-.332zM5 3c-1.0938 0-2 .9063-2 2v14c0 1.0938.9063 2 2 2h14c1.0938 0 2-.9063 2-2v-6a1.006 1.006 0 00-.496-.879 1.0095 1.0095 0 00-1.008 0A1.006 1.006 0 0019 13v6H5V5h6a1.006 1.006 0 00.879-.496 1.0095 1.0095 0 000-1.008A1.006 1.006 0 0011 3zm0 0"/></svg>') no-repeat 50% 50%;
-            mask-size: 2.25rem;
-            background-color: white;
+            mask-size: 1.85rem;
+            @include color($item-link);
             opacity: 0;
-            transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+            transition: $transition;
+
+            &:hover {
+                @include color($item-link-hover);
+            }
         }
 
         > .info {
+            position: absolute;
             display: flex;
             flex-direction: column;
-            width: 15rem;
+            @include wh(15rem);
             padding-top: 2%;
             padding-left: 3%;
-            color: white;
+            left: 0;
+            @include color($text: $item-info);
             user-select: none;
             opacity: 0;
-            transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+            font-size: 0.95rem;
+            transition: $transition;
 
             > .row {
                 display: flex;
@@ -91,7 +125,7 @@
              bottom: 3%;
              left: 2%;
              right: 2%;
-             color: white;
+             @include color($text: $item-name);
              font-size: 1.25rem;
              text-overflow: ellipsis;
              overflow: hidden;

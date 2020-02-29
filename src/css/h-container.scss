@@ -1,15 +1,15 @@
 .hlist-container {
     position: relative;
     display: none;
-    padding-bottom: 0.75rem;
-    margin-top: 0.75rem;
-    border-bottom: 1px solid #ffffff0a;
+    padding-top: 0.5rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 0 1rem $h-container-shadow;
 
     > .title {
         width: max-content;
         position: relative;
         font-size: 1.4rem;
-        color: white;
+        @include color($text: $h-container-title);
         left: 1rem;
         user-select: none;
     }
@@ -29,14 +29,14 @@
 
             > .list {
                 display: flex;
-                flex-direction: row;
+                padding: 1rem 0;
             }
         }
 
         > .left-icon-control, > .right-icon-control {
             display: flex;
             position: absolute;
-            width: 5rem;
+            @include wh(5rem);
             justify-content: center;
             align-items: center;
             top: 0;
@@ -46,7 +46,7 @@
         }
 
         > .left-icon-control:hover, > .right-icon-control:hover {
-            background-color: #fffc;
+            @include color($h-container-button-hover);
         }
 
         > .left-icon-control {

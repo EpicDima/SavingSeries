@@ -3,42 +3,39 @@
     display: flex;
     justify-content: space-between;
     z-index: 1000;
-    width: 100%;
-    height: 3.5rem;
+    @include wh(100%, 3rem);
     box-sizing: border-box;
     top: 0;
     padding-left: 1rem;
     padding-right: 1rem;
     font-family: "Segoe UI", Roboto, serif;
     user-select: none;
-    background-color: #282828fd;
+    @include color($navbar-background, $navbar-text);
 
     > .nav-item {
         margin-bottom: auto;
         margin-top: auto;
-        color: #fff;
 
         > .logo {
+            @include color($text: $navbar-logo-text);
             font-size: 1.3rem;
             text-decoration: none;
-            color: #fff;
             font-family: "Segoe UI", serif;
         }
 
         &.search-container {
-            width: 30rem;
+            @include wh(30rem);
             margin: auto 3rem;
 
             > .search {
-                color: #eee;
-                background-color: #121212;
-                border: 1px solid #393939;
+                @include color($navbar-search-background, $navbar-search-text);
+                @include border($navbar-search-border);
                 border-radius: 0.3rem;
                 line-height: 1.4rem;
                 padding: 0.2rem 0.5rem;
 
                 &:focus {
-                    border-color: #fff;
+                    border-color: $navbar-search-border-hover;
                     box-shadow: 0 0;
 
                     ~ .search-list {
@@ -50,12 +47,12 @@
             > .search-list {
                 position: fixed;
                 display: none;
-                width: 30rem;
+                @include wh(30rem);
                 max-height: 20rem;
-                top: 3.5rem;
+                top: 3rem;
                 box-sizing: border-box;
                 overflow-y: auto;
-                background-color: #282828;
+                @include color($navbar-search-list-background, $navbar-search-list-text);
 
                 > .search-item {
                     overflow: hidden;
@@ -63,7 +60,7 @@
                     cursor: pointer;
 
                     &:hover {
-                        background-color: #3e3e3e;
+                        @include color($navbar-search-list-background-hover, $navbar-search-list-text-hover);
                     }
                 }
             }
@@ -82,42 +79,43 @@
                 padding: 0 0.5rem;
 
                 &:hover {
-                    color: #fffb;
+                    @include color($text: $navbar-nav-item-hover);
                 }
             }
 
-            &:hover {
-                .submenu {
-                    display: block;
-                }
+            > .submenu-title:after {
+                display: inline-block;
+                margin-left: 0.25rem;
+                vertical-align: 0.15rem;
+                content: "";
+                border-top: 0.3rem solid;
+                border-right: 0.3rem solid transparent;
+                border-left: 0.3rem solid transparent;
             }
 
             .submenu {
                 position: absolute;
-                z-index: 1000;
+                z-index: 15;
                 display: none;
-                background-color: #282828;
-                right: 0.1rem;
-                left: auto;
-                top: 100%;
+                @include color($navbar-submenu-background, $navbar-submenu-text);
+                top: 1.8rem;
+                right: 0;
                 min-width: 10rem;
                 border-radius: 0.3rem;
-                border: 1px solid #000b;
+                @include border($navbar-submenu-border);
                 padding: 0.5rem 0;
-                color: white;
-                clear: both;
 
                 &:hover {
-                    display: block;
-                    color: white;
+                    @include color($navbar-submenu-background);
                 }
 
                 > div {
                     padding: 0.25rem 1.5rem;
                     white-space: nowrap;
+                    @include color($text: $navbar-submenu-text);
 
                     &:hover {
-                        background-color: #3e3e3e;
+                        @include color($navbar-submenu-background-hover, $navbar-submenu-text-hover);
                     }
                 }
             }
