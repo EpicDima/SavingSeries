@@ -1,5 +1,6 @@
 import {getSeriesListType} from "./common";
 import {FullItem} from "./fullitem";
+import {LIST_TYPE} from "./constants";
 
 export default class HorizontalContainer {
     constructor(id, title, relocateSeries) {
@@ -12,9 +13,12 @@ export default class HorizontalContainer {
     createHtml() {
         this.fullitem = new FullItem(this.id);
         return `<div id="horizontalContainer${this.id}" class="hlist-container">
-            <div class="title">${this.title}</div>
+            <div class="top">
+                <div class="title">${this.title}</div>
+                <div class="grid-icon"></div>
+            </div>
             <div class="outer-container-list">
-                <div class="outer-list">
+                <div id="outerList${this.id}" class="outer-list">
                     <div id="hlcList${this.id}" class="list"></div>
                 </div>
                 <div class="left-icon-control" id="leftButton${this.id}"></div>
@@ -24,49 +28,93 @@ export default class HorizontalContainer {
         </div>`;
     }
 
-    setLeftRightButtons() {
-        $(`#leftButton${this.id}`)[0].onclick = (event) => {
+    onScrollStopped(domElement, callback, timeout = 250) {
+        domElement.onscroll = () => {
+            clearTimeout(callback.timeout);
+            callback.timeout = setTimeout(callback, timeout);
+        };
+    }
+
+    saveButtons() {
+        this.scrollableList = document.getElementById(`outerList${this.id}`);
+        this.leftButton = document.getElementById(`leftButton${this.id}`);
+        this.rightButton = document.getElementById(`rightButton${this.id}`);
+        this.gridButton = document.querySelector(`#horizontalContainer${this.id} .grid-icon`);
+    }
+
+    setButtonListeners() {
+        this.onScrollStopped(this.scrollableList, () => this.checkLeftRightButtons());
+
+        this.leftButton.onclick = (event) => {
             event.preventDefault();
-            let list = $(`#horizontalContainer${this.id} .outer-list`);
+            let list = $(`#outerList${this.id}`);
             list.animate({
                 scrollLeft: `-=${list.width()}`
             }, 300, () => this.checkLeftRightButtons());
         };
-        $(`#rightButton${this.id}`)[0].onclick = (event) => {
+        this.rightButton.onclick = (event) => {
             event.preventDefault();
-            let list = $(`#horizontalContainer${this.id} .outer-list`);
+            let list = $(`#outerList${this.id}`);
             list.animate({
                 scrollLeft: `+=${list.width()}`
             }, 300, () => this.checkLeftRightButtons());
         };
+
+        this.gridButton.onclick = () => {
+            this.turnGridMode(!this.gridButton.classList.contains("on"));
+        };
+    }
+
+    turnGridMode(on = false) {
+        let list = document.getElementById(`hlcList${this.id}`);
+        if (on) {
+            list.style.flexWrap = "wrap";
+            this.gridButton.classList.add("on");
+            this.showLeftRightButtons(false);
+        } else {
+            list.style.flexWrap = "nowrap";
+            this.gridButton.classList.remove("on");
+            this.showLeftRightButtons();
+        }
+    }
+
+    showLeftRightButtons(show = true) {
+        if (show) {
+            this.leftButton.classList.remove("hide");
+            this.rightButton.classList.remove("hide");
+        } else {
+            this.leftButton.classList.add("hide");
+            this.rightButton.classList.add("hide");
+        }
     }
 
     checkLeftRightButtons() {
-        let list = $(`#horizontalContainer${this.id} .outer-list`);
-        let leftButton = $(`#leftButton${this.id}`);
-        let rightButton = $(`#rightButton${this.id}`);
-        let scrollLeft = list.prop("scrollLeft");
-        let scrollLeftMax = list.prop("scrollLeftMax");
+        if (this.gridButton.classList.contains("on")) {
+            return;
+        }
+        let scrollLeft = this.scrollableList.scrollLeft;
+        let scrollLeftMax = this.scrollableList.scrollLeftMax;
         if (scrollLeft === 0) {
-            leftButton.addClass("hide");
+            this.leftButton.classList.add("hide");
             if (scrollLeftMax === 0) {
-                rightButton.addClass("hide");
+                this.rightButton.classList.add("hide");
             } else {
-                rightButton.removeClass("hide");
+                this.rightButton.classList.remove("hide");
             }
         } else {
-            leftButton.removeClass("hide");
+            this.leftButton.classList.remove("hide");
             if (scrollLeftMax === scrollLeft) {
-                rightButton.addClass("hide");
+                this.rightButton.classList.add("hide");
             } else {
-                rightButton.removeClass("hide");
+                this.rightButton.classList.remove("hide");
             }
         }
     }
 
     show() {
         $(`#horizontalContainer${this.id}`).show();
-        this.setLeftRightButtons();
+        this.saveButtons();
+        this.setButtonListeners();
         this.checkLeftRightButtons();
     }
 
@@ -87,16 +135,46 @@ export default class HorizontalContainer {
         this.show();
         this.map.set(series.data.id, series);
         this.setListenersOnSeries(series);
-        $(`#hlcList${this.id}`).append(series.createHtml());
+        if (this.isNeedSortByListType()) {
+            this.sortByDate();
+        }
+        this.showItems();
         this.checkLeftRightButtons();
     }
 
-    initialAdditionFinish() {
+    sortByDate() {
+        let indexes = [...this.map.keys()];
+        this.map = new Map([...this.map.entries()].sort((prev, next) => {
+            return prev[1].data.date - next[1].data.date;
+        }));
+        let newIndexes = [...this.map.keys()];
+        for (let i = 0; i < indexes.length; i++) {
+            if (indexes[i] !== newIndexes[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isNeedSortByListType() {
+        return this.id === LIST_TYPE.RELEASED
+            || this.id === LIST_TYPE.RELEASED_NEXT_7_DAYS
+            || this.id === LIST_TYPE.WITH_DATE_OTHERS;
+    }
+
+    showItems() {
         let inner = "";
         for (let series of this.map.values()) {
             inner += series.createHtml();
         }
-        $(`#hlcList${this.id}`).html(inner);
+        document.getElementById(`hlcList${this.id}`).innerHTML = inner;
+    }
+
+    initialAdditionFinish() {
+        if (this.isNeedSortByListType()) {
+            this.sortByDate();
+        }
+        this.showItems();
         if (this.map.size > 0) {
             this.show();
         }
@@ -119,7 +197,20 @@ export default class HorizontalContainer {
             this.deleteSeries(series);
             this.relocateSeries(series, listtype);
         } else {
-            // можно произвести сортироку по дате в списке
+            if (this.isNeedSortByListType()) {
+                if (this.sortByDate()) {
+                    this.showItems();
+
+                    let scrollTop = document.documentElement.scrollTop;
+                    document.getElementById(`item${id}`).scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                        inline: "nearest"
+                    });
+                    document.documentElement.scrollTop = scrollTop;
+                    this.checkLeftRightButtons();
+                }
+            }
         }
     }
 

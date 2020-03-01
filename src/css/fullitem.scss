@@ -105,7 +105,7 @@
                                 appearance: none !important;
 
                                 > option {
-                                    @include color($fullitem-list-background);
+                                    @include color($fullitem-list-background, $fullitem-list-text);
                                 }
                             }
                         }

@@ -1,5 +1,9 @@
 import * as constants from "./constants";
 
+export function getOneRemInPixels() {
+    return window.innerWidth / 85;
+}
+
 export function dateToLocaleString(series) {
     if (series) {
         if (series.data.date) {

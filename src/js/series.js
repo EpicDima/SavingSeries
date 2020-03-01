@@ -25,6 +25,10 @@ export default class Series {
     }
 
     createHtml() {
+        let item = document.getElementById(`item${this.data.id}`);
+        if (item) {
+            return item.outerHTML;
+        }
         return `<div id="item${this.data.id}" class="item-outer" onclick="onItemClick(${this.data.id})">
             <div class="item">
                 <div class="image" style="background-image: url('${this.data.image}');"></div>
@@ -58,10 +62,6 @@ export default class Series {
             }
         }
         return html;
-    }
-
-    getItemElement() {
-        return $(`#item${this.data.id} > .item`);
     }
 
     updateInfoPart() {

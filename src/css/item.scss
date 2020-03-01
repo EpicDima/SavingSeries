@@ -3,7 +3,8 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
 .item-outer {
     display: inline-block;
     @include wh(auto, min-content);
-    margin: auto 1rem;
+    //margin: auto 1rem;
+    margin: 1rem;
     border-radius: 0.625rem;
     box-sizing: border-box;
     box-shadow: 0 0 0.4rem 0.01rem $item-shadow;

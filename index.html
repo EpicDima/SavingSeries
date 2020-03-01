@@ -36,6 +36,9 @@
                         <div class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-item" onclick="createBackup()">Создать Backup</div>
                             <div class="dropdown-item" onclick="loadBackup()">Загрузить Backup</div>
+                            <a class="dropdown-item" href="./dist/index.html">
+                                Вторая версия
+                            </a>
                         </div>
                     </li>
                 </ul>
@@ -43,11 +46,11 @@
         </nav>
     </header>
 
-    <div class="modal fade" id="sortModal" role="dialog" aria-labelledby="centerTitleModal" aria-hidden="true">
+    <div class="modal fade" id="sortModal" role="dialog" aria-labelledby="centerSortTitleModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="centerTitleModal">Сортировка</h5>
+                    <h5 class="modal-title" id="centerSortTitleModal">Сортировка</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -74,11 +77,11 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" role="dialog" aria-labelledby="centerTitleModal" aria-hidden="true">
+    <div class="modal fade" id="addModal" role="dialog" aria-labelledby="centerAddTitleModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="centerTitleModal">Добавление</h5>
+                    <h5 class="modal-title" id="centerAddTitleModal">Добавление</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -88,31 +91,31 @@
                         <div class="form-group row">
                             <label class="col-4 col-form-label">Название</label>
                             <div class="col-8">
-                                <input class="form-control" name="name" type="text" minlength="1" maxlength="100" oninput="nameExists()" required/>
+                                <input class="form-control" name="name" type="text" minlength="1" maxlength="100" oninput="nameExists()" required aria-label="Название"/>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-4 col-form-label">Сезон</label>
                             <div class="col-8">
-                                <input class="form-control" name="season" type="number" value="1" min="1" max="50" required/>
+                                <input class="form-control" name="season" type="number" value="1" min="1" max="50" required aria-label="Сезон"/>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-4 col-form-label">Серия</label>
                             <div class="col-8">
-                                <input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required/>
+                                <input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required aria-label="Серия"/>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-4 col-form-label">Дата</label>
                             <div class="col-8">
-                                <input class="form-control" name="date" type="date" optional/>
+                                <input class="form-control" name="date" type="date" aria-label="Дата"/>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-4 col-form-label">Сайт</label>
                             <div class="col-8">
-                                <input class="form-control" name="site" type="url" optional/>
+                                <input class="form-control" name="site" type="url" aria-label="Сайт"/>
                             </div>
                         </div>
                     </form>

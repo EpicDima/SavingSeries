@@ -1,69 +1,96 @@
-$black: black;
-$white: white;
-$transparent: transparent;
+$default-background: #141414;
+$default-text: white;
+$default-shadow: black;
+$gray: #555;
+$dark-background: black;
+$transparent-background: transparent;
+$dark-gray-tr: #282828fd;
+$dark-gray-hover-tr: #3e3e3edf;
+$dark-border: #393939;
+$light-border: white;
+$white-tr: #fffd;
+$red: red;
+$light-red: #f22d;
+$dark-red: #900f;
 
+$dark-gradient-for-item-title: (rgba(0, 0, 0, 0.7) 0%,
+                                rgba(0, 0, 0, 0.3) 15%,
+                                transparent        20%);
+$dark-gradient-for-item: (rgba(0, 0, 0, 0.7) 0%,
+                          rgba(0, 0, 0, 0.6) 15%);
 
-$a-text: #007bffff;
-$a-text-hover: #0056b3ff;
+$dark-gradient-for-fullitem: (black              40%,
+                              rgba(0, 0, 0, 0.8) 50%,
+                              rgba(0, 0, 0, 0.4) 55%,
+                              transparent        60%);
 
-$body-background: #141414ff;
-$body-text: $white;
+$button-background: (transparent, #fff3, white);
+$button-text: (white, white, black);
+$button-border: (#fff5, #fff9, white);
 
-$navbar-background: #282828fd;
-$navbar-text: $white;
-$navbar-logo-text: $white;
-$navbar-nav-item-hover: #fffb;
-$navbar-search-background: #121212;
-$navbar-search-border: #393939;
-$navbar-search-border-hover: $white;
-$navbar-search-text: #eee;
-$navbar-search-list-background: #282828;
-$navbar-search-list-text: $white;
-$navbar-search-list-background-hover: #3e3e3e;
-$navbar-search-list-text-hover: $white;
-$navbar-submenu-background: #282828fd;
-$navbar-submenu-border: #000b;
-$navbar-submenu-text: $white;
-$navbar-submenu-background-hover: #3e3e3e;
-$navbar-submenu-text-hover: $white;
+$a-text: #007bff;
+$a-text-hover: #0056b3;
 
-$item-background: $black;
-$item-shadow: $black;
-$item-shadow-hover: $black;
-$item-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 15%, transparent 20%);
-$item-not-active-hover-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.6) 15%);
-$item-active-border: $white;
-$item-name: $white;
-$item-info: $white;
-$item-link: #fffd;
-$item-link-hover: $white;
+$body-background: $default-background;
 
-$h-container-shadow: #000c;
-$h-container-title: $white;
-$h-container-button-hover: #fffc;
+$navbar-background: $dark-gray-tr;
+$navbar-text: $default-text;
+$navbar-logo-text: $default-text;
+$navbar-nav-item-hover: $white-tr;
+$navbar-search-background: $default-background;
+$navbar-search-border: $dark-border;
+$navbar-search-border-hover: $light-border;
+$navbar-search-text: $default-text;
+$navbar-search-list-background: $dark-gray-tr;
+$navbar-search-list-text: $default-text;
+$navbar-search-list-background-hover: $dark-gray-hover-tr;
+$navbar-search-list-text-hover: $default-text;
+$navbar-submenu-background: $dark-gray-tr;
+$navbar-submenu-border: $dark-border;
+$navbar-submenu-text: $default-text;
+$navbar-submenu-background-hover: $dark-gray-hover-tr;
+$navbar-submenu-text-hover: $default-text;
 
-$fullitem-background: #000f;
-$fullitem-shadow: #000c;
-$fullitem-close: #555f;
-$fullitem-close-hover: #900f;
-$fullitem-gradient: linear-gradient(to right, black 40%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.4) 55%, transparent 60%);
-$fullitem-list-background: #282828fd;
-$fullitem-list-hover: #3e3e3edf;
-$fullitem-invalid-background: #f22d;
-$fullitem-invalid-text: $white;
-$fullitem-error: #f00f;
-$fullitem-input-background: $transparent;
-$fullitem-input-text: $white;
-$fullitem-input-border: $white;
-$fullitem-content-text: $white;
-$fullitem-button-background: $transparent;
-$fullitem-button-text: $white;
-$fullitem-button-border: #fff5;
-$fullitem-button-background-hover: #fff3;
-$fullitem-button-text-hover: $white;
-$fullitem-button-border-hover: #fff9;
-$fullitem-button-background-active: $white;
-$fullitem-button-text-active: $black;
-$fullitem-button-border-active: $white;
-$fullitem-tooltip-background: #3e3e3edf;
-$fullitem-tooltip-text: $white;
+$item-background: $dark-background;
+$item-shadow: $default-shadow;
+$item-shadow-hover: $default-shadow;
+$item-gradient: linear-gradient(to top, $dark-gradient-for-item-title);
+$item-not-active-hover-gradient: linear-gradient(to top, $dark-gradient-for-item);
+$item-active-border: $light-border;
+$item-name: $default-text;
+$item-info: $default-text;
+$item-link: $white-tr;
+$item-link-hover: $default-text;
+
+$h-container-shadow: $default-shadow;
+$h-container-title: $default-text;
+$h-container-button-hover: $white-tr;
+$h-container-grid-button: $white-tr;
+$h-container-grid-button-hover: $default-text;
+
+$fullitem-background: $dark-background;
+$fullitem-shadow: $default-shadow;
+$fullitem-close: $gray;
+$fullitem-close-hover: $dark-red;
+$fullitem-gradient: linear-gradient(to right, $dark-gradient-for-fullitem);
+$fullitem-list-background: $dark-gray-tr;
+$fullitem-list-text: $default-text;
+$fullitem-list-hover: $dark-gray-hover-tr;
+$fullitem-invalid-background: $light-red;
+$fullitem-invalid-text: $default-text;
+$fullitem-error: $red;
+$fullitem-input-background: $transparent-background;
+$fullitem-input-text: $default-text;
+$fullitem-input-border: $light-border;
+$fullitem-content-text: $default-text;
+$fullitem-button-background: nth($button-background, 1);
+$fullitem-button-text: nth($button-text, 1);
+$fullitem-button-border: nth($button-border, 1);
+$fullitem-button-background-hover: nth($button-background, 2);
+$fullitem-button-text-hover: nth($button-text, 2);
+$fullitem-button-border-hover: nth($button-border, 2);
+$fullitem-button-background-active: nth($button-background, 3);
+$fullitem-button-text-active: nth($button-text, 3);
+$fullitem-button-border-active: nth($button-border, 3);
+$fullitem-tooltip-background: $dark-gray-hover-tr;
+$fullitem-tooltip-text: $default-text;

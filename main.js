@@ -5,11 +5,11 @@ const SORT_TYPES = {ID_UP:      0, ID_DOWN:      1,
                     DATE_UP:    8, DATE_DOWN:    9};
 const SORT_TYPE_KEY = "sort_type";
 
-var database;
-var counterId = 0;
-var seriesList = new Map();
-var cardList = new Map();
-var currentSortType;
+let database;
+let counterId = 0;
+let seriesList = new Map();
+let cardList = new Map();
+let currentSortType;
 
 const search = document.getElementById("search");
 
@@ -20,13 +20,13 @@ function connectDB(func) {
     let request = indexedDB.open("SavingSeriesDb", 1);
     request.onerror = error => {
         console.log("connectDB error: " + error);
-    }
+    };
     request.onsuccess = () => {
         func(request.result);
-    }
-    request.onupgradeneeded = event => {
+    };
+    request.onupgradeneeded = () => {
         if (confirm("Данные будут храниться на вашем компьютере.\nВы согласны?")) {
-            event.currentTarget.result.createObjectStore("series", {keyPath: "id"});
+            request.result.createObjectStore("series", {keyPath: "id"});
             connectDB(func);
         } else {
             indexedDB.deleteDatabase("SavingSeriesDb");
@@ -54,17 +54,17 @@ function scrollToTop() {
 function initialize(db) {
     database = db;
     let request = database.transaction("series", "readonly").objectStore("series").getAll();
-    request.onerror = event => {
-        console.log("initialize error: " + event.target.error);
-    }
-    request.onsuccess = event => {
+    request.onerror = () => {
+        console.log("initialize error: " + request.error);
+    };
+    request.onsuccess = () => {
         scrollToTop();
-        let valuesRequest = event.target.source.getAll();
-        valuesRequest.onsuccess = event => {
-            let values = event.target.result;
-            let keysRequest = event.target.source.getAllKeys();
-            keysRequest.onsuccess = event => {
-                let keys = event.target.result;
+        let valuesRequest = request.source.getAll();
+        valuesRequest.onsuccess = () => {
+            let values = valuesRequest.result;
+            let keysRequest = valuesRequest.source.getAllKeys();
+            keysRequest.onsuccess = () => {
+                let keys = keysRequest.result;
                 for (let i = 0; i < values.length; i++) {
                     seriesList.set(keys[i], values[i]);
                 }
@@ -85,7 +85,6 @@ function createBackup() {
     element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(Array.from(seriesList.values())));
     element.download = "backup.bin";
     element.style.display = "none";
-    document.body.appendChild(element);
     element.click();
     element.remove();
 }
@@ -97,7 +96,6 @@ function loadBackup() {
         element.type = "file";
         element.style.display = "none";
         element.onchange = onOpenFile;
-        document.body.appendChild(element);
         element.click();
         element.remove();
     }
@@ -115,10 +113,10 @@ function clearAll() {
 
 function onOpenFile(event) {
     let reader = new FileReader();
-    reader.onloadend = event => {
+    reader.onloadend = () => {
         let data;
         try {
-            data = JSON.parse(event.target.result);
+            data = JSON.parse(reader.result);
         } catch (SyntaxError) {
             data = null;
         }
@@ -212,7 +210,70 @@ function createCard(series) {
     card.className = "card";
     card.id = "card" + series.id;
     let linkElement = createLinkElement(series.site);
-    card.innerHTML = `<div data-toggle="collapse" href="#change${series.id}" aria-expanded="false" aria-controls="change${series.id}" onclick="updateCardChangeContainer(${series.id})"><div class="card-header row"><div class="col">${series.name}</div><button type="button" class="close col-0" onclick="event.stopPropagation(); deleteSeries(${series.id}); document.activeElement.blur();"><span>&times;</span></button></div><div class="card-body row"><div class="col-3 card-col"><div>Сезон</div><div id="season${series.id}">${series.season}</div></div><div class="col-3 card-col"><div>Серия</div><div id="episode${series.id}">${series.episode}</div></div><div class="col-3 card-col"><div id="dateTitle${series.id}">${series.date === "" ? "" : "Дата"}</div><div id="date${series.id}">${dateToLocaleString(series.date)}</div></div><div class="col-3 card-col"><div id="siteTitle${series.id}">${series.site.length === 0 ? "" : "Сайт"}</div><div id="site${series.id}">${linkElement}</div></div></div></div><div class="collapse change" id="change${series.id}" onclick="event.stopPropagation();"><br/><form name="changeForm${series.id}" onsubmit="return false;"><div class="form-group row"><label class="col col-form-label text-left ml-3">Сезон</label><div class="col mr-3"><input class="form-control" name="season" type="number" value="1" min="1" max="50" required/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Серия</label><div class="col mr-3"><input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Дата</label><div class="col mr-3"><input class="form-control" name="date" type="date" optional/></div></div><div class="form-group row"><label class="col col-form-label text-left ml-3">Сайт</label><div class="col mr-3"><input class="form-control" name="site" type="url" optional/></div></div><div class="form-group row justify-content-center"><button type="submit" class="btn btn-primary col-5" onclick="changeSeries(${series.id})">Подтвердить</button></div></form></div>`;
+    card.innerHTML = `<div data-toggle="collapse" href="#change${series.id}" aria-expanded="false" 
+                           aria-controls="change${series.id}" onclick="updateCardChangeContainer(${series.id})">
+        <div class="card-header row">
+            <div class="col">
+                ${series.name}
+            </div>
+            <button type="button" class="close col-0" 
+                    onclick="event.stopPropagation(); deleteSeries(${series.id}); document.activeElement.blur();">
+                <span>&times;</span>
+            </button>
+        </div>
+        <div class="card-body row">
+            <div class="col-3 card-col">
+                <div>Сезон</div>
+                <div id="season${series.id}">${series.season}</div>
+            </div>
+            <div class="col-3 card-col">
+                <div>Серия</div>
+                <div id="episode${series.id}">${series.episode}</div>
+            </div>
+            <div class="col-3 card-col">
+                <div id="dateTitle${series.id}">${series.date === "" ? "" : "Дата"}</div>
+                <div id="date${series.id}">${dateToLocaleString(series.date)}</div>
+            </div>
+            <div class="col-3 card-col">
+                <div id="siteTitle${series.id}">${series.site.length === 0 ? "" : "Сайт"}</div>
+                <div id="site${series.id}">${linkElement}</div>
+            </div>
+        </div>
+    </div>
+    <div class="collapse change" id="change${series.id}" onclick="event.stopPropagation();">
+        <br/>
+        <form name="changeForm${series.id}" onsubmit="return false;">
+            <div class="form-group row">
+                <label class="col col-form-label text-left ml-3">Сезон</label>
+                <div class="col mr-3">
+                    <input class="form-control" name="season" type="number" value="1" min="1" max="50" required/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col col-form-label text-left ml-3">Серия</label>
+                <div class="col mr-3">
+                    <input class="form-control" name="episode" type="number" value="1" min="1" max="50000" required/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col col-form-label text-left ml-3">Дата</label>
+                <div class="col mr-3">
+                    <input class="form-control" name="date" type="date"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col col-form-label text-left ml-3">Сайт</label>
+                <div class="col mr-3">
+                    <input class="form-control" name="site" type="url"/>
+                </div>
+            </div>
+            <div class="form-group row justify-content-center">
+                <button type="submit" class="btn btn-primary col-5" onclick="changeSeries(${series.id})">
+                    Подтвердить
+                </button>
+            </div>
+        </form>
+    </div>`;
     return card;
 }
 
@@ -242,16 +303,16 @@ function addSeries() {
                       date: form.date.value === "" ? "" : new Date(form.date.value),
                       site: form.site.value.trim()};
 
-        let request = database.transaction("series", "readwrite").objectStore("series").add(series)
-        request.onerror = event => {
-            console.log("Что-то пошло не так!\n addSeries: " + event.target.error);
-        }
+        let request = database.transaction("series", "readwrite").objectStore("series").add(series);
+        request.onerror = () => {
+            console.log("Что-то пошло не так!\n addSeries: " + request.error);
+        };
         request.onsuccess = () => {
             seriesList.set(series.id, series);
             forcelySortSeries();
             updateCardWarning(series);
             cardList.get(series.id).scrollIntoView({block: "center"});
-        }
+        };
     }
 }
 
@@ -272,19 +333,26 @@ function changeSeries(id) {
         if (series.season == form.season.value) {
             noChanges++;
         } else {
-            needToSort = currentSortType === SORT_TYPES.SEASON_DOWN || currentSortType === SORT_TYPES.SEASON_UP || needToSort;
+            needToSort = currentSortType === SORT_TYPES.SEASON_DOWN
+                || currentSortType === SORT_TYPES.SEASON_UP
+                || needToSort;
         }
 
         if (series.episode == form.episode.value) {
             noChanges++;
         } else {
-            needToSort = currentSortType === SORT_TYPES.EPISODE_DOWN || currentSortType === SORT_TYPES.EPISODE_UP || needToSort;
+            needToSort = currentSortType === SORT_TYPES.EPISODE_DOWN
+                || currentSortType === SORT_TYPES.EPISODE_UP
+                || needToSort;
         }
 
-        if ((series.date === "" && form.date.value === "") || (series.date.toString() === new Date(form.date.value).toString())) {
+        if ((series.date === "" && form.date.value === "")
+            || (series.date.toString() === new Date(form.date.value).toString())) {
             noChanges++;
         } else {
-            needToSort = currentSortType === SORT_TYPES.DATE_DOWN || currentSortType === SORT_TYPES.DATE_UP || needToSort;
+            needToSort = currentSortType === SORT_TYPES.DATE_DOWN
+                || currentSortType === SORT_TYPES.DATE_UP
+                || needToSort;
         }
 
         if (series.site === form.site.value) {
@@ -306,8 +374,8 @@ function changeSeries(id) {
         series.site = form.site.value;
 
         let request = database.transaction("series", "readwrite").objectStore("series").put(series);
-        request.onerror = event => {
-            console.log("Что-то пошло не так!\n changeSeries: " + event.target.error);
+        request.onerror = () => {
+            console.log("Что-то пошло не так!\n changeSeries: " + request.error);
         };
         request.onsuccess = () => {
             document.getElementById("season" + series.id).innerHTML = series.season;
@@ -317,8 +385,12 @@ function changeSeries(id) {
             document.getElementById("dateTitle" + series.id).innerHTML = date.length === 0 ? "" : "Дата";
             document.getElementById("date" + series.id).innerHTML = date;
 
-            document.getElementById("siteTitle" + series.id).innerHTML = series.site.length === 0 ? "" : "Сайт";
-            document.getElementById("site" + series.id).innerHTML = series.site.length === 0 ? "" : createLinkElement(series.site);
+            document.getElementById("siteTitle" + series.id).innerHTML = series.site.length === 0
+                ? ""
+                : "Сайт";
+            document.getElementById("site" + series.id).innerHTML = series.site.length === 0
+                ? ""
+                : createLinkElement(series.site);
 
             collapseChangeContainerById(id);
             if (needToSort) {
@@ -334,8 +406,8 @@ function deleteSeries(id) {
     let series = seriesList.get(id);
     if (confirm(`Вы действительно хотите удалить "${series.name}"?`)) {
         let request = database.transaction("series", "readwrite").objectStore("series").delete(id);
-        request.onerror = event => {
-            console.log("Что-то пошло не так!\n deleteSeries: " + event.target.error);
+        request.onerror = () => {
+            console.log("Что-то пошло не так!\n deleteSeries: " + request.error);
         };
         request.onsuccess = () => {
             seriesList.delete(id);
@@ -441,14 +513,14 @@ function forcelySortSeries(prevSortType = undefined) {
             } else {
                 seriesList = new Map([...seriesList.entries()].sort((prev, next) => next[1].id - prev[1].id));
             }
-            break
+            break;
         case SORT_TYPES.NAME_UP:
             if (prevSortType === SORT_TYPES.NAME_DOWN) {
                 reverseSort = true;
             } else {
                 seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].name.localeCompare(next[1].name)));
             }
-            break
+            break;
         case SORT_TYPES.NAME_DOWN:
             if (prevSortType === SORT_TYPES.NAME_UP) {
                 reverseSort = true;
@@ -462,7 +534,7 @@ function forcelySortSeries(prevSortType = undefined) {
             } else {
                 seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].season - next[1].season));
             }
-            break
+            break;
         case SORT_TYPES.SEASON_DOWN:
             if (prevSortType === SORT_TYPES.SEASON_UP) {
                 reverseSort = true;
@@ -476,7 +548,7 @@ function forcelySortSeries(prevSortType = undefined) {
             } else {
                 seriesList = new Map([...seriesList.entries()].sort((prev, next) => prev[1].episode - next[1].episode));
             }
-            break
+            break;
         case SORT_TYPES.EPISODE_DOWN:
             if (prevSortType === SORT_TYPES.EPISODE_UP) {
                 reverseSort = true;
@@ -486,12 +558,9 @@ function forcelySortSeries(prevSortType = undefined) {
             break;
         case SORT_TYPES.DATE_UP:
             dateSort((prev, next) => (prev[1].date < next[1].date) ? -1 : 1);
-            break
+            break;
         case SORT_TYPES.DATE_DOWN:
             dateSort((prev, next) => (prev[1].date > next[1].date) ? -1 : 1);
-            break;
-        default: 
-            console.log("Неизвестный тип сортировки: " + sortType);
             break;
     }
     if (reverseSort) {

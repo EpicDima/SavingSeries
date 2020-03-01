@@ -5,7 +5,7 @@ import "jquery-validation";
 import "jquery-validation/dist/localization/messages_ru";
 
 import * as constants from "./constants";
-import {scrollToTop, getSeriesListType} from "./common";
+import {getOneRemInPixels, scrollToTop, getSeriesListType} from "./common";
 import Series from "./series";
 import HorizontalContainer from "./h-container";
 import Database from "./database";
@@ -18,7 +18,7 @@ const database = new Database();
 const containers = new Map();
 let addingFullItem;
 
-const searchBox = new SearchBox(containers);
+new SearchBox(containers);
 
 let main = document.querySelector("main");
 
@@ -65,12 +65,12 @@ function relocateSeries(series, listType) {
     if (listType === undefined) {
         listType = getSeriesListType(series);
     }
-    containers.get(getSeriesListType(series)).addSeries(series);
+    containers.get(listType).addSeries(series);
 }
 
 
 function resize() {
-    document.documentElement.style.fontSize =  `${window.innerWidth / 85}px`;
+    document.documentElement.style.fontSize =  `${getOneRemInPixels()}px`;
 }
 
 window.onresize = resize;
@@ -104,12 +104,10 @@ window.onclick = () => {
 window.createBackup = () => {
     let request = database.getReadOnlyObjectStore().getAll();
     request.onsuccess = () => {
-        console.log(request.result);
         let element = document.createElement("a");
         element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(request.result));
         element.download = "backup.bin";
         element.style.display = "none";
-        document.body.appendChild(element);
         element.click();
         element.remove();
     };
@@ -121,7 +119,6 @@ window.loadBackup = () => {
         element.type = "file";
         element.style.display = "none";
         element.onchange = onOpenFile;
-        document.body.appendChild(element);
         element.click();
         element.remove();
     }
@@ -153,4 +150,11 @@ window.onOpenFile = (event) => {
         }
     };
     reader.readAsText(event.target.files[0]);
+};
+
+window.goToFirstVersion = () => {
+    let a = document.createElement("a");
+    a.href = "../index.html";
+    a.click();
+    a.remove();
 };
