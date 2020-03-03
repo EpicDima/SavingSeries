@@ -8,6 +8,8 @@ export default class HorizontalContainer {
         this.title = title;
         this.relocateSeries = relocateSeries;
         this.map = new Map();
+
+        // TODO: сделать сохранение состояния сетки в localStorage в json объекте
     }
 
     createHtml() {
@@ -21,8 +23,12 @@ export default class HorizontalContainer {
                 <div id="outerList${this.id}" class="outer-list">
                     <div id="hlcList${this.id}" class="list"></div>
                 </div>
-                <div class="left-icon-control" id="leftButton${this.id}"></div>
-                <div class="right-icon-control" id="rightButton${this.id}"></div>
+                <div class="left-control" id="leftButton${this.id}">
+                    <div class="left-icon"></div>
+                </div>
+                <div class="right-control" id="rightButton${this.id}">
+                    <div class="right-icon"></div>
+                </div>
             </div>
             ${this.fullitem.createHtml()}
         </div>`;
@@ -60,21 +66,68 @@ export default class HorizontalContainer {
             }, 300, () => this.checkLeftRightButtons());
         };
 
+        this.setListenerToGridButton();
+    }
+
+    removeListenerFromGridButton() {
+        this.gridButton.onclick = null;
+    }
+
+    setListenerToGridButton() {
         this.gridButton.onclick = () => {
             this.turnGridMode(!this.gridButton.classList.contains("on"));
         };
     }
 
+    showGrid(list) {
+        list.animate({
+            height: list.height() * Math.ceil(this.map.size / 4)
+        }, {
+            queue: false,
+            duration: 400,
+            complete: () => {
+                list.removeAttr("style");
+                this.setListenerToGridButton();
+            }
+        }).animate({
+            minWidth: this.scrollableList.offsetWidth
+        }, 250);
+    }
+
+    hideGrid(list) {
+        list.animate({
+            height: list.height() / Math.ceil(this.map.size / 4)
+        }, {
+            queue: false,
+            duration: 400,
+            complete: () => {
+                list.removeAttr("style");
+                list.removeClass("grid");
+                this.checkLeftRightButtons();
+                this.setListenerToGridButton();
+            }
+        }).animate({
+            minWidth: this.minWidth
+        }, 250);
+    }
+
     turnGridMode(on = false) {
-        let list = document.getElementById(`hlcList${this.id}`);
+        let list = $(`#hlcList${this.id}`);
         if (on) {
-            list.style.flexWrap = "wrap";
+            this.minWidth = list.width();
+            list.css("min-width", this.minWidth);
+
+            this.removeListenerFromGridButton();
+            list.addClass("grid");
             this.gridButton.classList.add("on");
             this.showLeftRightButtons(false);
+
+            this.showGrid(list);
         } else {
-            list.style.flexWrap = "nowrap";
+            this.removeListenerFromGridButton();
             this.gridButton.classList.remove("on");
-            this.showLeftRightButtons();
+
+            this.hideGrid(list);
         }
     }
 
@@ -93,7 +146,7 @@ export default class HorizontalContainer {
             return;
         }
         let scrollLeft = this.scrollableList.scrollLeft;
-        let scrollLeftMax = this.scrollableList.scrollLeftMax;
+        let scrollLeftMax = this.scrollableList.scrollWidth - this.scrollableList.clientWidth;
         if (scrollLeft === 0) {
             this.leftButton.classList.add("hide");
             if (scrollLeftMax === 0) {
@@ -196,6 +249,7 @@ export default class HorizontalContainer {
         if (listtype !== this.id) {
             this.deleteSeries(series);
             this.relocateSeries(series, listtype);
+            // TODO: при обновлении и перемещении серии нужно показывать её в новом месте
         } else {
             if (this.isNeedSortByListType()) {
                 if (this.sortByDate()) {
