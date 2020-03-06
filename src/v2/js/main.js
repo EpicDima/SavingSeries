@@ -83,6 +83,12 @@ function openFullitem(id) {
     }
 }
 
+window.goBack = function() {
+    localStorage.removeItem("version");
+    history.replaceState({}, "", `../`);
+    location.reload();
+};
+
 window.onItemClick = openFullitem;
 window.onSearchItemClick = (id) => {document.activeElement.blur(); openFullitem(id);};
 

@@ -1,3 +1,8 @@
+import "../css/style.scss";
+
+import "jquery";
+import "bootstrap"
+
 const SORT_TYPES = {ID_UP:      0, ID_DOWN:      1,
                     NAME_UP:    2, NAME_DOWN:    3,
                     SEASON_UP:  4, SEASON_DOWN:  5,
@@ -35,6 +40,11 @@ function connectDB(func) {
     }
 }
 
+window.goBack = function() {
+    localStorage.removeItem("version");
+    history.replaceState({}, "", `../`);
+    location.reload();
+};
 
 function getSortType() {
     let sortType = localStorage.getItem(SORT_TYPE_KEY);
@@ -80,17 +90,17 @@ function initialize(db) {
 }
 
 
-function createBackup() {
+window.createBackup = function() {
     let element = document.createElement("a");
     element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(Array.from(seriesList.values())));
     element.download = "backup.bin";
     element.style.display = "none";
     element.click();
     element.remove();
-}
+};
 
 
-function loadBackup() {
+window.loadBackup = function() {
     if (confirm("Все имеющиеся данные будут очищены и заменены на новые. Вы согласны?")) {
         let element = document.createElement("input");
         element.type = "file";
@@ -99,7 +109,7 @@ function loadBackup() {
         element.click();
         element.remove();
     }
-}
+};
 
 
 function clearAll() {
@@ -143,19 +153,19 @@ function onOpenFile(event) {
 }
 
 
-function collapseChangeContainers() {
+window.collapseChangeContainers = function() {
     $(".show.collapse.change").collapse("hide");
-}
+};
 
 
-function clearAddInputs() {
+window.clearAddInputs = function() {
     let form = document.forms["add"];
     form.name.value = "";
     form.season.value = "1";
     form.episode.value = "1";
     form.date.value = "";
     form.site.value = "";
-}
+};
 
 
 function nameExists() {
@@ -278,7 +288,7 @@ function createCard(series) {
 }
 
 
-function updateCardChangeContainer(id) {
+window.updateCardChangeContainer = function(id) {
     if (document.getElementById("change" + id).classList.contains("show")) {
         return;
     }
@@ -288,10 +298,10 @@ function updateCardChangeContainer(id) {
     form.episode.value = series.episode;
     form.date.value = series.date === "" ? "" : series.date.toISOString().split("T")[0];
     form.site.value = series.site;
-}
+};
 
 
-function addSeries() {
+window.addSeries = function() {
     let form = document.forms["add"];
     nameExists();
     if (form.checkValidity()) {
@@ -314,7 +324,7 @@ function addSeries() {
             cardList.get(series.id).scrollIntoView({block: "center"});
         };
     }
-}
+};
 
 
 function collapseChangeContainerById(id) {
@@ -322,7 +332,7 @@ function collapseChangeContainerById(id) {
 }
 
 
-function changeSeries(id) {
+window.changeSeries = function(id) {
     let form = document.forms["changeForm" + id];
     if (form.checkValidity()) {
         let series = seriesList.get(id);
@@ -399,10 +409,10 @@ function changeSeries(id) {
             updateCardWarning(series);
         };
     }
-}
+};
 
 
-function deleteSeries(id) {
+window.deleteSeries = function(id) {
     let series = seriesList.get(id);
     if (confirm(`Вы действительно хотите удалить "${series.name}"?`)) {
         let request = database.transaction("series", "readwrite").objectStore("series").delete(id);
@@ -417,10 +427,10 @@ function deleteSeries(id) {
     } else {
         
     }
-}
+};
 
 
-function searchSeries() {
+window.searchSeries = function() {
     let substr = search.value.trim().toLowerCase();
     if (substr.length === 0) {
         for (let card of cardList.values()) {
@@ -431,20 +441,20 @@ function searchSeries() {
     for (let series of seriesList.values()) {
         cardList.get(series.id).style.display = series.name.toLowerCase().search(substr) === -1 ? "none" : "block";
     }
-}
+};
 
 
-function updateSortType() {
+window.updateSortType = function() {
     let elements = document.getElementsByClassName("sort-type");
     for (let i = 0; i < elements.length; i++) {
         elements[i].classList.remove("active");
     }
     elements[Math.floor(currentSortType / 2)].classList.add("active");
     document.getElementById("reverseSort").checked = currentSortType % 2 === 1;
-}
+};
 
 
-function saveSortType() {
+window.saveSortType = function() {
     let sortType;
     let elements = document.getElementsByClassName("sort-type");
     for (let i = 0; i < elements.length; i++) {
@@ -455,7 +465,7 @@ function saveSortType() {
     }
     sortType += document.getElementById("reverseSort").checked;
     sortSeries(sortType);
-}
+};
 
 
 function sortCardList() {

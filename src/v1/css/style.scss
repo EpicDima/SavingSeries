@@ -1,12 +1,18 @@
+@import "~normalize.css/normalize.css";
+@import "~bootstrap/scss/bootstrap";
+
+
 body {
     padding-top: 4.5rem;
     background-color: #1f1f1f;
     overflow-y: scroll;
 }
 
+
 button {
     outline: none !important;
 }
+
 
 .navbar {
     background-color: #282828fd;
