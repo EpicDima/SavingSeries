@@ -340,8 +340,9 @@ export class BaseFullItem {
 
 
 export class FullItem extends BaseFullItem {
-    constructor(id = 0) {
-        super(id);
+    constructor(hContainer) {
+        super(hContainer.id);
+        this.hContainer = hContainer;
     }
 
     getButtonContainerInnerHtml() {
@@ -438,6 +439,8 @@ export class FullItem extends BaseFullItem {
 
     open(series) {
         if (this.needToOpen(series)) {
+            this.series = series;
+            this.moveByGridState();
             super.open();
             this.setSeries(series);
             this.turnOnActiveItem();
@@ -446,6 +449,35 @@ export class FullItem extends BaseFullItem {
             this.onChangeStatus();
             this.hideEmptyFields();
         }
+    }
+
+    moveByGridState() {
+        if (document.querySelector(`#horizontalContainer${this.id} .grid-icon`).classList.contains("on")) {
+            if (this.series) {
+                let fullitem = document.getElementById(`fullitem${this.id}`);
+                let list = document.getElementById(`hlcList${this.id}`);
+                let children = list.childNodes;
+                let childrenArray = Array.from(children);
+                let removeIdx = childrenArray.indexOf(fullitem);
+                if (removeIdx > -1) {
+                    childrenArray.splice(removeIdx, 1);
+                }
+                let idx = childrenArray.indexOf(document.getElementById(`item${this.series.data.id}`));
+                idx = Math.floor(idx / this.hContainer.countNumber) * this.hContainer.countNumber
+                    + (this.hContainer.countNumber - 1) + (((removeIdx > -1) && (removeIdx <= (idx + (this.hContainer.countNumber - idx % this.hContainer.countNumber)))) ? 1 : 0);
+                if (idx >= children.length) {
+                    idx = children.length - 1;
+                }
+                list.insertBefore(fullitem, children.item(idx).nextSibling);
+            }
+        } else {
+            this.moveToDefault();
+        }
+    }
+
+    moveToDefault() {
+        document.getElementById(`horizontalContainer${this.id}`)
+            .appendChild(document.getElementById(`fullitem${this.id}`));
     }
 
     close() {
@@ -457,7 +489,6 @@ export class FullItem extends BaseFullItem {
     }
 
     setSeries(series) {
-        this.series = series;
         this.setDisplayValues(series);
         this.setInputValues(series);
     }
@@ -607,7 +638,7 @@ export class AddingFullItem extends BaseFullItem {
 
     add() {
         let data = this.getValuesFromInputs();
-        if (data === null) {
+        if (!data) {
             return;
         }
         let name = this.fields.name.input.val();

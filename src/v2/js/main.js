@@ -11,18 +11,41 @@ import HorizontalContainer from "./h-container";
 import Database from "./database";
 import {AddingFullItem} from "./fullitem";
 import SearchBox from "./search-box";
+import {STATUS} from "./constants";
+
+
+window.onresize = resize;
+window.goBack = goBack;
+
+window.onItemClick = openFullitem;
+window.onSearchItemClick = onSearchItemClick;
+window.openAddingElement = openAddingElement;
+
+window.createBackup = createBackup;
+window.loadBackup = loadBackup;
+window.onOpenFile = onOpenFile;
+
+
+document.getElementById("settingsSubmenuTitle").onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById("settingsSubmenu").classList.toggle("show");
+};
+
+
+window.onclick = () => {
+    $(".submenu.show").removeClass("show");
+};
+
 
 resize();
 
 const database = new Database();
 const containers = new Map();
 let addingFullItem;
-
-new SearchBox(containers);
-
-let main = document.querySelector("main");
+let searchBox;
 
 database.connect(initialize);
+setDayTimer();
 
 
 function initialize() {
@@ -34,18 +57,27 @@ function initialize() {
         containers.set(k, container);
         inner += container.createHtml();
     }
-    main.innerHTML = inner;
+    document.querySelector("main").innerHTML = inner;
     database.foreach(initialSplitSeries, onInitialSplitSeriesEnd);
     scrollToTop();
+
+    searchBox = new SearchBox(containers);
 }
 
+
 function clearAll() {
+    clearRuntime();
+    localStorage.clear();
+    database.clear();
+}
+
+
+function clearRuntime() {
     addingFullItem.remove();
     for (let container of containers.values()) {
         container.remove();
     }
     containers.clear();
-    database.clear();
 }
 
 
@@ -54,6 +86,7 @@ function initialSplitSeries(series) {
     containers.get(getSeriesListType(series)).initialAddSeries(series);
 }
 
+
 function onInitialSplitSeriesEnd(id) {
     addingFullItem.setSeriesId(id + 1);
     for (let container of containers.values()) {
@@ -61,8 +94,9 @@ function onInitialSplitSeriesEnd(id) {
     }
 }
 
+
 function relocateSeries(series, listType) {
-    if (listType === undefined) {
+    if (!listType) {
         listType = getSeriesListType(series);
     }
     containers.get(listType).addSeries(series);
@@ -73,7 +107,6 @@ function resize() {
     document.documentElement.style.fontSize =  `${getOneRemInPixels()}px`;
 }
 
-window.onresize = resize;
 
 function openFullitem(id) {
     for (let container of containers.values()) {
@@ -83,54 +116,47 @@ function openFullitem(id) {
     }
 }
 
-window.goBack = function() {
+
+function goBack() {
     localStorage.removeItem("version");
     history.replaceState({}, "", `../`);
     location.reload();
-};
+}
 
-window.onItemClick = openFullitem;
-window.onSearchItemClick = (id) => {document.activeElement.blur(); openFullitem(id);};
 
-window.openAddingElement = function () {
+function onSearchItemClick(id) {
+    document.activeElement.blur();
+    openFullitem(id);
+}
+
+
+function openAddingElement() {
     addingFullItem.open();
-};
-
-document.getElementById("settingsSubmenuTitle").onclick = (e) => {
-    e.stopPropagation();
-    document.getElementById("settingsSubmenu").classList.toggle("show");
-};
-
-window.onclick = () => {
-    $(".submenu.show").removeClass("show");
-};
+}
 
 
-
-window.createBackup = () => {
+function createBackup() {
     let request = database.getReadOnlyObjectStore().getAll();
     request.onsuccess = () => {
         let element = document.createElement("a");
         element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(request.result));
         element.download = "backup.bin";
-        element.style.display = "none";
         element.click();
-        element.remove();
     };
-};
+}
 
-window.loadBackup = () => {
+
+function loadBackup() {
     if (confirm("Все имеющиеся данные будут очищены и заменены на новые. Вы согласны?")) {
         let element = document.createElement("input");
         element.type = "file";
-        element.style.display = "none";
         element.onchange = onOpenFile;
         element.click();
-        element.remove();
     }
-};
+}
 
-window.onOpenFile = (event) => {
+
+function onOpenFile(event) {
     let reader = new FileReader();
     reader.onload = event => {
         let data;
@@ -146,21 +172,42 @@ window.onOpenFile = (event) => {
             let counterId = 0;
             let objectStore = database.getReadWriteObjectStore();
             for (let series of data) {
-                series.id = counterId++;
-                if (series.date !== "") {
-                    series.date = new Date(series.date);
-                }
-                objectStore.add(series);
+                let temp = {
+                    id: counterId++,
+                    name: series.name,
+                    season: series.season,
+                    episode: series.episode,
+                    date: series.date !== "" ? new Date(series.date) : "",
+                    site: series.site !== "" ? series.site : "https://epicdima.github.io/SavingSeries/v2/",
+                    image: "",
+                    note: "",
+                    status: STATUS.RUN
+                };
+                try {
+                    if (temp.name !== "") {
+                        let season = parseInt(temp.season);
+                        let episode = parseInt(temp.episode);
+                        if (season >= 1 && season <= 50
+                                && episode >= 1 && episode <= 50000) {
+                            objectStore.add(temp);
+                        }
+                    }
+                } catch (e) {}
             }
             database.connect(initialize);
         }
     };
     reader.readAsText(event.target.files[0]);
-};
+}
 
-window.goToFirstVersion = () => {
-    let a = document.createElement("a");
-    a.href = "../index.html";
-    a.click();
-    a.remove();
-};
+
+function setDayTimer() {
+    let tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setTimeout(() => {
+        clearRuntime();
+        initialize();
+        setDayTimer();
+    }, tomorrow - new Date());
+}

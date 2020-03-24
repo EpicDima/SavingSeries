@@ -425,7 +425,7 @@ window.deleteSeries = function(id) {
             cardList.delete(id);
         };
     } else {
-        
+
     }
 };
 
@@ -594,7 +594,7 @@ function updateCardWarning(series, today = getTodayDate()) {
             classList.add("warning");
             return;
         }
-    } 
+    }
     classList.remove("warning");
 }
 
@@ -613,8 +613,6 @@ function setDayTimer() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     setTimeout(() => {
         updateCardListWarning();
-        setInterval(() => {
-            updateCardListWarning();
-        }, 86390000);
+        setDayTimer();
     }, tomorrow - new Date());
 }

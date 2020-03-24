@@ -8,7 +8,7 @@
     top: 0;
     padding-left: 1rem;
     padding-right: 1rem;
-    font-family: "Segoe UI", Roboto, serif;
+    font-family: "Segoe UI", Roboto, sans-serif;
     user-select: none;
     @include color($navbar-background, $navbar-text);
 
@@ -20,12 +20,28 @@
             @include color($text: $navbar-logo-text);
             font-size: 1.3rem;
             text-decoration: none;
-            font-family: "Segoe UI", serif;
+            font-family: "Segoe UI", sans-serif;
         }
 
         &.search-container {
+            position: relative;
             @include wh(30rem);
             margin: auto 3rem;
+
+            > .close {
+                position: absolute;
+                right: 0.3rem;
+                top: 0;
+                bottom: 0;
+                margin: 0.2rem;
+                font-size: 1.25rem;
+                cursor: pointer;
+                @include color($navbar-search-background, $navbar-search-close);
+
+                &:hover {
+                    @include color($navbar-search-background, $navbar-search-close-hover);
+                }
+            }
 
             > .search {
                 @include color($navbar-search-background, $navbar-search-text);
@@ -33,6 +49,7 @@
                 border-radius: 0.3rem;
                 line-height: 1.4rem;
                 padding: 0.2rem 0.5rem;
+                padding-right: 1.85rem;
 
                 &:focus {
                     border-color: $navbar-search-border-hover;
@@ -41,6 +58,15 @@
                     ~ .search-list {
                         display: block !important;
                     }
+                }
+
+                &:placeholder-shown ~ .close {
+                    display: none;
+                }
+
+                &::selection {
+                    color: black;
+                    background-color: white;
                 }
             }
 
@@ -59,7 +85,7 @@
                     padding: 0.5rem 0.5rem;
                     cursor: pointer;
 
-                    &:hover {
+                    &.active {
                         @include color($navbar-search-list-background-hover, $navbar-search-list-text-hover);
                     }
                 }

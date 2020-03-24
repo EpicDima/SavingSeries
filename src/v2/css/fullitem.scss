@@ -65,6 +65,11 @@
                 font-size: 1.6rem;
                 overflow: hidden;
                 word-wrap: break-word;
+
+                &::selection {
+                    color: black;
+                    background-color: white;
+                }
             }
         }
 
@@ -92,11 +97,21 @@
                     > .value {
                         word-wrap: break-word;
                         padding: 0.5rem 0;
+
+                        &::selection {
+                            color: black;
+                            background-color: white;
+                        }
                     }
 
                     > .input {
                         min-width: 16rem;
                         @include wh(100%);
+
+                        input::selection, textarea::selection, select::selection, option::selection {
+                            color: black;
+                            background-color: white;
+                        }
 
                         > label {
                             > select {

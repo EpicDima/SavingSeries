@@ -12,9 +12,10 @@ $white-tr: #fffd;
 $red: red;
 $light-red: #f22d;
 $dark-red: #900f;
+$translucent: #fffa;
 
-$dark-gradient-for-item-title: (rgba(0, 0, 0, 0.7) 0%,
-                                rgba(0, 0, 0, 0.3) 15%,
+$dark-gradient-for-item-title: (rgba(0, 0, 0, 0.8) 0%,
+                                rgba(0, 0, 0, 0.4) 15%,
                                 transparent        20%);
 $dark-gradient-for-item: (rgba(0, 0, 0, 0.7) 0%,
                           rgba(0, 0, 0, 0.6) 15%);
@@ -45,6 +46,8 @@ $navbar-search-list-background: $dark-gray-tr;
 $navbar-search-list-text: $default-text;
 $navbar-search-list-background-hover: $dark-gray-hover-tr;
 $navbar-search-list-text-hover: $default-text;
+$navbar-search-close: $gray;
+$navbar-search-close-hover: $default-text;
 $navbar-submenu-background: $dark-gray-tr;
 $navbar-submenu-border: $dark-border;
 $navbar-submenu-text: $default-text;
@@ -59,7 +62,7 @@ $item-not-active-hover-gradient: linear-gradient(to top, $dark-gradient-for-item
 $item-active-border: $light-border;
 $item-name: $default-text;
 $item-info: $default-text;
-$item-link: $white-tr;
+$item-link: $translucent;
 $item-link-hover: $default-text;
 
 $h-container-shadow: $default-shadow;

@@ -27,21 +27,17 @@ export function dateInputStringToObject(date) {
 }
 
 export function createLinkElement(site) {
-    return `<a href="${site}" target="_blank" onclick="event.stopPropagation();">
-        ${siteToShortLink(site)}
-    </a>`;
-}
-
-function siteToShortLink(site) {
-    let link = "";
     if (site.length > 0) {
         let a = document.createElement("a");
+        a.target = "_blank";
         a.href = site;
         if (a.host.length > 0) {
-            link = a.host;
+            a.innerText = a.host;
         }
+        return a;
+    } else {
+        return "";
     }
-    return link;
 }
 
 export function scrollToTop() {

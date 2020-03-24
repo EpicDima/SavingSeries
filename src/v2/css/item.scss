@@ -3,16 +3,16 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
 .item-outer {
     display: inline-block;
     @include wh(auto, min-content);
-    //margin: auto 1rem;
-    margin: 1rem;
+    margin: 0.5rem 0.45rem;
     border-radius: 0.625rem;
     box-sizing: border-box;
     box-shadow: 0 0 0.4rem 0.01rem $item-shadow;
     transition: $transition;
+    cursor: pointer;
 
     &:hover {
         transform: scale(1.02);
-        box-shadow: 0 0 0.7rem 0.1rem $item-shadow-hover;
+        box-shadow: 0 0 0.6rem 0.1rem $item-shadow-hover;
     }
 
     &:hover:not(.active) {
@@ -43,34 +43,66 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
     &.active > .item:after {
         position: absolute;
         content: "";
-        @include wh(1rem, 1rem);
+        @include wh(0.6rem, 0.6rem);
         transform: rotate(-45deg);
         background: linear-gradient(45deg, $item-active-border 50%, transparent 50%);
-        bottom: -0.5rem;
+        bottom: -0.4rem;
     }
 
     > .item {
         position: relative;
         display: flex;
         justify-content: center;
-        @include wh(calc(25vw - 2rem), calc(0.5625 * (25vw - 2rem)));
-        border-radius: 0.625rem;
         @include color($item-background);
         transition: $transition;
+
+        .three & {
+            @include wh(calc(33.33vw - 0.9rem), calc(0.5625 * (33.33vw - 1rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.875rem;
+            }
+        }
+
+        .four & {
+            @include wh(calc(25vw - 0.9rem), calc(0.5625 * (25vw - 1rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.75rem;
+            }
+        }
+
+        .five & {
+            @include wh(calc(20vw - 0.9rem), calc(0.5625 * (20vw - 1rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.625rem;
+            }
+        }
+
+        .six & {
+            @include wh(calc(16.66vw - 0.9rem), calc(0.5625 * (16.66vw - 1rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.5rem;
+            }
+
+            > .info {
+                font-size: 0.9rem;
+            }
+        }
 
         > .image {
             position: absolute;
             @include wh(100%, 100%);
             background-size: 100%;
             background-repeat: no-repeat;
-            border-radius: 0.625rem;
             transition: $transition;
          }
 
         > .gradient {
             position: absolute;
             @include wh(100%, 100%);
-            border-radius: 0.625rem;
             background: $item-gradient;
             transition: $transition;
         }
@@ -86,6 +118,7 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
             @include color($item-link);
             opacity: 0;
             transition: $transition;
+            z-index: 2;
 
             &:hover {
                 @include color($item-link-hover);
@@ -96,7 +129,7 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
             position: absolute;
             display: flex;
             flex-direction: column;
-            @include wh(15rem);
+            @include wh(auto);
             padding-top: 2%;
             padding-left: 3%;
             left: 0;
@@ -109,7 +142,7 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
             > .row {
                 display: flex;
                 justify-content: flex-start;
-                min-height: 1.7rem;
+                min-height: 1.5rem;
                 z-index: 1;
 
                 > .label {
@@ -117,7 +150,7 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
                 }
 
                 > .value {
-                    width: 11rem;
+                    width: auto;
                 }
             }
         }
@@ -132,6 +165,23 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
              text-overflow: ellipsis;
              overflow: hidden;
              user-select: none;
+             white-space: nowrap;
         }
+    }
+
+    .three & {
+        border-radius: 0.875rem;
+    }
+
+    .four & {
+        border-radius: 0.75rem;
+    }
+
+    .five & {
+        border-radius: 0.625rem;
+    }
+
+    .six & {
+        border-radius: 0.5rem;
     }
 }

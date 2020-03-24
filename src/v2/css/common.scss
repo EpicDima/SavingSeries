@@ -1,6 +1,6 @@
 body {
     @include color($body-background);
-    font-family: Roboto, "Segoe UI", serif;
+    font-family: Roboto, "Segoe UI", sans-serif;
     overflow-y: scroll;
     padding-top: 3rem;
 }
