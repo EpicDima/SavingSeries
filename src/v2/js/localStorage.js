@@ -3,6 +3,11 @@ export default class LocalStorage {
     static CONTAINERS_KEY = "containers";
 
 
+    clear() {
+        localStorage.clear();
+    }
+
+
     removeVersion() {
         localStorage.removeItem("version");
     }

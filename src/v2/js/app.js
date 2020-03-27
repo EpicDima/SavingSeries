@@ -81,7 +81,7 @@ export default class App {
 
     clearAll() {
         this.clearRuntime();
-        localStorage.clear();
+        this.localStorage.clear();
         this.database.clear();
     }
 

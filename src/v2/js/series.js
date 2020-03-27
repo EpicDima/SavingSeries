@@ -20,7 +20,7 @@ export default class Series {
                             episode: episode,
                             date: series.date !== "" ? new Date(series.date) : "",
                             site: series.site !== "" ? series.site : "",
-                            image: series.image ? Series.compressImage(series.image) : "",
+                            image: series.image ? /*Series.compressImage*/(series.image) : "",// chrome issue
                             note: series.note ? series.note : "",
                             status: series.status ? series.status : STATUS.RUN
                         };
