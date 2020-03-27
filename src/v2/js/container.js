@@ -1,19 +1,49 @@
-import {getSeriesListType} from "./common";
+import {addClass, animate, getSeriesListType, parseHtml, removeClass} from "./common";
 import {FullItem} from "./fullitem";
 import {LIST_TYPE} from "./constants";
 
+
 export default class HorizontalContainer {
-    constructor(id, title, relocateSeries) {
-        this.id = id; // list type
+    constructor(id, title, app) {
+        this.id = id;
         this.title = title;
-        this.relocateSeries = relocateSeries;
+        this.app = app;
+
         this.map = new Map();
         this.countNumber = this.getCountNumberFromLocalStorage();
+        this.grid = this.getGridStatusFromLocalStorage();
+        this.fullitem = new FullItem(this, this.app.database);
+
+        this.generate();
     }
 
+
+    getFragment() {
+        return this.container;
+    }
+
+
+    generate() {
+        this.fragment = parseHtml(this.createHtml());
+
+        this.container = this.fragment.getElementById(`horizontalContainer${this.id}`);
+        this.container.append(this.fullitem.getFragment());
+
+        this.scrollableList = this.fragment.getElementById(`outerList${this.id}`);
+        this.hlcList = this.fragment.getElementById(`hlcList${this.id}`);
+        this.leftButton = this.fragment.getElementById(`leftButton${this.id}`);
+        this.rightButton = this.fragment.getElementById(`rightButton${this.id}`);
+        this.countButton = this.fragment.querySelector(`.count-icon`);
+        this.gridButton = this.fragment.querySelector(`.grid-icon`);
+
+        this.setButtonListeners();
+        this.updateByCount();
+        this.turnGridMode(this.grid);
+    }
+
+
     createHtml() {
-        this.fullitem = new FullItem(this);
-        return `<div id="horizontalContainer${this.id}" class="hlist-container">
+        return `<div id="horizontalContainer${this.id}" class="hlist-container hide">
             <div class="top">
                 <div class="title">${this.title}</div>
                 <div class="options">
@@ -25,98 +55,92 @@ export default class HorizontalContainer {
                 <div id="outerList${this.id}" class="outer-list">
                     <div id="hlcList${this.id}" class="list"></div>
                 </div>
-                <div class="left-icon" id="leftButton${this.id}"></div>
-                <div class="right-icon" id="rightButton${this.id}"></div>
+                <div class="left-control" id="leftButton${this.id}">
+                    <div class="left-icon"></div>
+                </div>
+                <div class="right-control" id="rightButton${this.id}">
+                    <div class="right-icon"></div>
+                </div>
             </div>
-            ${this.fullitem.createHtml()}
         </div>`;
     }
 
-    initParams() {
-        let params;
-        try {
-            params = JSON.parse(localStorage.getItem("params"));
-        } catch (e) {}
-        if (!params) {
-            params = {};
-            params.containers = {};
-        }
-        if (!params.containers[this.id]) {
-            params.containers[this.id] = {};
-        }
-        return params;
-    }
 
     getCountNumberFromLocalStorage() {
-        try {
-            let params = JSON.parse(localStorage.getItem("params"));
-            let count = params.containers[this.id].count;
-            switch (count) {
-                case "three":
-                    return 3;
-                case "five":
-                    return 5;
-                case "six":
-                    return 6;
-            }
-            return 4;
-        } catch (e) {
-            return 4;
+        let count = this.app.localStorage.getCountNumberOfContainer(this.id);
+        switch (count) {
+            case "three":
+                return 3;
+            case "four":
+                return 4;
+            case "five":
+                return 5;
+            case "six":
+                return 6;
+            default:
+                return 4;
         }
     }
+
 
     setCountToLocaStorage(count) {
-        let params = this.initParams();
-        params.containers[this.id].count = count ? count : "four";
-        localStorage.setItem("params", JSON.stringify(params));
+        this.app.localStorage.setCountNumberOfContainer(this.id, count);
     }
+
 
     getGridStatusFromLocalStorage() {
-        try {
-            let params = JSON.parse(localStorage.getItem("params"));
-            return params.containers[this.id].grid === "true";
-        } catch (e) {
-            return false;
-        }
+        let grid = this.app.localStorage.getGridStateOfContainer(this.id);
+        return grid === "true";
     }
+
 
     setGridStatusToLocaStorage(grid) {
-        let params = this.initParams();
-        params.containers[this.id].grid = grid ? "true" : "false";
-        localStorage.setItem("params", JSON.stringify(params));
+        this.app.localStorage.setGridStateOfContainer(this.id, grid ? "true" : "false");
     }
 
-    onScrollStopped(domElement, callback, timeout = 250) {
-        domElement.onscroll = () => {
-            clearTimeout(callback.timeout);
-            callback.timeout = setTimeout(callback, timeout);
+
+    onScrollStopped(elem, callback, timeout = 300) {
+        callback.timeout = 0;
+        elem.onscroll = () => {
+            let now = Date.now();
+            if (now - callback.timeout >= timeout) {
+                callback.timeout = now;
+                setTimeout(callback, timeout);
+            }
         };
     }
 
-    saveButtons() {
-        this.scrollableList = document.getElementById(`outerList${this.id}`);
-        this.leftButton = document.getElementById(`leftButton${this.id}`);
-        this.rightButton = document.getElementById(`rightButton${this.id}`);
-        this.countButton = document.querySelector(`#horizontalContainer${this.id} .count-icon`);
-        this.gridButton = document.querySelector(`#horizontalContainer${this.id} .grid-icon`);
+
+    scrollList(draw) {
+        let start = this.scrollableList.scrollLeft;
+        let width = this.scrollableList.offsetWidth;
+        animate({
+            duration: 250,
+            draw: (progress) => draw(start, width, progress)
+        });
     }
+
+
+    scrollListToLeft() {
+        this.scrollList((start, width, progress) => this.scrollableList.scrollLeft = start - width * progress);
+    }
+
+
+    scrollListToRight() {
+        this.scrollList((start, width, progress) => this.scrollableList.scrollLeft = start + width * progress);
+    }
+
 
     setButtonListeners() {
         this.onScrollStopped(this.scrollableList, () => this.checkLeftRightButtons());
 
         this.leftButton.onclick = (event) => {
             event.preventDefault();
-            let list = $(`#outerList${this.id}`);
-            list.animate({
-                scrollLeft: `-=${list.width()}`
-            }, 250, () => this.checkLeftRightButtons());
+            this.scrollListToLeft();
         };
         this.rightButton.onclick = (event) => {
             event.preventDefault();
-            let list = $(`#outerList${this.id}`);
-            list.animate({
-                scrollLeft: `+=${list.width()}`
-            }, 250, () => this.checkLeftRightButtons());
+            this.scrollListToRight();
         };
 
         this.countButton.onclick = () => {
@@ -127,21 +151,28 @@ export default class HorizontalContainer {
             this.updateByCount();
         };
         this.gridButton.onclick = () => {
-            this.turnGridMode(!this.gridButton.classList.contains("on"));
+            this.turnGridMode(!this.grid);
         };
     }
 
+
     updateByCount() {
-        let count = "four";
+        let count;
         switch (this.countNumber) {
             case 3:
                 count = "three";
+                break;
+            case 4:
+                count = "four";
                 break;
             case 5:
                 count = "five";
                 break;
             case 6:
                 count = "six";
+                break;
+            default:
+                count = "four";
                 break;
         }
 
@@ -150,36 +181,34 @@ export default class HorizontalContainer {
         this.countButton.classList.remove(...classList);
         this.countButton.classList.add(count);
 
-        let list = document.getElementById(`hlcList${this.id}`);
-        list.classList.remove(...classList);
-        list.classList.add(count);
-
-        this.leftButton.classList.remove(...classList);
-        this.leftButton.classList.add(count);
-
-        this.rightButton.classList.remove(...classList);
-        this.rightButton.classList.add(count);
+        this.hlcList.classList.remove(...classList);
+        this.hlcList.classList.add(count);
 
         this.checkLeftRightButtons();
         this.fullitem.moveByGridState();
         this.setCountToLocaStorage(count);
     }
 
+
     showGrid() {
-        this.gridButton.classList.add("on");
-        document.getElementById(`hlcList${this.id}`).classList.add("grid");
+        this.grid = true;
+        addClass(this.gridButton, "on");
+        addClass(this.hlcList, "grid");
         this.showLeftRightButtons(false);
         this.fullitem.moveByGridState();
-        this.setGridStatusToLocaStorage(true);
+        this.setGridStatusToLocaStorage(this.grid);
     }
 
+
     hideGrid() {
-        this.gridButton.classList.remove("on");
-        document.getElementById(`hlcList${this.id}`).classList.remove("grid");
+        this.grid = false;
+        removeClass(this.gridButton, "on");
+        removeClass(this.hlcList, "grid");
         this.checkLeftRightButtons();
         this.fullitem.moveToDefault();
-        this.setGridStatusToLocaStorage(false);
+        this.setGridStatusToLocaStorage(this.grid);
     }
+
 
     turnGridMode(on = false) {
         if (on) {
@@ -189,18 +218,20 @@ export default class HorizontalContainer {
         }
     }
 
+
     showLeftRightButtons(show = true) {
         if (show) {
-            this.leftButton.classList.remove("hide");
-            this.rightButton.classList.remove("hide");
+            removeClass(this.leftButton, "hide");
+            removeClass(this.rightButton, "hide");
         } else {
-            this.leftButton.classList.add("hide");
-            this.rightButton.classList.add("hide");
+            addClass(this.leftButton, "hide");
+            addClass(this.rightButton, "hide");
         }
     }
 
+
     checkLeftRightButtons() {
-        if (this.gridButton.classList.contains("on")) {
+        if (this.grid) {
             return;
         }
         let scrollLeft = this.scrollableList.scrollLeft;
@@ -222,38 +253,52 @@ export default class HorizontalContainer {
         }
     }
 
-    show() {
-        $(`#horizontalContainer${this.id}`).show();
-        this.saveButtons();
-        this.setButtonListeners();
 
-        this.updateByCount();
-        this.turnGridMode(this.getGridStatusFromLocalStorage());
+    show() {
+        removeClass(this.container, "hide");
+        this.checkLeftRightButtons();
     }
+
 
     hide() {
-        $(`#horizontalContainer${this.id}`).hide();
+        addClass(this.container, "hide");
     }
+
 
     remove() {
-        $(`#horizontalContainer${this.id}`).remove();
+        this.container.remove();
     }
 
-    initialAddSeries(series) {
+
+    clear() {
+        this.hide();
+        for (let series of this.map.values()) {
+            series.remove();
+        }
+        this.map.clear();
+        this.fullitem.hide();
+    }
+
+
+    simplyAddSeries(series) {
         this.map.set(series.data.id, series);
         this.setListenersOnSeries(series);
     }
+
 
     addSeries(series) {
-        this.show();
-        this.map.set(series.data.id, series);
-        this.setListenersOnSeries(series);
+        if (this.map.size === 0) {
+            this.show();
+        }
+        this.simplyAddSeries(series);
         if (this.isNeedSortByListType()) {
             this.sortByDate();
         }
         this.showItems();
         this.checkLeftRightButtons();
+        this.scrollFromAnother(series);
     }
+
 
     sortByDate() {
         let indexes = [...this.map.keys()];
@@ -269,19 +314,22 @@ export default class HorizontalContainer {
         return false;
     }
 
+
     isNeedSortByListType() {
         return this.id === LIST_TYPE.RELEASED
             || this.id === LIST_TYPE.RELEASED_NEXT_7_DAYS
             || this.id === LIST_TYPE.WITH_DATE_OTHERS;
     }
 
+
     showItems() {
-        let inner = "";
+        let inner = [];
         for (let series of this.map.values()) {
-            inner += series.createHtml();
+            inner.push(series.getFragment());
         }
-        document.getElementById(`hlcList${this.id}`).innerHTML = inner;
+        this.hlcList.append(...inner);
     }
+
 
     initialAdditionFinish() {
         if (this.isNeedSortByListType()) {
@@ -293,23 +341,26 @@ export default class HorizontalContainer {
         }
     }
 
+
     setListenersOnSeries(series) {
         series.onUpdateListener = () => this.onSeriesUpdate(series.data.id);
         series.onDeleteListener = () => this.deleteSeries(series);
     }
+
 
     removeListenersFromSeries(series) {
         series.onUpdateListener = null;
         series.onDeleteListener = null;
     }
 
+
     onSeriesUpdate(id) {
         let series = this.map.get(id);
         let listtype = getSeriesListType(series);
         if (listtype !== this.id) {
-            this.deleteSeries(series);
-            this.relocateSeries(series, listtype);
-            setTimeout(() => this.scrollFromAnother(id), 250);
+            this.deleteSeries(series, true);
+            this.app.relocateSeries(series, listtype);
+            setTimeout(() => this.scrollFromAnother(series), 300);
         } else {
             if (this.isNeedSortByListType()) {
                 if (this.sortByDate()) {
@@ -321,17 +372,19 @@ export default class HorizontalContainer {
         }
     }
 
-    scrollFromAnother(id) {
-        document.getElementById(`item${id}`).scrollIntoView({
+
+    scrollFromAnother(series) {
+        series.getFragment().scrollIntoView({
             behavior: "smooth",
             block: "center",
             inline: "center"
-        });
+        })
     }
 
-    scrollInThis(id) {
+
+    scrollInThis(series) {
         let scrollTop = document.documentElement.scrollTop;
-        document.getElementById(`item${id}`).scrollIntoView({
+        series.getFragment().scrollIntoView({
             behavior: "smooth",
             block: "start",
             inline: "nearest"
@@ -339,10 +392,13 @@ export default class HorizontalContainer {
         document.documentElement.scrollTop = scrollTop;
     }
 
-    deleteSeries(series) {
+
+    deleteSeries(series, update = false) {
         this.removeListenersFromSeries(series);
         this.map.delete(series.data.id);
-        series.deleteHtml();
+        if (!update) {
+            series.remove();
+        }
         if (this.map.size === 0) {
             this.hide();
         } else {
@@ -350,11 +406,12 @@ export default class HorizontalContainer {
         }
     }
 
+
     showFullItemIfExists(id) {
         let series = this.map.get(id);
         if (series) {
             this.fullitem.open(series);
-            this.scrollInThis(id);
+            this.scrollInThis(series);
             return true;
         }
         return false;

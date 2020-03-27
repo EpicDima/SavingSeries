@@ -1,20 +1,47 @@
 import {getStatusOptionsHtml, STATUS} from "./constants";
-import {dateToLocaleString, dateInputStringToObject, dateObjectToInputString, createLinkElement, getSeriesListType} from "./common";
-import Database from "./database";
+import {
+    dateToLocaleString,
+    dateInputStringToObject,
+    dateObjectToInputString,
+    createLinkElement,
+    getSeriesListType,
+    parseHtml, removeClass, addClass, getByQuery, animate
+} from "./common";
 import Series from "./series";
+import {setValidator} from "./validator";
 
 
 export class BaseFullItem {
+
+    static HEIGHT = 34; // rem
+
     constructor(id, needTop = true) {
         this.id = id;
         this.needTop = needTop;
-        this.fields = null;
-        this.buttons = null;
-        this.database = new Database();
+
+        this.generate();
     }
 
+
+    getFragment() {
+        return this.fullitem;
+    }
+
+
+    generate() {
+        this.fragment = parseHtml(this.createHtml());
+
+        this.fullitem = this.fragment.getElementById(`fullitem${this.id}`);
+        this.form = this.fragment.querySelector("form");
+        this.getFields();
+        this.getButtons();
+
+        this.setListeners();
+    }
+
+
     createHtml() {
-        return `<div id="fullitem${this.id}" class="fullitem">
+        return `<div id="fullitem${this.id}" class="fullitem hide">
             <div id="closeButton${this.id}" class="outer-close">
                 <span class="close">&#10006;</span>
             </div>
@@ -23,13 +50,12 @@ export class BaseFullItem {
                 <div class="gradient"></div>
             </div>
             <div class="content">
-                ${this.getTop()}
+                ${this.needTop ? `<div class="top"><div id="nameTitle${this.id}" class="name-title"></div></div>` : ""}
                 <div class="general">
-                    <form class="input-container" onsubmit="return false;">
+                    <form class="input-container" novalidate>
                         ${this.getInputsHtml()}
                         <div id="statusRow${this.id}" class="row on-edit">
                             <div class="label">Статус</div>
-                            ${this.needTop ? "" : `<div id="statusValue${this.id}" class="value"></div>`}
                             <div class="input">
                                 <label>
                                     <select class="fullitem-input" name="status">
@@ -72,7 +98,7 @@ export class BaseFullItem {
                             <div class="label">Сайт</div>
                             <div class="value not-on-edit"></div>
                             <div class="input on-edit">
-                                <input id="site${this.id}" class="fullitem-input" name="site" type="url" maxlength="1024" required/>
+                                <input id="site${this.id}" class="fullitem-input" name="site" type="url" maxlength="512"/>
                                 <div class="invalid-tooltip">
                                     <label class="error" for="site${this.id}"></label>
                                 </div>
@@ -81,7 +107,10 @@ export class BaseFullItem {
                         <div id="imageRow${this.id}" class="row on-edit">
                             <div class="label">Изображение</div>
                             <div class="input">
-                                <input class="fullitem-input" name="image" type="file" accept="image/*"/>
+                                <input id="imageInput${this.id}" class="fullitem-input" name="image" type="file" accept="image/*"/>
+                                <div class="invalid-tooltip">
+                                    <label class="error" for="imageInput${this.id}"></label>
+                                </div>
                             </div>
                         </div>
                         <div id="noteRow${this.id}" class="row">
@@ -102,116 +131,181 @@ export class BaseFullItem {
         </div>`;
     }
 
-    getTop() {
-        if (this.needTop) {
-            return `<div class="top">
-                <div id="nameTitle${this.id}" class="name-title">Игра престолов</div>
-            </div>`;
-        }
-        return "";
-    }
 
     getInputsHtml() {
         return "";
     }
 
+
     getButtonContainerInnerHtml() {
         return "";
     }
 
+
     getFields() {
-        if (this.fields === null) {
-            this.fields = {
-                season: {
-                    div: $(`#seasonRow${this.id}`),
-                    value: $(`#seasonRow${this.id} .value`),
-                    input: $(`#seasonRow${this.id} input`)
-                },
-                episode: {
-                    div: $(`#episodeRow${this.id}`),
-                    value: $(`#episodeRow${this.id} .value`),
-                    input: $(`#episodeRow${this.id} input`)
-                },
-                date: {
-                    div: $(`#dateRow${this.id}`),
-                    value: $(`#dateRow${this.id} .value`),
-                    input: $(`#dateRow${this.id} input`)
-                },
-                site: {
-                    div: $(`#siteRow${this.id}`),
-                    value: $(`#siteRow${this.id} .value`),
-                    input: $(`#siteRow${this.id} input`)
-                },
-                image: {
-                    div: $(`#imageRow${this.id}`),
-                    value: $(`#imageValue${this.id}`),
-                    input: $(`#imageRow${this.id} input`)
-                },
-                status: {
-                    div: $(`#statusRow${this.id}`),
-                    input: $(`#statusRow${this.id} select`)
-                },
-                note: {
-                    div: $(`#noteRow${this.id}`),
-                    value: $(`#noteRow${this.id} .value`),
-                    input: $(`#noteRow${this.id} textarea`)
-                }
-            };
-        }
-        return this.fields;
+        this.fields = {
+            season: {
+                div: this.fragment.getElementById(`seasonRow${this.id}`),
+                value: this.fragment.querySelector(`#seasonRow${this.id} .value`),
+                input: this.fragment.querySelector(`#seasonRow${this.id} input`),
+                error: this.fragment.querySelector(`#seasonRow${this.id} .error`)
+            },
+            episode: {
+                div: this.fragment.getElementById(`episodeRow${this.id}`),
+                value: this.fragment.querySelector(`#episodeRow${this.id} .value`),
+                input: this.fragment.querySelector(`#episodeRow${this.id} input`),
+                error: this.fragment.querySelector(`#episodeRow${this.id} .error`)
+            },
+            date: {
+                div: this.fragment.getElementById(`dateRow${this.id}`),
+                value: this.fragment.querySelector(`#dateRow${this.id} .value`),
+                input: this.fragment.querySelector(`#dateRow${this.id} input`),
+                error: this.fragment.querySelector(`#dateRow${this.id} .error`)
+            },
+            site: {
+                div: this.fragment.getElementById(`siteRow${this.id}`),
+                value: this.fragment.querySelector(`#siteRow${this.id} .value`),
+                input: this.fragment.querySelector(`#siteRow${this.id} input`),
+                error: this.fragment.querySelector(`#siteRow${this.id} .error`)
+            },
+            image: {
+                div: this.fragment.getElementById(`imageRow${this.id}`),
+                value: this.fragment.getElementById(`imageValue${this.id}`),
+                input: this.fragment.querySelector(`#imageRow${this.id} input`),
+                error: this.fragment.querySelector(`#imageRow${this.id} .error`)
+            },
+            status: {
+                div: this.fragment.getElementById(`statusRow${this.id}`),
+                input: this.fragment.querySelector(`#statusRow${this.id} select`)
+            },
+            note: {
+                div: this.fragment.getElementById(`noteRow${this.id}`),
+                value: this.fragment.querySelector(`#noteRow${this.id} .value`),
+                input: this.fragment.querySelector(`#noteRow${this.id} textarea`)
+            }
+        };
     }
 
-    open() {
-        $(`.fullitem:not(#fullitem${this.id})`).slideUp("fast");
-        $(`#fullitem${this.id} form`).validate().resetForm();
-        $(`#fullitem${this.id} input`).removeClass("error");
 
-        this.getButtons();
-        this.getFields();
-        this.setListeners();
+    getButtons() {
+        this.buttons = {
+            close: {
+                div: this.fragment.getElementById(`closeButton${this.id}`),
+                button: this.fragment.querySelector(`#closeButton${this.id} span`)
+            }
+        };
+    }
 
-        let element = $(`#fullitem${this.id}`);
-        element.slideDown("fast", () => {
-            element[0].scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
+
+    setListeners() {
+        this.form.onsubmit = (e) => e.preventDefault();
+
+        this.buttons.close.button.onclick = () => this.close();
+
+        this.fields.image.input.onchange = () => this.changeImage();
+        this.fields.status.input.onchange = () => this.onChangeStatus();
+
+        setValidator(this.fields.season.input, this.fields.season.error);
+        setValidator(this.fields.episode.input, this.fields.episode.error);
+        setValidator(this.fields.date.input, this.fields.date.error);
+        setValidator(this.fields.site.input, this.fields.site.error);
+    }
+
+
+    slide(elem, draw, timing, complete = null) {
+        animate({
+            duration: 250,
+            draw: (progress) => draw(progress, BaseFullItem.HEIGHT),
+            timing: timing,
+            complete: complete
         });
     }
 
-    clearActiveItems() {
-        $(`.item-outer.active`).removeClass("active");
+
+    slideDown(elem) {
+        this.slide(elem, (progress, height) => {
+                elem.style.cssText = `display: block !important; height: ${progress * height}rem`;
+            },
+            (timeFraction) => 1 - Math.pow(1 - timeFraction, 2),
+            () => {
+                removeClass(elem, "hide");
+                elem.removeAttribute("style");
+                elem.scrollIntoView({behavior: "smooth", block: "end"});
+            });
     }
 
-    turnOnActiveItem() {
-        this.clearActiveItems();
+
+    slideUp(elem) {
+        this.slide(elem, (progress, height) => elem.style.height = (1 - progress) * height + "rem",
+            (timeFraction) => Math.pow(timeFraction, 2),
+            () => {
+                addClass(elem, "hide");
+                elem.removeAttribute("style");
+            });
     }
+
+
+    open() {
+        let opened = getByQuery(`.fullitem:not(.hide):not(#fullitem${this.id})`);
+        if (opened) {
+            this.slideUp(opened);
+        }
+        this.resetInputValues();
+        if (this.fullitem.classList.contains("hide")) {
+            this.slideDown(this.fullitem);
+        }
+    }
+
+
+    clearActiveItem() {
+        removeClass(getByQuery(".item-outer.active"), "active");
+    }
+
 
     close() {
-        $(`#fullitem${this.id}`).slideUp("fast");
+        this.slideUp(this.fullitem);
     }
+
+
+    hide() {
+       addClass(this.fullitem, "hide");
+    }
+
 
     remove() {
-        $(`#fullitem${this.id}`).remove();
+        this.fullitem.remove();
     }
 
-    setListeners() {
-        this.buttons.close.button[0].onclick = () => this.close();
-        this.fields.image.input[0].onchange = () => this.changeImage();
-        this.fields.status.input[0].onchange = () => this.onChangeStatus();
-    }
 
     changeImage() {
+        this.setErrorToImageInput();
         let reader = new FileReader();
-        let value = this.fields.image.value;
-        reader.onload = function() {
-            value.css("background-image", `url("${reader.result}")`);
-        };
-        reader.onerror = function() {
-            console.log(reader.error);
-        };
-        reader.readAsDataURL(this.fields.image.input[0].files[0]); // конвертирует Blob в base64 и вызывает onload
+        reader.onload = () => this.fields.image.value.style.backgroundImage = `url(${reader.result})`;
+        let file = this.fields.image.input.files[0];
+        if (file) {
+            if (!file.type.startsWith("image/")) {
+                this.setErrorToImageInput("Выбранный файл не является изображением.");
+            } else if (file.size > 4 * 1024 * 1024) {
+                this.setErrorToImageInput("Размер файла не должен превышать 4 мегабайта.");
+            } else {
+                reader.readAsDataURL(file);
+            }
+        }
     }
 
+
+    setErrorToImageInput(text) {
+        if (text) {
+            this.fields.image.error.innerText = text;
+            addClass(this.fields.image.input, "error");
+        } else {
+            removeClass(this.fields.image.input, "error");
+        }
+    }
+
+
     getStatusState() {
-        let status = this.fields.status.input.val();
+        let status = this.fields.status.input.value;
         let visibilityState = {season: true, episode: true, date: true}; // STATUS.RUN, STATUS.PAUSE
         switch (status) {
             case STATUS.COMPLETED:
@@ -226,124 +320,116 @@ export class BaseFullItem {
         return visibilityState;
     }
 
+
     onChangeStatus() {
         let visibilityState = this.getStatusState();
         if (visibilityState.season) {
-            this.fields.season.div.removeClass("hide");
+            removeClass(this.fields.season.div, "hide");
         } else {
-            this.fields.season.div.addClass("hide");
+            addClass(this.fields.season.div, "hide");
         }
         if (visibilityState.episode) {
-            this.fields.episode.div.removeClass("hide");
+            removeClass(this.fields.episode.div, "hide");
         } else {
-            this.fields.episode.div.addClass("hide");
+            addClass(this.fields.episode.div, "hide");
         }
         if (visibilityState.date) {
-            this.fields.date.div.removeClass("hide");
+            removeClass(this.fields.date.div, "hide");
         } else {
-            this.fields.date.div.addClass("hide");
+            addClass(this.fields.date.div, "hide");
         }
     }
+
 
     showEditFields(show) {
-        let onEditElements = $(`#fullitem${this.id} .on-edit`);
-        let notOnEditElements = $(`#fullitem${this.id} .not-on-edit`);
+        let onEditElements = this.fullitem.querySelectorAll(".on-edit");
+        let notOnEditElements = this.fullitem.querySelectorAll(".not-on-edit");
         if (show) {
-            onEditElements.removeClass("hide");
-            notOnEditElements.addClass("hide");
+            onEditElements.forEach(elem => removeClass(elem, "hide"));
+            notOnEditElements.forEach(elem => addClass(elem, "hide"));
         } else {
-            onEditElements.addClass("hide");
-            notOnEditElements.removeClass("hide");
+            onEditElements.forEach(elem => addClass(elem, "hide"));
+            notOnEditElements.forEach(elem => removeClass(elem, "hide"));
         }
     }
 
-    getButtons() {
-        if (this.buttons === null) {
-            this.buttons = {
-                close: {
-                    div: $(`#closeButton${this.id}`),
-                    button: $(`#closeButton${this.id} span`)
-                }
-            }
-        }
-        return this.buttons;
-    }
 
     setDisplayValues(series) {
-        this.fields.name.value.html(series ? series.data.name : "");
-        this.fields.season.value.html(series ? series.data.season : "");
-        this.fields.episode.value.html(series ? series.data.episode : "");
-        this.fields.date.value.html(dateToLocaleString(series));
-        this.fields.site.value.html(createLinkElement(series.data.site));
-        this.fields.image.value.css("background-image", `url("${series ? series.data.image : ""}")`);
-        this.fields.note.value.html(series ? series.data.note : "");
+        this.fields.name.value.innerText = series.data.name;
+        this.fields.season.value.innerText = series.data.season;
+        this.fields.episode.value.innerText = series.data.episode;
+        this.fields.date.value.innerText = dateToLocaleString(series);
+        this.fields.site.value.innerHTML = createLinkElement(series.data.site).outerHTML;
+        this.fields.image.value.style.backgroundImage = `url("${series.data.image}")`;
+        this.fields.note.value.innerText = series.data.note;
     }
+
 
     setInputValues(series) {
-        this.fields.season.input.val(series ? series.data.season : "");
-        this.fields.episode.input.val(series ? series.data.episode : "");
-        this.fields.date.input.val(dateObjectToInputString(series));
-        this.fields.site.input.val(series ? series.data.site : "");
-        this.fields.image.input.val("");
-        this.fields.status.input.val(series ? series.data.status : "");
-        this.fields.note.input.val(series ? series.data.note : "");
+        this.fields.season.input.value = series.data.season;
+        this.fields.episode.input.value = series.data.episode;
+        this.fields.date.input.value = dateObjectToInputString(series);
+        this.fields.site.input.value = series.data.site;
+        this.fields.image.input.value = "";
+        this.fields.status.input.value = series.data.status;
+        this.fields.note.input.value = series.data.note;
     }
 
+
     resetInputValues() {
-        this.fields.season.input.val("1");
-        this.fields.episode.input.val("1");
-        this.fields.date.input.val("");
-        this.fields.site.input.val("");
-        this.fields.image.input.val("");
-        this.fields.image.value.css("background-image", "");
-        this.fields.status.input.val(STATUS.RUN);
-        this.fields.note.input.val("");
+        this.form.reset();
+        this.fields.image.value.style.backgroundImage = "";
+
+        removeClass(this.fields.season.input, "error");
+        removeClass(this.fields.episode.input, "error");
+        removeClass(this.fields.date.input, "error");
+        removeClass(this.fields.site.input, "error");
     }
+
 
     checkInputs() {
         let statusState = this.getStatusState();
-        if (statusState.season) {
-            if (!this.fields.season.input.valid()) {
-                return false;
-            }
+        if (statusState.season && !this.fields.season.input.validity.valid) {
+            return false;
         }
-        if (statusState.episode) {
-            if (!this.fields.episode.input.valid()) {
-                return false;
-            }
+        if (statusState.episode && !this.fields.episode.input.validity.valid) {
+            return false;
         }
-        if (statusState.date) {
-            if (!this.fields.date.input.valid()) {
-                return false;
-            }
+        if (statusState.date && !this.fields.date.input.validity.valid) {
+            return false;
         }
-        return !(!this.fields.site.input.valid() || !this.fields.image.input.valid()
-            || !this.fields.image.input.valid() || !this.fields.status.input.valid()
-            || !this.fields.note.input.valid());
+        return this.fields.site.input.validity.valid && this.fields.image.input.validity.valid
+            && this.fields.image.input.validity.valid && this.fields.status.input.validity.valid
+            && this.fields.note.input.validity.valid;
     }
 
+
     getValuesFromInputs() {
-        if (!this.checkInputs()) {
-            return;
+        if (this.checkInputs()) {
+            return {
+                season: this.fields.season.input.value,
+                episode: this.fields.episode.input.value,
+                date: dateInputStringToObject(this.fields.date.input.value),
+                site: this.fields.site.input.value,
+                backgroundImage: this.fields.image.value.style.backgroundImage,
+                status: this.fields.status.input.value,
+                note: this.fields.note.input.value
+            }
         }
-        let season = this.fields.season.input.val();
-        let episode = this.fields.episode.input.val();
-        let date = dateInputStringToObject(this.fields.date.input.val());
-        let site = this.fields.site.input.val();
-        let backgroundImage = this.fields.image.value.css("background-image");
-        let status = this.fields.status.input.val();
-        let note = this.fields.note.input.val();
-        return {season: season, episode: episode, date: date, site: site,
-                backgroundImage: backgroundImage, status: status, note: note};
+        return null;
     }
 }
 
 
 export class FullItem extends BaseFullItem {
-    constructor(hContainer) {
-        super(hContainer.id);
-        this.hContainer = hContainer;
+    constructor(container, database) {
+        super(container.id);
+        this.container = container;
+        this.database = database;
+
+        this.default = true;
     }
+
 
     getButtonContainerInnerHtml() {
         return `<div id="changeButton${this.id}" class="change-button not-on-edit">
@@ -364,78 +450,83 @@ export class FullItem extends BaseFullItem {
         </div>`;
     }
 
+
     getFields() {
-        if (this.fields === null) {
-            super.getFields();
-            this.fields.name = {
-                value: $(`#nameTitle${this.id}`)
-            };
-        }
-        return this.fields;
+        super.getFields();
+        this.fields.name = {
+            value: this.fragment.getElementById(`nameTitle${this.id}`)
+        };
     }
 
+
     getButtons() {
-        if (this.buttons === null) {
-            super.getButtons();
-            this.buttons.change = {
-                div: $(`#changeButton${this.id}`),
-                button: $(`#changeButton${this.id} button`)
-            };
-            this.buttons.update = {
-                div: $(`#updateButton${this.id}`),
-                button: $(`#updateButton${this.id} button`)
-            };
-            this.buttons.cancel = {
-                div: $(`#cancelButton${this.id}`),
-                button: $(`#cancelButton${this.id} button`)
-            };
-            this.buttons.accept = {
-                div: $(`#acceptButton${this.id}`),
-                button: $(`#acceptButton${this.id} button`)
-            };
-            this.buttons.delete = {
-                div: $(`#deleteButton${this.id}`),
-                button: $(`#deleteButton${this.id} button`)
-            };
-        }
-        return this.buttons;
+        super.getButtons();
+        this.buttons.change = {
+            div: this.fragment.getElementById(`changeButton${this.id}`),
+            button: this.fragment.querySelector(`#changeButton${this.id} button`)
+        };
+        this.buttons.update = {
+            div: this.fragment.getElementById(`updateButton${this.id}`),
+            button: this.fragment.querySelector(`#updateButton${this.id} button`)
+        };
+        this.buttons.cancel = {
+            div: this.fragment.getElementById(`cancelButton${this.id}`),
+            button: this.fragment.querySelector(`#cancelButton${this.id} button`)
+        };
+        this.buttons.accept = {
+            div: this.fragment.getElementById(`acceptButton${this.id}`),
+            button: this.fragment.querySelector(`#acceptButton${this.id} button`)
+        };
+        this.buttons.delete = {
+            div: this.fragment.getElementById(`deleteButton${this.id}`),
+            button: this.fragment.querySelector(`#deleteButton${this.id} button`)
+        };
     }
+
 
     setListeners() {
         super.setListeners();
-        this.buttons.change.button[0].onclick = () => this.change();
-        this.buttons.update.button[0].onclick = () => this.update();
-        this.buttons.cancel.button[0].onclick = () => this.cancel();
-        this.buttons.accept.button[0].onclick = () => this.accept();
-        this.buttons.delete.button[0].onclick = () => this.delete();
+        this.buttons.change.button.onclick = () => this.change();
+        this.buttons.update.button.onclick = () => this.update();
+        this.buttons.cancel.button.onclick = () => this.cancel();
+        this.buttons.accept.button.onclick = () => this.accept();
+        this.buttons.delete.button.onclick = () => this.delete();
     }
 
+
     showAllFields() {
-        $(`#fullitem${this.id} .input-container > div`).removeClass("hide");
+        this.form.querySelectorAll("div").forEach(elem => removeClass(elem, "hide"));
     }
+
 
     hideEmptyFields() {
         if (this.series.data.date === "") {
-            this.fields.date.div.addClass("hide");
-            this.buttons.update.div.addClass("hide");
+            addClass(this.fields.date.div, "hide");
+            addClass(this.buttons.update.div, "hide");
+        }
+        if (this.series.data.site === "") {
+            addClass(this.fields.site.div, "hide");
         }
         if (this.series.data.status === STATUS.JUST_WATCH) {
-            this.buttons.update.div.addClass("hide");
+            addClass(this.buttons.update.div, "hide");
         }
         if (this.series.data.note === "") {
-            this.fields.note.div.addClass("hide");
+            addClass(this.fields.note.div, "hide");
         }
     }
 
+
     turnOnActiveItem() {
-        super.turnOnActiveItem();
-        $(`#item${this.series.data.id}`).addClass("active");
+        this.clearActiveItem();
+        addClass(this.series.getFragment(), "active");
     }
 
+
     needToOpen(series) {
-        let display = $(`#fullitem${this.id}`).css("display");
-        return !(display !== "none" && this.series && this.series.data.id === series.data.id);
+        return !(!this.fullitem.classList.contains("hide")
+            && this.series && this.series.data.id === series.data.id);
     }
+
 
     open(series) {
         if (this.needToOpen(series)) {
@@ -451,52 +542,60 @@ export class FullItem extends BaseFullItem {
         }
     }
 
+
     moveByGridState() {
-        if (document.querySelector(`#horizontalContainer${this.id} .grid-icon`).classList.contains("on")) {
+        if (this.container.grid) {
             if (this.series) {
-                let fullitem = document.getElementById(`fullitem${this.id}`);
-                let list = document.getElementById(`hlcList${this.id}`);
-                let children = list.childNodes;
+                this.default = false;
+                let children = this.container.hlcList.childNodes;
                 let childrenArray = Array.from(children);
-                let removeIdx = childrenArray.indexOf(fullitem);
+                let removeIdx = childrenArray.indexOf(this.fullitem);
                 if (removeIdx > -1) {
                     childrenArray.splice(removeIdx, 1);
                 }
-                let idx = childrenArray.indexOf(document.getElementById(`item${this.series.data.id}`));
-                idx = Math.floor(idx / this.hContainer.countNumber) * this.hContainer.countNumber
-                    + (this.hContainer.countNumber - 1) + (((removeIdx > -1) && (removeIdx <= (idx + (this.hContainer.countNumber - idx % this.hContainer.countNumber)))) ? 1 : 0);
+                let idx = childrenArray.indexOf(this.series.getFragment());
+                idx = Math.floor(idx / this.container.countNumber) * this.container.countNumber
+                    + (this.container.countNumber - 1) + (((removeIdx > -1) && (removeIdx <= (idx +
+                        (this.container.countNumber - idx % this.container.countNumber)))) ? 1 : 0);
                 if (idx >= children.length) {
                     idx = children.length - 1;
                 }
-                list.insertBefore(fullitem, children.item(idx).nextSibling);
+                children.item(idx).insertAdjacentElement("afterend", this.fullitem);
             }
         } else {
             this.moveToDefault();
         }
     }
 
+
     moveToDefault() {
-        document.getElementById(`horizontalContainer${this.id}`)
-            .appendChild(document.getElementById(`fullitem${this.id}`));
+        if (!this.default) {
+            this.container.container.append(this.fullitem);
+            this.default = true;
+        }
     }
+
 
     close() {
         this.series = null;
         super.close();
-        $(`#horizontalContainer${this.id} .outer-list`)[0].scrollIntoView({behavior: "smooth",
-                                                                          block: "center", inline: "nearest"});
-        this.clearActiveItems();
+        this.container.getFragment().scrollIntoView({behavior: "smooth", block: "start"});
+        this.clearActiveItem();
     }
+
 
     setSeries(series) {
         this.setDisplayValues(series);
         this.setInputValues(series);
     }
 
+
     change() {
         this.showAllFields();
         this.showEditFields(true);
+        this.onChangeStatus();
     }
+
 
     update() {
         let date = new Date(this.series.data.date);
@@ -516,8 +615,9 @@ export class FullItem extends BaseFullItem {
         this.setInputValues(this.series);
     }
 
+
     cancel() {
-        this.fields.image.value.css("background-image", `url("${this.series.data.image}")`);
+        this.fields.image.value.style.backgroundImage = `url("${this.series.data.image}")`;
         this.setInputValues(this.series);
         this.showAllFields();
         this.showEditFields(false);
@@ -525,16 +625,15 @@ export class FullItem extends BaseFullItem {
         this.hideEmptyFields();
     }
 
+
     accept() {
         let data = this.getValuesFromInputs();
         if (data === null) {
             return;
         }
-        let image = data.backgroundImage.length > 5
-                  ? data.backgroundImage.slice(4, -1).replace(/"/g, "")
-                  : this.series.data.image;
+        let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : this.series.data.image;
         let changed = this.series.update(data.season, data.episode, data.date,
-                                         data.site, image, data.status, data.note);
+                data.site, image, data.status, data.note);
         this.database.putSeriesInDb(this.series);
 
         if (changed) {
@@ -547,13 +646,15 @@ export class FullItem extends BaseFullItem {
         this.setDisplayValues(this.series);
         this.showAllFields();
         this.showEditFields(false);
+        this.onChangeStatus();
         this.hideEmptyFields();
     }
+
 
     delete() {
         if (confirm(`Вы действительно хотите удалить "${this.series.data.name}"?`)) {
             this.series.delete();
-            this.database.deleteSeriesInDb(this.series);
+            this.database.deleteSeriesFromDb(this.series);
             this.close();
         }
     }
@@ -561,11 +662,15 @@ export class FullItem extends BaseFullItem {
 
 
 export class AddingFullItem extends BaseFullItem {
-    constructor(id, showSeries) {
-        super(id, false);
+
+    static seriesId = 0;
+
+    constructor(showSeries, database) {
+        super("add", false);
         this.showSeries = showSeries;
-        this.seriesId = 0;
+        this.database = database;
     }
+
 
     getInputsHtml() {
         return `<div id="nameRow${this.id}" class="row on-edit">
@@ -579,74 +684,79 @@ export class AddingFullItem extends BaseFullItem {
         </div>`;
     }
 
+
     getButtonContainerInnerHtml() {
         return `<div id="addButton${this.id}" class="add-button on-edit">
             <button>Добавить</button>
         </div>`;
     }
 
+
     setSeriesId(seriesId) {
-        this.seriesId = seriesId;
+        AddingFullItem.seriesId = seriesId;
     }
+
 
     getFields() {
-        if (this.fields === null) {
-            super.getFields();
-            this.fields.name = {
-                input: $(`#nameRow${this.id} input`)
-            };
-        }
-        return this.fields;
+        super.getFields();
+        this.fields.name = {
+            input: this.fragment.querySelector(`#nameRow${this.id} input`),
+            error: this.fragment.querySelector(`#nameRow${this.id} .error`)
+        };
     }
 
+
     getButtons() {
-        if (this.buttons === null) {
-            super.getButtons();
-            this.buttons.add = {
-                div: $(`#addButton${this.id}`),
-                button: $(`#addButton${this.id} button`)
-            };
-        }
-        return this.buttons;
+        super.getButtons();
+        this.buttons.add = {
+            div: this.fragment.getElementById(`addButton${this.id}`),
+            button: this.fragment.querySelector(`#addButton${this.id} button`)
+        };
     }
+
 
     setListeners() {
         super.setListeners();
-        this.buttons.add.button[0].onclick = () => this.add();
+        this.buttons.add.button.onclick = () => this.add();
+        setValidator(this.fields.name.input, this.fields.name.error);
     }
 
+
     resetInputValues() {
-        this.fields.name.input.val("");
+        this.fields.name.input.value = "";
+        removeClass(this.fields.name.input, "error");
         super.resetInputValues();
     }
 
+
     open() {
-        if ($(`#fullitem${this.id}`).css("display") === "none") {
+        if (this.fullitem.classList.contains("hide")) {
             super.open();
             this.resetInputValues();
             this.showEditFields(true);
-            this.turnOnActiveItem();
+            this.onChangeStatus();
+            this.clearActiveItem();
         }
     }
 
+
     checkInputs() {
-        if (!this.fields.name.input.valid()) {
-            return false;
+        if (this.fields.name.input.validity.valid) {
+            return super.checkInputs();
         }
-        return super.checkInputs();
+        return false;
     }
+
 
     add() {
         let data = this.getValuesFromInputs();
         if (!data) {
             return;
         }
-        let name = this.fields.name.input.val();
-        let image = data.backgroundImage.length > 5
-                  ? data.backgroundImage.slice(4, -1).replace(/"/g, "")
-                  : "";
-        let series = new Series(this.seriesId++, name, data.season, data.episode, data.date,
-                                data.site, image, data.status, data.note);
+        let name = this.fields.name.input.value;
+        let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : "";
+        let series = new Series(AddingFullItem.seriesId++, name, data.season, data.episode, data.date,
+                data.site, image, data.status, data.note);
         this.database.putSeriesInDb(series);
         this.close();
         this.showSeries(series);

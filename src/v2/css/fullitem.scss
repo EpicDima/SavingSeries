@@ -2,7 +2,9 @@
     position: relative;
     @include wh(100%, 34rem);
     @include color($fullitem-background);
-    display: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 
     &:first-of-type {
         box-shadow: 0 0 1rem $fullitem-shadow;

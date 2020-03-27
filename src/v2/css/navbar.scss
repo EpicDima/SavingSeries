@@ -21,6 +21,7 @@
             font-size: 1.3rem;
             text-decoration: none;
             font-family: "Segoe UI", sans-serif;
+            cursor: pointer;
         }
 
         &.search-container {
@@ -48,8 +49,8 @@
                 @include border($navbar-search-border);
                 border-radius: 0.3rem;
                 line-height: 1.4rem;
-                padding: 0.2rem 0.5rem;
-                padding-right: 1.85rem;
+                padding: 0.2rem 1.85rem 0.2rem 0.5rem;
+                box-sizing: border-box;
 
                 &:focus {
                     border-color: $navbar-search-border-hover;
@@ -122,7 +123,6 @@
             .submenu {
                 position: absolute;
                 z-index: 15;
-                display: none;
                 @include color($navbar-submenu-background, $navbar-submenu-text);
                 top: 1.8rem;
                 right: 0;

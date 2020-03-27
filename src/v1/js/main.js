@@ -188,7 +188,7 @@ function nameExists() {
 function addSeriesToList(series) {
     let card = createCard(series);
     cardList.set(series.id, card);
-    document.getElementById("content").appendChild(card);
+    document.getElementById("content").append(card);
 }
 
 
@@ -476,7 +476,7 @@ function sortCardList() {
         if (card === undefined) {
             addSeriesToList(series);
         } else {
-            content.appendChild(card);
+            content.append(card);
         }
     }
 }

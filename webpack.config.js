@@ -27,11 +27,6 @@ module.exports = (env, argv) => {
     };
 
     const isProduction = argv.mode === "production";
-    // return [
-    //     createOptions(isProduction, "./src/redirector/js/main.js", path.resolve(__dirname, "dist"), "./src/redirector/html/index.html"),
-    //     createOptions(isProduction, "./src/v1/js/main.js", path.resolve(__dirname, "dist", "v1"), "./src/v1/html/index.html"),
-    //     createOptions(isProduction, "./src/v2/js/main.js", path.resolve(__dirname, "dist", "v2"), "./src/v2/html/index.html")
-    // ];
 
     return {
         entry: {
@@ -83,6 +78,20 @@ module.exports = (env, argv) => {
                         "css-loader",
                         "sass-loader"
                     ],
+                },
+                {
+                    test: /\.m?js$/,
+                    exclude: /(node_modules|bower_components)/,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            presets: ["@babel/preset-env"],
+                            plugins: [
+                                "@babel/plugin-proposal-class-properties",
+                                "@babel/plugin-transform-runtime"
+                            ]
+                        }
+                    }
                 }
             ]
         },

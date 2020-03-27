@@ -1,6 +1,3 @@
-export const DATABASE_NAME = "SavingSeries";
-export const OBJECT_STORE_NAME = "series";
-
 // RUN - выходит и смотрится
 // PAUSE - выходит, но на паузе, то есть временно не смотрится
 // COMPLETED - просмотрен

@@ -1,57 +1,65 @@
-import {DATABASE_NAME, OBJECT_STORE_NAME} from "./constants";
-
+import {getByQuery} from "./common";
 
 export default class Database {
+    static DATABASE_NAME = "SavingSeries";
+    static OBJECT_STORE_NAME = "series";
 
-    constructor() {
-        const instance = this.constructor.instance;
-        if (instance) {
-            return instance;
+    static #instance;
+
+    constructor() {}
+
+    static getInstance() {
+        if (!Database.#instance) {
+            Database.#instance = new Database();
         }
-        this.constructor.instance = this;
+        return Database.#instance;
     }
 
+
     connect(func) {
-        let request = indexedDB.open(DATABASE_NAME, 1);
-        request.onerror = error => {
-            console.log("connectDB error: " + error);
-        };
+        let request = indexedDB.open(Database.DATABASE_NAME, 1);
         request.onsuccess = () => {
             this.database = request.result;
             func();
         };
         request.onupgradeneeded = () => {
             if (confirm("Данные будут храниться на вашем компьютере.\nВы согласны?")) {
-                request.result.createObjectStore(OBJECT_STORE_NAME, {keyPath: "id"});
+                request.result.createObjectStore(Database.OBJECT_STORE_NAME, {keyPath: "id"});
                 this.connect(func);
             } else {
-                indexedDB.deleteDatabase(DATABASE_NAME);
-                document.getElementsByTagName("html")[0].remove();
+                indexedDB.deleteDatabase(Database.DATABASE_NAME);
+                getByQuery("html").remove();
             }
         }
     }
 
+
     getObjectStore(mode) {
         return this.database
-            .transaction(OBJECT_STORE_NAME, mode)
-            .objectStore(OBJECT_STORE_NAME);
+            .transaction(Database.OBJECT_STORE_NAME, mode)
+            .objectStore(Database.OBJECT_STORE_NAME);
     }
+
 
     getReadWriteObjectStore() {
         return this.getObjectStore("readwrite");
     }
 
+
     getReadOnlyObjectStore() {
         return this.getObjectStore("readonly");
     }
+
 
     putSeriesInDb(series) {
         return this.getReadWriteObjectStore().put(series.data);
     }
 
-    deleteSeriesInDb(series) {
+
+    deleteSeriesFromDb(series) {
         return this.getReadWriteObjectStore().delete(series.data.id)
     }
+
 
     foreach(func, funcOnEnd = undefined) {
         let request = this.getReadOnlyObjectStore().openCursor();
@@ -67,6 +75,7 @@ export default class Database {
             }
         }
     }
+
 
     clear() {
         this.getReadWriteObjectStore().clear();

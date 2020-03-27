@@ -1,12 +1,42 @@
 import {STATUS} from "./constants";
-import {dateToLocaleString} from "./common";
+import {addClass, dateToLocaleString, parseHtml, removeClass} from "./common";
 
 export default class Series {
 
-    static createSeries(series) {
+    static onItemClickListener = () => {return false;};
+
+
+    static validate(series) {
+        if (series) {
+            try {
+                if (series.name !== "") {
+                    let season = parseInt(series.season);
+                    let episode = parseInt(series.episode);
+                    if (season >= 1 && season <= 50 && episode >= 1 && episode <= 50000) {
+                        return {
+                            id: 0,
+                            name: series.name,
+                            season: season,
+                            episode: episode,
+                            date: series.date !== "" ? new Date(series.date) : "",
+                            site: series.site !== "" ? series.site : "",
+                            image: series.image ? Series.compressImage(series.image) : "",
+                            note: series.note ? series.note : "",
+                            status: series.status ? series.status : STATUS.RUN
+                        };
+                    }
+                }
+            } catch (e) {}
+        }
+        return null;
+    }
+
+
+    static create(series) {
         return new Series(series.id, series.name, series.season, series.episode,
             series.date, series.site, series.image, series.status, series.note);
     }
+
 
     constructor(id, name, season, episode, date, site, image, status, note) {
         this.data = {
@@ -20,57 +50,109 @@ export default class Series {
             status: status,
             note: note
         };
+
         this.onUpdateListener = null;
         this.onDeleteListener = null;
+
+        this.generate();
     }
 
+
+    getFragment() {
+        return this.item;
+    }
+
+
+    generate() {
+        this.fragment = parseHtml(this.createHtml());
+
+        this.item = this.fragment.getElementById(`item${this.data.id}`);
+        this.image = this.fragment.querySelector(".image");
+        this.link = this.fragment.querySelector(".link");
+        this.info = this.fragment.querySelector(".info");
+        this.infoSeasonValue = this.info.querySelector(".season > .value");
+        this.infoEpisodeValue = this.info.querySelector(".episode > .value");
+        this.infoDate = this.info.querySelector(".date");
+        this.infoDateValue = this.info.querySelector(".date > .value");
+
+        this.item.onclick = () => Series.onItemClickListener(this.data.id);
+        this.link.onclick = (e) => e.stopPropagation();
+
+        this.updateInfo();
+    }
+
+
     createHtml() {
-        let item = document.getElementById(`item${this.data.id}`);
-        if (item) {
-            return item.outerHTML;
-        }
-        return `<div id="item${this.data.id}" class="item-outer" onclick="onItemClick(${this.data.id})">
+        return `<div id="item${this.data.id}" class="item-outer">
             <div class="item">
                 <div class="image" style="background-image: url('${this.data.image}');"></div>
                 <div class="gradient"></div>
-                <a class="link" href="${this.data.site}" target="_blank" onclick="event.stopPropagation();"></a>
-                <div class="info">${this.getInfoPart()}</div>
+                <a class="link${this.data.site === "" ? " hide" : ""}" href="${this.data.site}" target="_blank"></a>
+                <div class="info">
+                    ${[["season", "Сезон"], ["episode", "Серия"], ["date", "Дата"]].map(item => 
+                        `<div class="row ${item[0]}">
+                            <div class="label">${item[1]}</div>
+                            <div class="value"></div>
+                        </div>`).join("")}
+                </div>
                 <div class="name">${this.data.name}</div>
             </div>
         </div>`;
     }
 
-    getInfoPart() {
+
+    updateInfo() {
         if (this.data.status === STATUS.COMPLETED) {
-            return "";
+            addClass(this.info, "hide");
+            return;
+        } else {
+            removeClass(this.info, "hide");
         }
-        let html = `<div class="row">
-            <div class="label">Сезон</div>
-            <div class="value">${this.data.season}</div>
-        </div>
-        <div class="row">
-            <div class="label">Серия</div>
-            <div class="value">${this.data.episode}</div>
-        </div>`;
-        if (this.data.status !== STATUS.JUST_WATCH) {
+        this.infoSeasonValue.innerText = this.data.season;
+        this.infoEpisodeValue.innerText = this.data.episode;
+        if (this.data.status === STATUS.JUST_WATCH) {
+            addClass(this.infoDate, "hide");
+        } else {
             let date = dateToLocaleString(this);
-            if (date !== "") {
-                html += `<div class="row">
-                    <div class="label">Дата</div>
-                    <div class="value">${date}</div>
-                </div>`;
+            if (date === "") {
+                addClass(this.infoDate, "hide");
+            } else {
+                this.infoDateValue.innerText = date;
+                removeClass(this.infoDate, "hide");
             }
         }
-        return html;
     }
 
-    updateInfoPart() {
-        $(`#item${this.data.id} .info`).html(this.getInfoPart());
+
+    static compressImage(image) {
+        let img = document.createElement("img");
+        img.src = image;
+        let canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        return canvas.toDataURL("image/jpeg", 0.5);
     }
+
+
+    updateImage() {
+        if (this.data.image.length > 0) {
+            this.data.image = Series.compressImage(this.data.image);
+        }
+        this.image.style.backgroundImage = `url("${this.data.image}")`;
+    }
+
 
     updateLink() {
-        $(`#item${this.data.id} .link`).attr("href", this.data.site);
+        if (this.data.site === "") {
+            addClass(this.link, "hide");
+        } else {
+            this.link.href = this.data.site;
+            removeClass(this.link, "hide");
+        }
     }
+
 
     delete() {
         if (this.onDeleteListener !== null) {
@@ -78,9 +160,11 @@ export default class Series {
         }
     }
 
-    deleteHtml() {
-        $(`#item${this.data.id}`).remove();
+
+    remove() {
+        this.item.remove();
     }
+
 
     compareDates(date1, date2) {
         if (date1 === "" && date2 === "") {
@@ -91,6 +175,7 @@ export default class Series {
             return date1.getTime() === date2.getTime();
         }
     }
+
 
     update(season, episode, date, site, image, status, note) {
         let changed = false;
@@ -124,7 +209,7 @@ export default class Series {
             this.data.note = note;
         }
         if (changedInfo) {
-            this.updateInfoPart();
+            this.updateInfo();
         }
         if (changed) {
             if (this.onUpdateListener !== null) {
@@ -132,10 +217,5 @@ export default class Series {
             }
         }
         return changed;
-    }
-
-    updateImage() {
-        let elems = $(`#item${this.data.id} .image`);
-        elems.css("background-image", `url("${this.data.image}")`);
     }
 }
