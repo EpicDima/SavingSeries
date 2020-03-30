@@ -1,4 +1,4 @@
-import {addClass, animate, getSeriesListType, parseHtml, removeClass} from "./common";
+import {addClass, animate, getSeriesListType, hideElement, parseHtml, removeClass, showElement} from "./common";
 import {FullItem} from "./fullitem";
 import {LIST_TYPE} from "./constants";
 
@@ -47,8 +47,8 @@ export default class HorizontalContainer {
             <div class="top">
                 <div class="title">${this.title}</div>
                 <div class="options">
-                    <div class="count-icon four"></div>
-                    <div class="grid-icon"></div>
+                    <div class="count-icon four" title="Количество в строке"></div>
+                    <div class="grid-icon" title="Сетка"></div>
                 </div>
             </div>
             <div class="outer-container-list">
@@ -221,11 +221,11 @@ export default class HorizontalContainer {
 
     showLeftRightButtons(show = true) {
         if (show) {
-            removeClass(this.leftButton, "hide");
-            removeClass(this.rightButton, "hide");
+            showElement(this.leftButton);
+            showElement(this.rightButton);
         } else {
-            addClass(this.leftButton, "hide");
-            addClass(this.rightButton, "hide");
+            hideElement(this.leftButton);
+            hideElement(this.rightButton);
         }
     }
 
@@ -255,13 +255,13 @@ export default class HorizontalContainer {
 
 
     show() {
-        removeClass(this.container, "hide");
+        showElement(this.container);
         this.checkLeftRightButtons();
     }
 
 
     hide() {
-        addClass(this.container, "hide");
+        hideElement(this.container);
     }
 
 

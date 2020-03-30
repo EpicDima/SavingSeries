@@ -5,15 +5,13 @@ import {
     dateObjectToInputString,
     createLinkElement,
     getSeriesListType,
-    parseHtml, removeClass, addClass, getByQuery, animate
+    parseHtml, removeClass, addClass, getByQuery, showElement, hideElement
 } from "./common";
 import Series from "./series";
 import {setValidator} from "./validator";
 
 
 export class BaseFullItem {
-
-    static HEIGHT = 34; // rem
 
     constructor(id, needTop = true) {
         this.id = id;
@@ -43,7 +41,7 @@ export class BaseFullItem {
     createHtml() {
         return `<div id="fullitem${this.id}" class="fullitem hide">
             <div id="closeButton${this.id}" class="outer-close">
-                <span class="close">&#10006;</span>
+                <span class="close" title="Закрыть">&#10006;</span>
             </div>
             <div class="background">
                 <div id="imageValue${this.id}" class="image"></div>
@@ -212,48 +210,12 @@ export class BaseFullItem {
     }
 
 
-    slide(elem, draw, timing, complete = null) {
-        animate({
-            duration: 250,
-            draw: (progress) => draw(progress, BaseFullItem.HEIGHT),
-            timing: timing,
-            complete: complete
-        });
-    }
-
-
-    slideDown(elem) {
-        this.slide(elem, (progress, height) => {
-                elem.style.cssText = `display: block !important; height: ${progress * height}rem`;
-            },
-            (timeFraction) => 1 - Math.pow(1 - timeFraction, 2),
-            () => {
-                removeClass(elem, "hide");
-                elem.removeAttribute("style");
-                elem.scrollIntoView({behavior: "smooth", block: "end"});
-            });
-    }
-
-
-    slideUp(elem) {
-        this.slide(elem, (progress, height) => elem.style.height = (1 - progress) * height + "rem",
-            (timeFraction) => Math.pow(timeFraction, 2),
-            () => {
-                addClass(elem, "hide");
-                elem.removeAttribute("style");
-            });
-    }
-
-
     open() {
         let opened = getByQuery(`.fullitem:not(.hide):not(#fullitem${this.id})`);
-        if (opened) {
-            this.slideUp(opened);
-        }
+        hideElement(opened);
         this.resetInputValues();
-        if (this.fullitem.classList.contains("hide")) {
-            this.slideDown(this.fullitem);
-        }
+        showElement(this.fullitem);
+        setTimeout(() => this.fullitem.scrollIntoView({behavior: "smooth", block: "end"}), 35);
     }
 
 
@@ -262,13 +224,13 @@ export class BaseFullItem {
     }
 
 
-    close() {
-        this.slideUp(this.fullitem);
+    hide() {
+        hideElement(this.fullitem);
     }
 
 
-    hide() {
-       addClass(this.fullitem, "hide");
+    close() {
+        this.hide();
     }
 
 
@@ -324,19 +286,19 @@ export class BaseFullItem {
     onChangeStatus() {
         let visibilityState = this.getStatusState();
         if (visibilityState.season) {
-            removeClass(this.fields.season.div, "hide");
+            showElement(this.fields.season.div);
         } else {
-            addClass(this.fields.season.div, "hide");
+            hideElement(this.fields.season.div);
         }
         if (visibilityState.episode) {
-            removeClass(this.fields.episode.div, "hide");
+            showElement(this.fields.episode.div);
         } else {
-            addClass(this.fields.episode.div, "hide");
+            hideElement(this.fields.episode.div);
         }
         if (visibilityState.date) {
-            removeClass(this.fields.date.div, "hide");
+            showElement(this.fields.date.div);
         } else {
-            addClass(this.fields.date.div, "hide");
+            hideElement(this.fields.date.div);
         }
     }
 
@@ -345,11 +307,11 @@ export class BaseFullItem {
         let onEditElements = this.fullitem.querySelectorAll(".on-edit");
         let notOnEditElements = this.fullitem.querySelectorAll(".not-on-edit");
         if (show) {
-            onEditElements.forEach(elem => removeClass(elem, "hide"));
-            notOnEditElements.forEach(elem => addClass(elem, "hide"));
+            onEditElements.forEach(elem => showElement(elem));
+            notOnEditElements.forEach(elem => hideElement(elem));
         } else {
-            onEditElements.forEach(elem => addClass(elem, "hide"));
-            notOnEditElements.forEach(elem => removeClass(elem, "hide"));
+            onEditElements.forEach(elem => hideElement(elem));
+            notOnEditElements.forEach(elem => showElement(elem));
         }
     }
 
@@ -436,8 +398,7 @@ export class FullItem extends BaseFullItem {
             <button>Редактировать</button>
         </div>
         <div id="updateButton${this.id}" class="update-button not-on-edit">
-            <button>Следующая</button>
-            <div class="tooltip">Увеличивает серию на 1, дату на неделю</div>
+            <button title="Увеличивает серию на 1, дату на неделю">Следующая</button>
         </div>
         <div id="cancelButton${this.id}" class="cancel-button on-edit">
             <button>Отмена</button>
@@ -495,23 +456,23 @@ export class FullItem extends BaseFullItem {
 
 
     showAllFields() {
-        this.form.querySelectorAll("div").forEach(elem => removeClass(elem, "hide"));
+        this.form.querySelectorAll("div").forEach(elem => showElement(elem));
     }
 
 
     hideEmptyFields() {
         if (this.series.data.date === "") {
-            addClass(this.fields.date.div, "hide");
-            addClass(this.buttons.update.div, "hide");
+            hideElement(this.fields.date.div);
+            hideElement(this.buttons.update.div);
         }
         if (this.series.data.site === "") {
-            addClass(this.fields.site.div, "hide");
+            hideElement(this.fields.site.div);
         }
         if (this.series.data.status === STATUS.JUST_WATCH) {
-            addClass(this.buttons.update.div, "hide");
+            hideElement(this.buttons.update.div);
         }
         if (this.series.data.note === "") {
-            addClass(this.fields.note.div, "hide");
+            hideElement(this.fields.note.div);
         }
     }
 
@@ -579,7 +540,7 @@ export class FullItem extends BaseFullItem {
     close() {
         this.series = null;
         super.close();
-        this.container.getFragment().scrollIntoView({behavior: "smooth", block: "start"});
+        this.container.getFragment().scrollIntoView({behavior: "smooth", block: "center"});
         this.clearActiveItem();
     }
 

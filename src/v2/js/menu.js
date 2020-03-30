@@ -1,4 +1,4 @@
-import {addClass, parseHtml} from "./common";
+import {addClass, hideElement, parseHtml} from "./common";
 import SearchContainer from "./searchContainer";
 
 
@@ -92,7 +92,7 @@ export class Menu {
 
 
     hideSubMenu() {
-        addClass(this.settingsSubMenu, "hide");
+        hideElement(this.settingsSubMenu);
     }
 
 

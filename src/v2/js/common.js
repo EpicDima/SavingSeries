@@ -20,6 +20,16 @@ export function removeClass(elem, cls) {
 }
 
 
+export function hideElement(elem) {
+    addClass(elem, "hide");
+}
+
+
+export function showElement(elem) {
+    removeClass(elem, "hide");
+}
+
+
 export function getOneRemInPixels() {
     return window.innerWidth / 85;
 }

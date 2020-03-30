@@ -1,5 +1,5 @@
 import {STATUS} from "./constants";
-import {addClass, dateToLocaleString, parseHtml, removeClass} from "./common";
+import {addClass, dateToLocaleString, hideElement, parseHtml, removeClass, showElement} from "./common";
 
 export default class Series {
 
@@ -87,7 +87,7 @@ export default class Series {
             <div class="item">
                 <div class="image" style="background-image: url('${this.data.image}');"></div>
                 <div class="gradient"></div>
-                <a class="link${this.data.site === "" ? " hide" : ""}" href="${this.data.site}" target="_blank"></a>
+                <a class="link${this.data.site === "" ? " hide" : ""}" href="${this.data.site}" target="_blank" title="Переход на сайт"></a>
                 <div class="info">
                     ${[["season", "Сезон"], ["episode", "Серия"], ["date", "Дата"]].map(item => 
                         `<div class="row ${item[0]}">
@@ -95,7 +95,7 @@ export default class Series {
                             <div class="value"></div>
                         </div>`).join("")}
                 </div>
-                <div class="name">${this.data.name}</div>
+                <div class="name" title="${this.data.name}">${this.data.name}</div>
             </div>
         </div>`;
     }
@@ -103,22 +103,22 @@ export default class Series {
 
     updateInfo() {
         if (this.data.status === STATUS.COMPLETED) {
-            addClass(this.info, "hide");
+            hideElement(this.info);
             return;
         } else {
-            removeClass(this.info, "hide");
+            showElement(this.info);
         }
         this.infoSeasonValue.innerText = this.data.season;
         this.infoEpisodeValue.innerText = this.data.episode;
         if (this.data.status === STATUS.JUST_WATCH) {
-            addClass(this.infoDate, "hide");
+            hideElement(this.infoDate);
         } else {
             let date = dateToLocaleString(this);
             if (date === "") {
-                addClass(this.infoDate, "hide");
+                hideElement(this.infoDate);
             } else {
                 this.infoDateValue.innerText = date;
-                removeClass(this.infoDate, "hide");
+                showElement(this.infoDate);
             }
         }
     }
@@ -146,10 +146,10 @@ export default class Series {
 
     updateLink() {
         if (this.data.site === "") {
-            addClass(this.link, "hide");
+            hideElement(this.link);
         } else {
             this.link.href = this.data.site;
-            removeClass(this.link, "hide");
+            showElement(this.link);
         }
     }
 

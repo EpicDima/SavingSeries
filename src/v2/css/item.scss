@@ -53,7 +53,6 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
         display: flex;
         justify-content: center;
         @include color($item-background);
-        transition: $transition;
 
         .three & {
             @include wh(calc(33.33vw - 1.05rem), calc(0.5625 * (33.33vw - 1.05rem)));

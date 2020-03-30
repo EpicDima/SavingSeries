@@ -38,7 +38,7 @@ export const LIST_TYPE = {
 export const LIST_NAMES = new Map();
 LIST_NAMES.set(LIST_TYPE.RELEASED, "Вышедшие");
 LIST_NAMES.set(LIST_TYPE.RELEASED_LONG_AGO, "Просматривающиеся");
-LIST_NAMES.set(LIST_TYPE.RELEASED_NEXT_7_DAYS, "Выходящие в ближайшие 7 дней");
+LIST_NAMES.set(LIST_TYPE.RELEASED_NEXT_7_DAYS, "Ближайшие 7 дней");
 LIST_NAMES.set(LIST_TYPE.WITH_DATE_OTHERS, "Остальные");
 LIST_NAMES.set(LIST_TYPE.WITHOUT_DATE, "Без даты");
 LIST_NAMES.set(LIST_TYPE.ON_PAUSE, "На паузе");
