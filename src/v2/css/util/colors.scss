@@ -32,6 +32,16 @@ $button-border: (#fff5, #fff9, white);
 $a-text: #007bff;
 $a-text-hover: #0056b3;
 
+$default-button-background: nth($button-background, 1);
+$default-button-text: nth($button-text, 1);
+$default-button-border: nth($button-border, 1);
+$default-button-background-hover: nth($button-background, 2);
+$default-button-text-hover: nth($button-text, 2);
+$default-button-border-hover: nth($button-border, 2);
+$default-button-background-active: nth($button-background, 3);
+$default-button-text-active: nth($button-text, 3);
+$default-button-border-active: nth($button-border, 3);
+
 $body-background: $default-background;
 
 $navbar-background: $dark-gray-tr;
@@ -86,14 +96,5 @@ $fullitem-input-background: $transparent-background;
 $fullitem-input-text: $default-text;
 $fullitem-input-border: $light-border;
 $fullitem-content-text: $default-text;
-$fullitem-button-background: nth($button-background, 1);
-$fullitem-button-text: nth($button-text, 1);
-$fullitem-button-border: nth($button-border, 1);
-$fullitem-button-background-hover: nth($button-background, 2);
-$fullitem-button-text-hover: nth($button-text, 2);
-$fullitem-button-border-hover: nth($button-border, 2);
-$fullitem-button-background-active: nth($button-background, 3);
-$fullitem-button-text-active: nth($button-text, 3);
-$fullitem-button-border-active: nth($button-border, 3);
 $fullitem-tooltip-background: $dark-gray-hover-tr;
 $fullitem-tooltip-text: $default-text;

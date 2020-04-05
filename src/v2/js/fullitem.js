@@ -9,6 +9,7 @@ import {
 } from "./common";
 import Series from "./series";
 import {setValidator} from "./validator";
+import Dialog from "./dialog";
 
 
 export class BaseFullItem {
@@ -612,8 +613,10 @@ export class FullItem extends BaseFullItem {
     }
 
 
-    delete() {
-        if (confirm(`Вы действительно хотите удалить "${this.series.data.name}"?`)) {
+    async delete() {
+        let dialog = new Dialog(`Вы действительно хотите удалить "${this.series.data.name}"?`);
+        let result = await dialog.open();
+        if (result) {
             this.series.delete();
             this.database.deleteSeriesFromDb(this.series);
             this.close();

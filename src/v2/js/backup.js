@@ -1,4 +1,5 @@
 import Series from "./series";
+import Dialog from "./dialog";
 
 
 export default class Backup {
@@ -31,8 +32,10 @@ export default class Backup {
     }
 
 
-    loadBackup() {
-        if (confirm("Все имеющиеся данные будут очищены и заменены на новые. Вы согласны?")) {
+    async loadBackup() {
+        let dialog = new Dialog("Все имеющиеся данные будут очищены и заменены на новые");
+        let result = await dialog.open();
+        if (result) {
             let element = document.createElement("input");
             element.type = "file";
             element.onchange = (e) => this.onOpenFile(e);

@@ -1,0 +1,31 @@
+dialog {
+    position: fixed;
+    top: 6rem;
+    color: white;
+    background-color: #141414;
+    border: 2px solid black;
+    border-radius: 0.4rem;
+
+    &::backdrop {
+        background-color: #000b;
+    }
+
+    > .title {
+        padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+        font-size: 1.15rem;
+        user-select: none;
+    }
+
+    > .button-container {
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    > .button-container > button {
+        min-width: 6rem;
+        margin-left: 1rem;
+        padding: 0.3rem 0.7rem;
+        font-size: 1rem;
+    }
+}

@@ -43,3 +43,21 @@ html, textarea {
 .hide {
     display: none !important;
 }
+
+button {
+    @include color($default-button-background, $default-button-text);
+    @include border($default-button-border);
+    border-radius: 0.3rem;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+        @include color($default-button-background-hover, $default-button-text-hover);
+        border-color: $default-button-border-hover;
+    }
+
+    &:active {
+        @include color($default-button-background-active, $default-button-text-active);
+        border-color: $default-button-border-active;
+    }
+}

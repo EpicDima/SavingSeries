@@ -150,22 +150,8 @@
                     margin: auto 2rem auto 0;
 
                     > button {
-                        @include color($fullitem-button-background, $fullitem-button-text);
-                        @include border($fullitem-button-border);
-                        padding: 0.4rem 2rem;
-                        border-radius: 0.3rem;
-                        cursor: pointer;
-                        user-select: none;
-
-                        &:hover {
-                            @include color($fullitem-button-background-hover, $fullitem-button-text-hover);
-                            border-color: $fullitem-button-border-hover;
-                        }
-
-                        &:active {
-                            @include color($fullitem-button-background-active, $fullitem-button-text-active);
-                            border-color: $fullitem-button-border-active;
-                        }
+                        min-width: 9.5rem;
+                        padding: 0.4rem 1rem;
                     }
                 }
             }

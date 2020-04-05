@@ -59,7 +59,7 @@ export default class App {
         this.main.append(...inner);
         this.database.foreach((series) => this.initialSplitSeries(series),
             (id) => this.onInitialSplitSeriesEnd(id));
-        this.scrollToTop();
+        App.scrollToTop();
     }
 
 
@@ -68,13 +68,14 @@ export default class App {
         for (let container of this.containers.values()) {
             container.clear();
         }
+        this.addingFullItem.close();
         this.database.foreach((series) => this.initialSplitSeries(series),
             (id) => this.onInitialSplitSeriesEnd(id));
-        this.scrollToTop();
+        App.scrollToTop();
     }
 
 
-    scrollToTop() {
+    static scrollToTop() {
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
