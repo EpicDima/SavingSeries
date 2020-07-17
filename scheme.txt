@@ -1,4 +1,0 @@
-launch (files from folders with name "dist"):
-redirector/
-  v1/
-  v2/
