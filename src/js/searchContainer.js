@@ -8,11 +8,13 @@ export default class SearchContainer {
     static ARROW_DOWN_KEY = "ArrowDown";
     static ARROW_UP_KEY = "ArrowUp";
     static ENTER_KEY = "Enter";
+    static ESCAPE_KEY = "Escape";
+
+    static RESULT_COUNT = 10;
 
 
     constructor(app) {
         this.app = app;
-
         this.generate();
     }
 
@@ -46,6 +48,7 @@ export default class SearchContainer {
 
     setListeners() {
         this.search.oninput = () => this.searchSeries();
+        this.search.onkeydown = (e) => this.cancelDefaultAction(e);
         this.search.onkeyup = (e) => this.moveByKeyboard(e.key);
         this.searchList.onmousedown = (e) => this.onMouseDown(e);
         this.closeButton.onmousedown = (e) => e.preventDefault();
@@ -63,14 +66,29 @@ export default class SearchContainer {
     }
 
 
+    cancelDefaultAction(e) {
+        if (e.key === SearchContainer.ARROW_DOWN_KEY || e.key === SearchContainer.ARROW_UP_KEY) {
+            e.preventDefault();
+        }
+    }
+
+
     moveByKeyboard(key) {
         if (key === SearchContainer.ARROW_DOWN_KEY || key === SearchContainer.ARROW_UP_KEY) {
             if (this.activeItem) {
                 removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-                if (key === SearchContainer.ARROW_DOWN_KEY && this.activeItem.nextElementSibling) {
-                    this.activeItem = this.activeItem.nextElementSibling;
-                } else if (key === SearchContainer.ARROW_UP_KEY && this.activeItem.previousElementSibling) {
-                    this.activeItem = this.activeItem.previousElementSibling;
+                if (key === SearchContainer.ARROW_DOWN_KEY) {
+                    if (this.activeItem.nextElementSibling) {
+                        this.activeItem = this.activeItem.nextElementSibling;
+                    } else {
+                        this.activeItem = this.searchList.firstElementChild;
+                    }
+                } else if (key === SearchContainer.ARROW_UP_KEY) {
+                    if (this.activeItem.previousElementSibling) {
+                        this.activeItem = this.activeItem.previousElementSibling;
+                    } else {
+                        this.activeItem = this.searchList.lastElementChild;
+                    }
                 }
             } else {
                 if (key === SearchContainer.ARROW_DOWN_KEY) {
@@ -80,19 +98,24 @@ export default class SearchContainer {
                 }
             }
             addClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-            if (this.activeItem) {
-                this.activeItem.scrollIntoView({block: "nearest"});
-            }
         } else if (key === SearchContainer.ENTER_KEY) {
             if (this.activeItem) {
                 this.activeItem.click();
             }
+        } else if (key === SearchContainer.ESCAPE_KEY) {
+            if (this.isFocused()) {
+                this.search.blur();
+            }
         }
+    }
+
+    isFocused() {
+        return document.activeElement === this.search;
     }
 
 
     onMouseDown(e) {
-        if (document.activeElement === this.search) {
+        if (this.isFocused()) {
             e.preventDefault();
             if (e.button === 0) {
                 e.target.click();
@@ -106,13 +129,27 @@ export default class SearchContainer {
         this.searchList.innerHTML = "";
         this.activeItem = null;
         if (substr.length > 0) {
-            let inner = [];
+            let indexes = new Map();
             for (let container of this.app.containers.values()) {
                 for (let series of container.map.values()) {
-                    if (series.data.name.toLowerCase().search(substr) !== -1) {
-                        inner.push(this.createItem(series));
+                    let index = series.data.name.toLowerCase().search(substr);
+                    if (index !== -1) {
+                        if (!indexes.has(index)) {
+                            indexes.set(index, []);
+                        }
+                        indexes.get(index).push(series);
                     }
                 }
+            }
+            indexes = new Map([...indexes.entries()].sort());
+            let seriesList = [];
+            for (let array of indexes.values()) {
+                array.forEach(series => seriesList.push(series));
+            }
+            let size = Math.min(seriesList.length, SearchContainer.RESULT_COUNT);
+            let inner = [];
+            for (let i = 0; i < size; i++) {
+                inner.push(this.createItem(seriesList[i]));
             }
             this.searchList.append(...inner);
         }
@@ -125,7 +162,11 @@ export default class SearchContainer {
             addClass(elem, SearchContainer.ACTIVE_CLASS);
             this.activeItem = elem;
         });
-        elem.addEventListener("mouseout", () => removeClass(elem, SearchContainer.ACTIVE_CLASS));
+        elem.addEventListener("mouseout", () => {
+            removeClass(elem, SearchContainer.ACTIVE_CLASS);
+            removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
+            this.activeItem = null;
+        });
     }
 
 

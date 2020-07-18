@@ -1,18 +1,26 @@
 import {getStatusOptionsHtml, STATUS} from "./constants";
 import {
-    dateToLocaleString,
+    addClass,
+    createLinkElement,
     dateInputStringToObject,
     dateObjectToInputString,
-    createLinkElement,
+    dateToLocaleString,
+    getByQuery,
     getSeriesListType,
-    parseHtml, removeClass, addClass, getByQuery, showElement, hideElement
+    hideElement,
+    parseHtml,
+    removeClass,
+    showElement
 } from "./common";
 import Series from "./series";
-import {setValidator} from "./validator";
+import {setValidator, validate} from "./validator";
 import Dialog from "./dialog";
 
 
 export class BaseFullItem {
+
+    static ENTER_KEY = "Enter";
+    static ESCAPE_KEY = "Escape";
 
     constructor(id, needTop = true) {
         this.id = id;
@@ -204,6 +212,11 @@ export class BaseFullItem {
         this.fields.image.input.onchange = () => this.changeImage();
         this.fields.status.input.onchange = () => this.onChangeStatus();
 
+        this.setValidators();
+    }
+
+
+    setValidators() {
         setValidator(this.fields.season.input, this.fields.season.error);
         setValidator(this.fields.episode.input, this.fields.episode.error);
         setValidator(this.fields.date.input, this.fields.date.error);
@@ -211,12 +224,35 @@ export class BaseFullItem {
     }
 
 
+    validateInputs() {
+        validate(this.fields.season.input, this.fields.season.error);
+        validate(this.fields.episode.input, this.fields.episode.error);
+        validate(this.fields.date.input, this.fields.date.error);
+        validate(this.fields.site.input, this.fields.site.error);
+    }
+
+
     open() {
         let opened = getByQuery(`.fullitem:not(.hide):not(#fullitem${this.id})`);
         hideElement(opened);
         this.resetInputValues();
+        this.setKeyboardListener();
         showElement(this.fullitem);
         setTimeout(() => this.fullitem.scrollIntoView({behavior: "smooth", block: "end"}), 35);
+    }
+
+
+    setKeyboardListener() {
+        document.onkeyup = (e) => this.keyboardListen(e.key);
+    }
+
+
+    removeKeyboardListener() {
+        document.onkeyup = null;
+    }
+
+
+    keyboardListen(key) {
     }
 
 
@@ -231,6 +267,7 @@ export class BaseFullItem {
 
 
     close() {
+        this.removeKeyboardListener();
         this.hide();
     }
 
@@ -455,6 +492,20 @@ export class FullItem extends BaseFullItem {
         this.buttons.delete.button.onclick = () => this.delete();
     }
 
+    keyboardListen(key) {
+        if (key === BaseFullItem.ENTER_KEY) {
+            if (this.changeMode) {
+                this.accept();
+            }
+        } else if (key === BaseFullItem.ESCAPE_KEY) {
+            if (this.changeMode) {
+                this.cancel();
+            } else {
+                this.close();
+            }
+        }
+    }
+
 
     showAllFields() {
         this.form.querySelectorAll("div").forEach(elem => showElement(elem));
@@ -493,6 +544,7 @@ export class FullItem extends BaseFullItem {
     open(series) {
         if (this.needToOpen(series)) {
             this.series = series;
+            this.changeMode = false;
             this.moveByGridState();
             super.open();
             this.setSeries(series);
@@ -539,6 +591,7 @@ export class FullItem extends BaseFullItem {
 
 
     close() {
+        this.changeMode = false;
         this.series = null;
         super.close();
         this.container.getFragment().scrollIntoView({behavior: "smooth", block: "center"});
@@ -553,6 +606,7 @@ export class FullItem extends BaseFullItem {
 
 
     change() {
+        this.changeMode = true;
         this.showAllFields();
         this.showEditFields(true);
         this.onChangeStatus();
@@ -573,6 +627,7 @@ export class FullItem extends BaseFullItem {
             }
         }
 
+        this.changeMode = false;
         this.setDisplayValues(this.series);
         this.setInputValues(this.series);
     }
@@ -605,6 +660,7 @@ export class FullItem extends BaseFullItem {
             }
         }
 
+        this.changeMode = false;
         this.setDisplayValues(this.series);
         this.showAllFields();
         this.showEditFields(false);
@@ -682,7 +738,27 @@ export class AddingFullItem extends BaseFullItem {
     setListeners() {
         super.setListeners();
         this.buttons.add.button.onclick = () => this.add();
+    }
+
+
+    setValidators() {
         setValidator(this.fields.name.input, this.fields.name.error);
+        super.setValidators();
+    }
+
+
+    validateInputs() {
+        super.validateInputs();
+        validate(this.fields.name.input, this.fields.name.error);
+    }
+
+
+    keyboardListen(key) {
+        if (key === BaseFullItem.ENTER_KEY) {
+            this.add();
+        } else if (key === BaseFullItem.ESCAPE_KEY) {
+            this.close();
+        }
     }
 
 
@@ -715,6 +791,7 @@ export class AddingFullItem extends BaseFullItem {
     add() {
         let data = this.getValuesFromInputs();
         if (!data) {
+            this.validateInputs();
             return;
         }
         let name = this.fields.name.input.value;

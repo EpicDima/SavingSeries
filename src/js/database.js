@@ -67,7 +67,7 @@ export default class Database {
     }
 
 
-    foreach(func, funcOnEnd = undefined) {
+    foreach(func, funcOnEnd = null) {
         let request = this.getReadOnlyObjectStore().openCursor();
         let id = 0;
         request.onsuccess = function () {
