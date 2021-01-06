@@ -1,4 +1,4 @@
-import {addClass, hideElement, parseHtml} from "./common";
+import {hideElement, parseHtml} from "./common";
 import SearchContainer from "./searchContainer";
 
 
@@ -29,7 +29,7 @@ export class Menu {
         this.openAddingElementMenuItem = this.fragment.getElementById("openAddingElementMenuItem");
         this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
         this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
-        this.goBackSubMenuItem = this.fragment.getElementById("goBackSubMenuItem");
+        this.goToOldSubMenuItem = this.fragment.getElementById("goToOldSubMenuItem");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
 
@@ -53,7 +53,7 @@ export class Menu {
                             <div id="settingsSubMenu" class="submenu hide">
                                 <div id="createBackupSubMenuItem">Создать Backup</div>
                                 <div id="loadBackupSubMenuItem">Загрузить Backup</div>
-                                <div id="goBackSubMenuItem">Страница выбора</div>
+                                <div id="goToOldSubMenuItem">Устаревшая версия</div>
                             </div>
                         </li>
                     </ul>
@@ -76,7 +76,7 @@ export class Menu {
         this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
-        this.goBackSubMenuItem.onclick = () => this.goBack();
+        this.goToOldSubMenuItem.onclick = () => this.goToOld();
     }
 
 
@@ -96,9 +96,8 @@ export class Menu {
     }
 
 
-    goBack() {
-        this.app.localStorage.removeVersion();
-        history.replaceState({}, "", `../`);
+    goToOld() {
+        history.replaceState({}, "", `/v1`);
         location.reload();
     }
 }

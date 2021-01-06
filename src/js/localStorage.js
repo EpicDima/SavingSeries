@@ -8,11 +8,6 @@ export default class LocalStorage {
     }
 
 
-    removeVersion() {
-        localStorage.removeItem("version");
-    }
-
-
     createOrUpdateContainersParams(id) {
         let containersParams;
         try {
