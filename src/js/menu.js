@@ -97,7 +97,7 @@ export class Menu {
 
 
     goToOld() {
-        history.replaceState({}, "", `/v1`);
+        history.replaceState({}, "", `/SavingSeries/v1`);
         location.reload();
     }
 }

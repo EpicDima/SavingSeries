@@ -522,13 +522,17 @@ export class FullItem extends BaseFullItem {
         if (this.series.data.note === "") {
             hideElement(this.fields.note.div);
         }
+        if (this.series.data.date === "" && this.series.data.status !== STATUS.JUST_WATCH) {
+            hideElement(this.buttons.update.div);
+        }
     }
+
 
     applyUpdateButton() {
         if (this.series.data.date === "") {
             this.buttons.update.button.title = "Переход к следующей серии";
         } else {
-            this.buttons.update.button.title = "Переход к следующей серии на следующей неделе";
+            this.buttons.update.button.title = "Переход к следующей серии через неделю";
         }
     }
 
@@ -557,6 +561,7 @@ export class FullItem extends BaseFullItem {
             this.showEditFields(false);
             this.onChangeStatus();
             this.hideEmptyFields();
+            this.applyUpdateButton();
         }
     }
 
