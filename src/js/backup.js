@@ -26,7 +26,7 @@ export default class Backup {
             let element = document.createElement("a");
             element.href = "data:text/plain;charset=utf-8,%EF%BB%BF"
                 + encodeURIComponent(JSON.stringify(request.result));
-            element.download = "backup.bin";
+            element.download = "SavingSeries.backup";
             element.click();
         };
     }

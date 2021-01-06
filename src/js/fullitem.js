@@ -436,7 +436,7 @@ export class FullItem extends BaseFullItem {
             <button>Редактировать</button>
         </div>
         <div id="updateButton${this.id}" class="update-button not-on-edit">
-            <button title="Увеличивает серию на 1, дату на неделю">Следующая</button>
+            <button>Далее</button>
         </div>
         <div id="cancelButton${this.id}" class="cancel-button on-edit">
             <button>Отмена</button>
@@ -515,16 +515,20 @@ export class FullItem extends BaseFullItem {
     hideEmptyFields() {
         if (this.series.data.date === "") {
             hideElement(this.fields.date.div);
-            hideElement(this.buttons.update.div);
         }
         if (this.series.data.site === "") {
             hideElement(this.fields.site.div);
         }
-        if (this.series.data.status === STATUS.JUST_WATCH) {
-            hideElement(this.buttons.update.div);
-        }
         if (this.series.data.note === "") {
             hideElement(this.fields.note.div);
+        }
+    }
+
+    applyUpdateButton() {
+        if (this.series.data.date === "") {
+            this.buttons.update.button.title = "Переход к следующей серии";
+        } else {
+            this.buttons.update.button.title = "Переход к следующей серии на следующей неделе";
         }
     }
 
@@ -614,8 +618,11 @@ export class FullItem extends BaseFullItem {
 
 
     update() {
-        let date = new Date(this.series.data.date);
-        date.setDate(date.getDate() + 7);
+        let date = this.series.data.date;
+        if (date !== "") {
+            date = new Date(this.series.data.date);
+            date.setDate(date.getDate() + 7);
+        }
         let changed = this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
             this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
         this.database.putSeriesInDb(this.series);
@@ -645,7 +652,7 @@ export class FullItem extends BaseFullItem {
 
     accept() {
         let data = this.getValuesFromInputs();
-        if (data === null) {
+        if (!data) {
             return;
         }
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : this.series.data.image;
@@ -666,6 +673,7 @@ export class FullItem extends BaseFullItem {
         this.showEditFields(false);
         this.onChangeStatus();
         this.hideEmptyFields();
+        this.applyUpdateButton();
     }
 
 
