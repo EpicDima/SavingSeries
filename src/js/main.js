@@ -93,7 +93,7 @@ function initialize(db) {
 window.createBackup = function() {
     let element = document.createElement("a");
     element.href = "data:text/plain;charset=utf-8,%EF%BB%BF" + encodeURIComponent(JSON.stringify(Array.from(seriesList.values())));
-    element.download = "backup.bin";
+    element.download = "SavingSeries.old.backup";
     element.style.display = "none";
     element.click();
     element.remove();
