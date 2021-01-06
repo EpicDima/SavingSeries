@@ -40,8 +40,7 @@ function connectDB(func) {
     }
 }
 
-window.goBack = function() {
-    localStorage.removeItem("version");
+window.goToActual = function () {
     history.replaceState({}, "", `../`);
     location.reload();
 };
