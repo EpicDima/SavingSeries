@@ -76,7 +76,6 @@
               display: none;
               @include wh(30rem);
               max-height: 25rem;
-              top: 3rem;
               box-sizing: border-box;
               overflow-y: auto;
               @include color($navbar-search-list-background, $navbar-search-list-text);

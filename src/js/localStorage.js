@@ -1,6 +1,7 @@
 export default class LocalStorage {
 
     static CONTAINERS_KEY = "containers";
+    static NAVBAR_KEY = "navbar";
 
 
     clear() {
@@ -68,5 +69,13 @@ export default class LocalStorage {
         let containersParams = this.createOrUpdateContainersParams(id);
         containersParams[id].grid = grid;
         this.setByKey(LocalStorage.CONTAINERS_KEY, containersParams);
+    }
+
+    getNavBarPosition() {
+        return localStorage.getItem(LocalStorage.NAVBAR_KEY);
+    }
+
+    setNavBarPosition(position) {
+        localStorage.setItem(LocalStorage.NAVBAR_KEY, position);
     }
 }

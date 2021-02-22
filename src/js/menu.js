@@ -32,6 +32,11 @@ export class Menu {
         this.goToOldSubMenuItem = this.fragment.getElementById("goToOldSubMenuItem");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
+        let position = this.app.localStorage.getNavBarPosition();
+        if (position) {
+            this.navbar.style.position = position;
+            this.search.searchList.style.position = position;
+        }
 
         this.setListeners();
     }
@@ -69,7 +74,6 @@ export class Menu {
             this.app.refresh();
         };
 
-
         this.settingsSubMenuTitle.onclick = (e) => this.toggleSubMenu(e);
         window.onclick = () => this.hideSubMenu();
 
@@ -77,6 +81,18 @@ export class Menu {
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
         this.goToOldSubMenuItem.onclick = () => this.goToOld();
+
+        this.navbar.addEventListener("dblclick", () => {
+            let position = this.app.localStorage.getNavBarPosition();
+            if (position === "absolute") {
+                position = "fixed";
+            } else {
+                position = "absolute";
+            }
+            this.navbar.style.position = position;
+            this.search.searchList.style.position = position;
+            this.app.localStorage.setNavBarPosition(position);
+        });
     }
 
 

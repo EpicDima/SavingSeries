@@ -47,7 +47,7 @@ export default class HorizontalContainer {
             <div class="top">
                 <div class="title">${this.title}</div>
                 <div class="options">
-                    <div class="count-icon four" title="Количество в строке"></div>
+                    <div class="count-icon four" title="Карточек в строке"></div>
                     <div class="grid-icon" title="Сетка"></div>
                 </div>
             </div>
@@ -69,6 +69,8 @@ export default class HorizontalContainer {
     getCountNumberFromLocalStorage() {
         let count = this.app.localStorage.getCountNumberOfContainer(this.id);
         switch (count) {
+            case "two":
+                return 2;
             case "three":
                 return 3;
             case "four":
@@ -77,6 +79,12 @@ export default class HorizontalContainer {
                 return 5;
             case "six":
                 return 6;
+            case "seven":
+                return 7;
+            case "eight":
+                return 8;
+            case "nine":
+                return 9;
             default:
                 return 4;
         }
@@ -145,8 +153,8 @@ export default class HorizontalContainer {
 
         this.countButton.onclick = () => {
             this.countNumber--;
-            if (this.countNumber === 2) {
-                this.countNumber = 6;
+            if (this.countNumber === 1) {
+                this.countNumber = 9;
             }
             this.updateByCount();
         };
@@ -159,6 +167,9 @@ export default class HorizontalContainer {
     updateByCount() {
         let count;
         switch (this.countNumber) {
+            case 2:
+                count = "two";
+                break;
             case 3:
                 count = "three";
                 break;
@@ -171,12 +182,21 @@ export default class HorizontalContainer {
             case 6:
                 count = "six";
                 break;
+            case 7:
+                count = "seven";
+                break;
+            case 8:
+                count = "eight";
+                break;
+            case 9:
+                count = "nine";
+                break;
             default:
                 count = "four";
                 break;
         }
 
-        let classList = ["three", "four", "five", "six"];
+        let classList = ["two", "three", "four", "five", "six", "seven", "eight", "nine"];
 
         this.countButton.classList.remove(...classList);
         this.countButton.classList.add(count);

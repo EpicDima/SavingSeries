@@ -54,39 +54,195 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
         justify-content: center;
         @include color($item-background);
 
+        .two & {
+            @include wh(calc(50.0vw - 1.05rem), calc(0.5625 * (50.0vw - 1.05rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 1.0rem;
+            }
+
+            > .name {
+                font-size: 1.4rem;
+            }
+
+            > .info {
+                font-size: 1.05rem;
+
+                > .row {
+                    min-height: 1.6rem;
+                }
+            }
+        }
+
         .three & {
-            @include wh(calc(33.33vw - 1.05rem), calc(0.5625 * (33.33vw - 1.05rem)));
+            @include wh(calc(33.333vw - 1.05rem), calc(0.5625 * (33.333vw - 1.05rem)));
 
             &, > .image, > .gradient {
                 border-radius: 0.875rem;
             }
+
+            > .name {
+                font-size: 1.3rem;
+            }
+
+            > .info {
+                font-size: 0.95rem;
+
+                > .row {
+                    min-height: 1.5rem;
+                }
+            }
         }
 
         .four & {
-            @include wh(calc(25vw - 1.05rem), calc(0.5625 * (25vw - 1.05rem)));
+            @include wh(calc(25.0vw - 1.05rem), calc(0.5625 * (25.0vw - 1.05rem)));
 
             &, > .image, > .gradient {
                 border-radius: 0.75rem;
             }
+
+            > .name {
+                font-size: 1.25rem;
+            }
+
+            > .info {
+                font-size: 0.875rem;
+
+                > .row {
+                    min-height: 1.4rem;
+                }
+            }
         }
 
         .five & {
-            @include wh(calc(20vw - 1.05rem), calc(0.5625 * (20vw - 1.05rem)));
+            @include wh(calc(20.0vw - 1.05rem), calc(0.5625 * (20.0vw - 1.05rem)));
 
             &, > .image, > .gradient {
                 border-radius: 0.625rem;
             }
+
+            > .name {
+                font-size: 1.2rem;
+            }
+
+            > .info {
+                font-size: 0.825rem;
+
+                > .row {
+                    min-height: 1.3rem;
+                }
+            }
         }
 
         .six & {
-            @include wh(calc(16.66vw - 1.05rem), calc(0.5625 * (16.66vw - 1.05rem)));
+            @include wh(calc(16.667vw - 1.05rem), calc(0.5625 * (16.667vw - 1.05rem)));
 
             &, > .image, > .gradient {
                 border-radius: 0.5rem;
             }
 
+            > .name {
+                font-size: 1.1rem;
+            }
+
             > .info {
+                font-size: 0.75rem;
+
+                > .row {
+                    min-height: 1.2rem;
+
+                    > .label {
+                        width: 3.5rem;
+                    }
+                }
+            }
+
+            > .link {
+                @include wh(1.7rem, 1.7rem);
+            }
+        }
+
+        .seven & {
+            @include wh(calc(14.286vw - 1.05rem), calc(0.5625 * (14.286vw - 1.05rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.4rem;
+            }
+
+            .name {
+                font-size: 1.05rem;
+            }
+
+            > .info {
+                font-size: 0.675rem;
+
+                > .row {
+                    min-height: 1.1rem;
+
+                    > .label {
+                        width: 3.0rem;
+                    }
+                }
+            }
+
+            > .link {
+                @include wh(1.625rem, 1.625rem);
+            }
+        }
+
+        .eight & {
+            @include wh(calc(12.5vw - 1.05rem), calc(0.5625 * (12.5vw - 1.05rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.325rem;
+            }
+
+            > .name {
+                font-size: 0.975rem;
+            }
+
+            > .info {
+                font-size: 0.6rem;
+
+                > .row {
+                    min-height: 1.0rem;
+
+                    > .label {
+                        width: 2.5rem;
+                    }
+                }
+            }
+
+            > .link {
+                @include wh(1.5rem, 1.5rem);
+            }
+        }
+
+        .nine & {
+            @include wh(calc(11.111vw - 1.05rem), calc(0.5625 * (11.111vw - 1.05rem)));
+
+            &, > .image, > .gradient {
+                border-radius: 0.25rem;
+            }
+
+            .name {
                 font-size: 0.9rem;
+            }
+
+            > .info {
+                font-size: 0.55rem;
+
+                > .row {
+                    min-height: 0.95rem;
+
+                    > .label {
+                        width: 2.5rem;
+                    }
+                }
+            }
+
+            > .link {
+                @include wh(1.4rem, 1.4rem);
             }
         }
 
@@ -167,6 +323,10 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
         }
     }
 
+    .two & {
+        border-radius: 1.0rem;
+    }
+
     .three & {
         border-radius: 0.875rem;
     }
@@ -181,5 +341,17 @@ $transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
 
     .six & {
         border-radius: 0.5rem;
+    }
+
+    .seven & {
+        border-radius: 0.375rem;
+    }
+
+    .eight & {
+        border-radius: 0.25rem;
+    }
+
+    .nine & {
+        border-radius: 0.125rem;
     }
 }
