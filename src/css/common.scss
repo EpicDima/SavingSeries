@@ -1,3 +1,7 @@
+html {
+    font-size: 16px;
+}
+
 body {
     @include color($body-background);
     font-family: Roboto, "Segoe UI", sans-serif;

@@ -20,10 +20,11 @@ $dark-gradient-for-item-title: (rgba(0, 0, 0, 0.8) 0%,
 $dark-gradient-for-item: (rgba(0, 0, 0, 0.7) 0%,
                           rgba(0, 0, 0, 0.6) 15%);
 
-$dark-gradient-for-fullitem: (black              40%,
-                              rgba(0, 0, 0, 0.8) 50%,
-                              rgba(0, 0, 0, 0.4) 55%,
-                              transparent        60%);
+$dark-gradient-for-fullitem: (black               33%,
+                              rgba(0, 0, 0, 0.9)  36%,
+                              rgba(0, 0, 0, 0.7)  42%,
+                              rgba(0, 0, 0, 0.45) 48%,
+                              transparent         58%);
 
 $button-background: (transparent, #fff3, white);
 $button-text: (white, white, black);

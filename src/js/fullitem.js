@@ -285,8 +285,8 @@ export class BaseFullItem {
         if (file) {
             if (!file.type.startsWith("image/")) {
                 this.setErrorToImageInput("Выбранный файл не является изображением.");
-            } else if (file.size > 4 * 1024 * 1024) {
-                this.setErrorToImageInput("Размер файла не должен превышать 4 мегабайта.");
+            } else if (file.size > 10 * 1024 * 1024) {
+                this.setErrorToImageInput("Размер файла не должен превышать 10 мегабайт.");
             } else {
                 reader.readAsDataURL(file);
             }
@@ -562,6 +562,8 @@ export class FullItem extends BaseFullItem {
             this.onChangeStatus();
             this.hideEmptyFields();
             this.applyUpdateButton();
+        } else {
+            this.close();
         }
     }
 
@@ -603,7 +605,6 @@ export class FullItem extends BaseFullItem {
         this.changeMode = false;
         this.series = null;
         super.close();
-        this.container.getFragment().scrollIntoView({behavior: "smooth", block: "center"});
         this.clearActiveItem();
     }
 
@@ -662,7 +663,7 @@ export class FullItem extends BaseFullItem {
         }
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : this.series.data.image;
         let changed = this.series.update(data.season, data.episode, data.date,
-                data.site, image, data.status, data.note);
+            data.site, image, data.status, data.note);
         this.database.putSeriesInDb(this.series);
 
         if (changed) {
@@ -810,7 +811,7 @@ export class AddingFullItem extends BaseFullItem {
         let name = this.fields.name.input.value;
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : "";
         let series = new Series(AddingFullItem.seriesId++, name, data.season, data.episode, data.date,
-                data.site, image, data.status, data.note);
+            data.site, image, data.status, data.note);
         this.database.putSeriesInDb(series);
         this.close();
         this.showSeries(series);

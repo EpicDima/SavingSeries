@@ -13,7 +13,8 @@ export default class LocalStorage {
         let containersParams;
         try {
             containersParams = JSON.parse(localStorage.getItem(LocalStorage.CONTAINERS_KEY));
-        } catch (e) {}
+        } catch (e) {
+        }
         if (!containersParams) {
             containersParams = {};
         }

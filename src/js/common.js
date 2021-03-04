@@ -30,16 +30,6 @@ export function showElement(elem) {
 }
 
 
-export function getOneRemInPixels() {
-    return window.innerWidth / 85;
-}
-
-
-export function resize() {
-    document.documentElement.style.fontSize =  `${getOneRemInPixels()}px`;
-}
-
-
 export function parseHtml(html) {
     let template = document.createElement("template");
     template.innerHTML = html;

@@ -2,7 +2,7 @@ import Database from "./database";
 import {AddingFullItem} from "./fullitem";
 import * as constants from "./constants";
 import HorizontalContainer from "./container";
-import {getByQuery, getSeriesListType, resize} from "./common";
+import {getByQuery, getSeriesListType} from "./common";
 import Backup from "./backup";
 import Series from "./series";
 import {Menu} from "./menu";
@@ -14,8 +14,6 @@ export default class App {
     static #instance;
 
     constructor() {
-        resize();
-
         this.database = Database.getInstance();
         this.containers = new Map();
 
@@ -23,7 +21,6 @@ export default class App {
         this.backup = new Backup(this.database, () => this.clearAll(), () => this.initialize());
 
         Series.onItemClickListener = (id) => this.openFullitem(id);
-        window.onresize = resize;
 
         this.menu = new Menu(this);
         this.addingFullItem = new AddingFullItem((series) => this.relocateSeries(series), this.database);

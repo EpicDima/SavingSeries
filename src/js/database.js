@@ -7,7 +7,8 @@ export default class Database {
 
     static #instance;
 
-    constructor() {}
+    constructor() {
+    }
 
     static getInstance() {
         if (!Database.#instance) {

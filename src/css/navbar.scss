@@ -72,18 +72,18 @@
             }
 
             > .search-list {
-              position: fixed;
-              display: none;
-              @include wh(30rem);
-              max-height: 25rem;
-              box-sizing: border-box;
-              overflow-y: auto;
-              @include color($navbar-search-list-background, $navbar-search-list-text);
+                position: fixed;
+                display: none;
+                @include wh(30rem);
+                max-height: 25rem;
+                box-sizing: border-box;
+                overflow-y: auto;
+                @include color($navbar-search-list-background, $navbar-search-list-text);
 
-              > .search-item {
-                overflow: hidden;
-                padding: 0.5rem 0.5rem;
-                cursor: pointer;
+                > .search-item {
+                    overflow: hidden;
+                    padding: 0.5rem 0.5rem;
+                    cursor: pointer;
 
                     &.active {
                         @include color($navbar-search-list-background-hover, $navbar-search-list-text-hover);

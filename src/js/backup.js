@@ -63,7 +63,8 @@ export default class Backup {
                     this.initialize();
                     return;
                 }
-            } catch (e) {}
+            } catch (e) {
+            }
             alert("Содержимое файла повреждено!");
         };
         reader.readAsText(event.target.files[0]);

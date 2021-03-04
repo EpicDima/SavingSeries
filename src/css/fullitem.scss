@@ -1,6 +1,6 @@
 .fullitem {
     position: relative;
-    @include wh(100%, 32rem);
+    @include wh(100%, 38vw);
     @include color($fullitem-background);
     margin: 0;
     padding: 0;
@@ -13,7 +13,6 @@
     > .outer-close {
         position: absolute;
         right: 0.4rem;
-        top: 0.2rem;
         z-index: 5;
         @include color($text: $fullitem-close);
 
@@ -24,7 +23,7 @@
         > .close {
             text-shadow: none;
             cursor: pointer;
-            font-size: 1.8rem;
+            font-size: 2rem;
             user-select: none;
         }
     }
@@ -52,7 +51,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        @include wh(50%);
+        @include wh(40%);
         margin: 0.5rem 0 1rem 1rem;
         @include color($text: $fullitem-content-text);
         bottom: 0;
@@ -78,7 +77,7 @@
         > .general {
             display: flex;
             flex-direction: column;
-            @include wh(75%, 100%);
+            @include wh(85%, 100%);
             justify-content: space-between;
             margin-top: 0.5rem;
 

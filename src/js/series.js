@@ -1,9 +1,11 @@
 import {STATUS} from "./constants";
-import {addClass, dateToLocaleString, hideElement, parseHtml, removeClass, showElement} from "./common";
+import {dateToLocaleString, hideElement, parseHtml, showElement} from "./common";
 
 export default class Series {
 
-    static onItemClickListener = () => {return false;};
+    static onItemClickListener = () => {
+        return false;
+    };
 
 
     static validate(series) {
@@ -26,7 +28,8 @@ export default class Series {
                         };
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+            }
         }
         return null;
     }
@@ -89,7 +92,7 @@ export default class Series {
                 <div class="gradient"></div>
                 <a class="link${this.data.site === "" ? " hide" : ""}" href="${this.data.site}" target="_blank" title="Переход на сайт"></a>
                 <div class="info">
-                    ${[["season", "Сезон"], ["episode", "Серия"], ["date", "Дата"]].map(item => 
+                    ${[["season", "Сезон"], ["episode", "Серия"], ["date", "Дата"]].map(item =>
                         `<div class="row ${item[0]}">
                             <div class="label">${item[1]}</div>
                             <div class="value"></div>
