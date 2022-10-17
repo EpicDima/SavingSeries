@@ -1,8 +1,8 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin")
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
 
@@ -28,23 +28,6 @@ module.exports = (env, argv) => {
             }),
             new MiniCssExtractPlugin({
                 filename: "style.css"
-            }),
-            new OptimizeCssAssetsPlugin(isProduction ? {
-                assetNameRegExp: /\.css$/g,
-                cssProcessor: require("cssnano"),
-                cssProcessorPluginOptions: {
-                    preset: [
-                        "default",
-                        {
-                            discardComments: {
-                                removeAll: true
-                            }
-                        }
-                    ]
-                },
-                canPrint: true
-            } : {
-                assetNameRegExp: /\.optimize\.css$/g
             }),
             new CleanWebpackPlugin()
         ],
@@ -77,7 +60,21 @@ module.exports = (env, argv) => {
         optimization: {
             minimize: isProduction,
             minimizer: isProduction ? [
-                new TerserPlugin()
+                new TerserPlugin(),
+                new CssMinimizerPlugin(
+                    {
+                        test: /\.css$/g,
+                        minify: CssMinimizerPlugin.cssnanoMinify,
+                        minimizerOptions: {
+                            preset: [
+                                "default",
+                                {
+                                    discardComments: {removeAll: true},
+                                },
+                            ],
+                        },
+                    }
+                )
             ] : []
         }
     };

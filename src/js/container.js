@@ -91,7 +91,7 @@ export default class HorizontalContainer {
     }
 
 
-    setCountToLocaStorage(count) {
+    setCountToLocalStorage(count) {
         this.app.localStorage.setCountNumberOfContainer(this.id, count);
     }
 
@@ -102,7 +102,7 @@ export default class HorizontalContainer {
     }
 
 
-    setGridStatusToLocaStorage(grid) {
+    setGridStatusToLocalStorage(grid) {
         this.app.localStorage.setGridStateOfContainer(this.id, grid ? "true" : "false");
     }
 
@@ -206,7 +206,7 @@ export default class HorizontalContainer {
 
         this.checkLeftRightButtons();
         this.fullitem.moveByGridState();
-        this.setCountToLocaStorage(count);
+        this.setCountToLocalStorage(count);
     }
 
 
@@ -216,7 +216,7 @@ export default class HorizontalContainer {
         addClass(this.hlcList, "grid");
         this.showLeftRightButtons(false);
         this.fullitem.moveByGridState();
-        this.setGridStatusToLocaStorage(this.grid);
+        this.setGridStatusToLocalStorage(this.grid);
     }
 
 
@@ -226,7 +226,7 @@ export default class HorizontalContainer {
         removeClass(this.hlcList, "grid");
         this.checkLeftRightButtons();
         this.fullitem.moveToDefault();
-        this.setGridStatusToLocaStorage(this.grid);
+        this.setGridStatusToLocalStorage(this.grid);
     }
 
 
@@ -376,16 +376,16 @@ export default class HorizontalContainer {
 
     onSeriesUpdate(id) {
         let series = this.map.get(id);
-        let listtype = getSeriesListType(series);
-        if (listtype !== this.id) {
+        let listType = getSeriesListType(series);
+        if (listType !== this.id) {
             this.deleteSeries(series, true);
-            this.app.relocateSeries(series, listtype);
+            this.app.relocateSeries(series, listType);
             setTimeout(() => this.scrollFromAnother(series), 300);
         } else {
             if (this.isNeedSortByListType()) {
                 if (this.sortByDate()) {
                     this.showItems();
-                    this.scrollInThis(id);
+                    this.scrollInThis(series);
                     this.checkLeftRightButtons();
                 }
             }

@@ -1,5 +1,6 @@
 import Series from "./series";
 import Dialog from "./dialog";
+import { saveAs } from 'file-saver';
 
 
 export default class Backup {
@@ -23,11 +24,8 @@ export default class Backup {
     createBackup() {
         let request = this.database.getReadOnlyObjectStore().getAll();
         request.onsuccess = () => {
-            let element = document.createElement("a");
-            element.href = "data:text/plain;charset=utf-8,%EF%BB%BF"
-                + encodeURIComponent(JSON.stringify(request.result));
-            element.download = "SavingSeries.backup";
-            element.click();
+            const blob = new Blob([JSON.stringify(request.result)], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "SavingSeries.backup")
         };
     }
 
