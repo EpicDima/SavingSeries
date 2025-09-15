@@ -67,27 +67,11 @@ export default class HorizontalContainer {
 
 
     getCountNumberFromLocalStorage() {
-        let count = this.app.localStorage.getCountNumberOfContainer(this.id);
-        switch (count) {
-            case "two":
-                return 2;
-            case "three":
-                return 3;
-            case "four":
-                return 4;
-            case "five":
-                return 5;
-            case "six":
-                return 6;
-            case "seven":
-                return 7;
-            case "eight":
-                return 8;
-            case "nine":
-                return 9;
-            default:
-                return 4;
-        }
+        const count = this.app.localStorage.getCountNumberOfContainer(this.id);
+        const countMap = {
+            two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9
+        };
+        return countMap[count] || 4;
     }
 
 
@@ -165,36 +149,10 @@ export default class HorizontalContainer {
 
 
     updateByCount() {
-        let count;
-        switch (this.countNumber) {
-            case 2:
-                count = "two";
-                break;
-            case 3:
-                count = "three";
-                break;
-            case 4:
-                count = "four";
-                break;
-            case 5:
-                count = "five";
-                break;
-            case 6:
-                count = "six";
-                break;
-            case 7:
-                count = "seven";
-                break;
-            case 8:
-                count = "eight";
-                break;
-            case 9:
-                count = "nine";
-                break;
-            default:
-                count = "four";
-                break;
-        }
+        const countMap = {
+            2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine"
+        };
+        const count = countMap[this.countNumber] || "four";
 
         let classList = ["two", "three", "four", "five", "six", "seven", "eight", "nine"];
 

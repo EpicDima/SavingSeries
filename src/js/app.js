@@ -11,6 +11,8 @@ import LocalStorage from "./localStorage";
 
 export default class App {
 
+    database;
+
     static #instance;
 
     constructor() {
@@ -47,8 +49,7 @@ export default class App {
 
     initialize() {
         let inner = [this.addingFullItem.getFragment()];
-        for (let i in constants.LIST_TYPE) {
-            let k = constants.LIST_TYPE[i];
+        for (const k of Object.values(constants.LIST_TYPE)) {
             let container = new HorizontalContainer(k, constants.LIST_NAMES.get(k), this);
             this.containers.set(k, container);
             inner.push(container.getFragment());

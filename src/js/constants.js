@@ -3,18 +3,16 @@
 // COMPLETED - просмотрен
 // JUST_WATCH - вышел ранее, только смотрится
 export const STATUS = {RUN: "0", PAUSE: "1", COMPLETED: "2", JUST_WATCH: "3"};
-export const STATUS_STRING = new Map();
-STATUS_STRING.set(STATUS.RUN, "Выходит");
-STATUS_STRING.set(STATUS.PAUSE, "На паузе (брошен)");
-STATUS_STRING.set(STATUS.COMPLETED, "Просмотрен");
-STATUS_STRING.set(STATUS.JUST_WATCH, "Завершился (обычный просмотр)");
 
-export function getStatusOptionsHtml() {
-    let s = "";
-    for (const i in STATUS) {
-        s += `<option value="${STATUS[i]}">${STATUS_STRING.get(STATUS[i])}</option>`;
-    }
-    return s;
+export const STATUS_DEFINITIONS = [
+    {value: STATUS.RUN, text: "Выходит"},
+    {value: STATUS.PAUSE, text: "На паузе (брошен)"},
+    {value: STATUS.COMPLETED, text: "Просмотрен"},
+    {value: STATUS.JUST_WATCH, text: "Завершился (обычный просмотр)"}
+];
+
+export function getStatusOptions() {
+    return STATUS_DEFINITIONS;
 }
 
 

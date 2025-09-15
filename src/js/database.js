@@ -25,17 +25,20 @@ export default class Database {
             func();
         };
         request.onupgradeneeded = async () => {
-            window.onunload = () => indexedDB.deleteDatabase(Database.DATABASE_NAME);
+            const deleteDbOnClose = () => indexedDB.deleteDatabase(Database.DATABASE_NAME);
+            window.addEventListener("pagehide", deleteDbOnClose);
             request.result.createObjectStore(Database.OBJECT_STORE_NAME, {keyPath: "id"});
 
             let dialog = new Dialog("Данные будут храниться на вашем компьютере");
             let result = await dialog.open();
             if (result) {
-                window.onunload = null;
+                window.removeEventListener("pagehide", deleteDbOnClose);
                 this.connect(func);
             } else {
+                window.removeEventListener("pagehide", deleteDbOnClose);
                 indexedDB.deleteDatabase(Database.DATABASE_NAME);
-                getByQuery("html").remove();
+                alert("Приложение не может работать без доступа к хранилищу");
+                getByQuery("body").style.display = "none";
             }
         }
     }

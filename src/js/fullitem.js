@@ -1,4 +1,4 @@
-import {getStatusOptionsHtml, STATUS} from "./constants";
+import {getStatusOptions, STATUS} from "./constants";
 import {
     addClass,
     createLinkElement,
@@ -41,9 +41,20 @@ export class BaseFullItem {
         this.fullitem = this.fragment.getElementById(`fullitem${this.id}`);
         this.form = this.fragment.querySelector("form");
         this.getFields();
+        this.populateStatusOptions();
         this.getButtons();
 
         this.setListeners();
+    }
+
+    populateStatusOptions() {
+        const options = getStatusOptions();
+        options.forEach(opt => {
+            const optionElement = document.createElement('option');
+            optionElement.value = opt.value;
+            optionElement.textContent = opt.text;
+            this.fields.status.input.appendChild(optionElement);
+        });
     }
 
 
@@ -65,9 +76,7 @@ export class BaseFullItem {
                             <div class="label">Статус</div>
                             <div class="input">
                                 <label>
-                                    <select class="fullitem-input" name="status">
-                                        ${getStatusOptionsHtml()}
-                                    </select>
+                                    <select class="fullitem-input" name="status"></select>
                                 </label>
                             </div>
                         </div>

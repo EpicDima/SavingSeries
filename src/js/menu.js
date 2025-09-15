@@ -6,8 +6,9 @@ export class Menu {
 
     constructor(app) {
         this.app = app;
-
         this.search = new SearchContainer(app);
+
+        this.boundHandleClick = this.handleDocumentClick.bind(this);
 
         this.generate();
     }
@@ -75,7 +76,7 @@ export class Menu {
         };
 
         this.settingsSubMenuTitle.onclick = (e) => this.toggleSubMenu(e);
-        window.onclick = () => this.hideSubMenu();
+        document.addEventListener("click", this.boundHandleClick);
 
         this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
@@ -115,5 +116,11 @@ export class Menu {
     goToOld() {
         history.replaceState({}, "", `/SavingSeries/v1`);
         location.reload();
+    }
+
+    handleDocumentClick(e) {
+        if (!this.settingsSubMenu.contains(e.target) && !this.settingsSubMenuTitle.contains(e.target)) {
+            this.hideSubMenu();
+        }
     }
 }
