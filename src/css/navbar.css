@@ -1,0 +1,161 @@
+.navbar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    z-index: 1000;
+    width: 100%;
+    height: 3rem;
+    box-sizing: border-box;
+    top: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-family: "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    background-color: #282828fd;
+    color: white;
+}
+
+.navbar > .nav-item {
+    margin-bottom: auto;
+    margin-top: auto;
+}
+
+.navbar > .nav-item > .logo {
+    color: white;
+    font-size: 1.3rem;
+    text-decoration: none;
+    font-family: "Segoe UI", sans-serif;
+    cursor: pointer;
+}
+
+.navbar > .nav-item.search-container {
+    position: relative;
+    width: 30rem;
+    height: auto;
+    margin: auto 3rem;
+}
+
+.navbar > .nav-item.search-container > .close {
+    position: absolute;
+    right: 0.3rem;
+    top: 0;
+    bottom: 0;
+    margin: 0.2rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    background-color: #141414;
+    color: #555;
+}
+
+.navbar > .nav-item.search-container > .close:hover {
+    background-color: #141414;
+    color: white;
+}
+
+.navbar > .nav-item.search-container > .search {
+    background-color: #141414;
+    color: white;
+    border: 1px solid #393939;
+    border-radius: 0.3rem;
+    line-height: 1.4rem;
+    padding: 0.2rem 1.85rem 0.2rem 0.5rem;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.navbar > .nav-item.search-container > .search:focus {
+    border-color: white;
+    box-shadow: 0 0;
+}
+
+.navbar > .nav-item.search-container > .search:focus ~ .search-list {
+    display: block !important;
+}
+
+.navbar > .nav-item.search-container > .search:placeholder-shown ~ .close {
+    display: none;
+}
+
+.navbar > .nav-item.search-container > .search::selection {
+    color: black;
+    background-color: white;
+}
+
+.navbar > .nav-item.search-container > .search-list {
+    position: fixed;
+    display: none;
+    width: 30rem;
+    height: auto;
+    max-height: 25rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    background-color: #282828fd;
+    color: white;
+}
+
+.navbar > .nav-item.search-container > .search-list > .search-item {
+    overflow: hidden;
+    padding: 0.5rem 0.5rem;
+    cursor: pointer;
+}
+
+.navbar > .nav-item.search-container > .search-list > .search-item.active {
+    background-color: #3e3e3edf;
+    color: white;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+}
+
+.navbar ul > li {
+    position: relative;
+}
+
+.navbar ul > li > div {
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+.navbar ul > li > div:hover {
+    color: #fffd;
+}
+
+.navbar ul > li > .submenu-title:after {
+    display: inline-block;
+    margin-left: 0.25rem;
+    vertical-align: 0.15rem;
+    content: "";
+    border-top: 0.3rem solid;
+    border-right: 0.3rem solid transparent;
+    border-left: 0.3rem solid transparent;
+}
+
+.navbar ul > li .submenu {
+    position: absolute;
+    z-index: 15;
+    background-color: #282828fd;
+    color: white;
+    top: 1.8rem;
+    right: 0;
+    min-width: 10rem;
+    border-radius: 0.3rem;
+    border: 1px solid #393939;
+    padding: 0.5rem 0;
+}
+
+.navbar ul > li .submenu:hover {
+    background-color: #282828fd;
+}
+
+.navbar ul > li .submenu > div {
+    padding: 0.4rem 1rem;
+    white-space: nowrap;
+    color: white;
+}
+
+.navbar ul > li .submenu > div:hover {
+    background-color: #3e3e3edf;
+    color: white;
+}

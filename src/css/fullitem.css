@@ -1,0 +1,183 @@
+.fullitem {
+    position: relative;
+    width: 100%;
+    height: 38vw;
+    background-color: black;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.fullitem:first-of-type {
+    box-shadow: 0 0 1rem black;
+}
+
+.fullitem > .outer-close {
+    position: absolute;
+    right: 0.4rem;
+    z-index: 5;
+    color: #555;
+}
+
+.fullitem > .outer-close:hover {
+    color: #900f;
+}
+
+.fullitem > .outer-close > .close {
+    text-shadow: none;
+    cursor: pointer;
+    font-size: 2rem;
+    user-select: none;
+}
+
+.fullitem > .background > .image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    right: 0;
+    background-size: auto 100%;
+    background-position: right;
+    background-repeat: no-repeat;
+}
+
+.fullitem > .background > .gradient {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    right: 0;
+    background: linear-gradient(to right, black 33%, rgba(0, 0, 0, 0.9) 36%, rgba(0, 0, 0, 0.7) 42%, rgba(0, 0, 0, 0.45) 48%, transparent 58%);
+}
+
+.fullitem > .content {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 40%;
+    height: auto;
+    margin: 0.5rem 0 1rem 1rem;
+    color: white;
+    bottom: 0;
+    top: 0;
+}
+
+.fullitem > .content > .top {
+    display: flex;
+    width: auto;
+    height: 6rem;
+    margin-bottom: 1rem;
+}
+
+.fullitem > .content > .top > .name-title {
+    font-size: 1.5rem;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+.fullitem > .content > .top > .name-title::selection {
+    color: black;
+    background-color: white;
+}
+
+.fullitem > .content > .general {
+    display: flex;
+    flex-direction: column;
+    width: 85%;
+    height: 100%;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+}
+
+.fullitem > .content > .general .row {
+    display: flex;
+    justify-content: flex-start;
+    min-height: 2.6rem;
+}
+
+.fullitem > .content > .general > .input-container > .row > .label {
+    min-width: 8rem;
+    padding: 0.5rem 0;
+    user-select: none;
+}
+
+.fullitem > .content > .general > .input-container > .row > .value {
+    width: 100%;
+    height: auto;
+    word-wrap: break-word;
+    padding: 0.5rem 0;
+}
+
+.fullitem > .content > .general > .input-container > .row > .value::selection {
+    color: black;
+    background-color: white;
+}
+
+.fullitem > .content > .general > .input-container > .row > .input {
+    min-width: 16rem;
+    width: 100%;
+    height: auto;
+}
+
+.fullitem > .content > .general > .input-container > .row > .input input::selection,
+.fullitem > .content > .general > .input-container > .row > .input textarea::selection,
+.fullitem > .content > .general > .input-container > .row > .input select::selection,
+.fullitem > .content > .general > .input-container > .row > .input option::selection {
+    color: black;
+    background-color: white;
+}
+
+.fullitem > .content > .general > .input-container > .row > .input > label > select {
+    -webkit-appearance: none;
+    appearance: none !important;
+}
+
+.fullitem > .content > .general > .input-container > .row > .input > label > select > option {
+    background-color: #282828fd;
+    color: white;
+}
+
+.fullitem > .content > .general > .input-container > .row > .input > .invalid-tooltip {
+    position: absolute;
+    z-index: 5;
+    display: none;
+    padding: 0.25rem 0.5rem;
+    margin-top: 0.1rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    background-color: #f22d;
+    color: white;
+}
+
+.fullitem > .content > .general > .button-container {
+    margin-top: 1rem;
+}
+
+.fullitem > .content > .general > .button-container > div {
+    margin: auto 2rem auto 0;
+}
+
+.fullitem > .content > .general > .button-container > div > button {
+    min-width: 9.5rem;
+    padding: 0.4rem 1rem;
+}
+
+.fullitem .fullitem-input {
+    box-sizing: border-box;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    padding: 0.3rem 0.25rem;
+    border-radius: 0.2rem;
+    box-shadow: none;
+}
+
+.fullitem .fullitem-input:invalid,
+.fullitem .fullitem-input.error {
+    border: 1px solid red;
+    color: red;
+}
+
+.fullitem .fullitem-input.error ~ .invalid-tooltip {
+    display: block !important;
+}

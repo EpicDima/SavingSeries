@@ -1,0 +1,70 @@
+html {
+    font-size: 16px;
+}
+
+body {
+    background-color: #141414;
+    font-family: Roboto, "Segoe UI", sans-serif;
+    overflow-y: scroll;
+    padding-top: 3rem;
+}
+
+main {
+    padding-bottom: 1.5rem;
+}
+
+button, a {
+    outline: none !important;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+textarea {
+    resize: none;
+}
+
+input, textarea, select {
+    width: 100%;
+    outline: none !important;
+}
+
+html, textarea {
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar, textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.hide {
+    display: none !important;
+}
+
+button {
+    background-color: transparent;
+    color: white;
+    border: 1px solid #fff5;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+button:hover {
+    background-color: #fff3;
+    color: white;
+    border-color: #fff9;
+}
+
+button:active {
+    background-color: white;
+    color: black;
+    border-color: white;
+}

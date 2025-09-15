@@ -11,12 +11,9 @@
   "author": "Dima",
   "license": "ISC",
   "devDependencies": {
-    "cssnano": "^5.1.13",
-    "sass": "^1.77.0",
     "vite": "^7.1.5"
   },
   "dependencies": {
-    "@babel/runtime": "^7.19.1",
     "file-saver": "^2.0.5",
     "normalize.css": "^8.0.1"
   }
