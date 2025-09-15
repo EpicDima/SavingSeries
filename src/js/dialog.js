@@ -1,4 +1,4 @@
-import {getByQuery, parseHtml} from "./common";
+import {getByQuery} from "./common";
 
 
 export default class Dialog {
@@ -29,8 +29,8 @@ export default class Dialog {
 
 
     generate() {
-        this.fragment = parseHtml(this.createHtml());
-
+        const template = document.getElementById("dialogTemplate");
+        this.fragment = template.content.cloneNode(true);
         this.dialog = this.fragment.querySelector("dialog");
 
         if (typeof this.dialog.showModal === "function") {
@@ -45,19 +45,7 @@ export default class Dialog {
             getByQuery("body").append(this.dialog);
         } else {
             this.showModal = false;
-            this.dialog.remove();
         }
-    }
-
-
-    createHtml() {
-        return `<dialog>
-            <div class="title"></div>
-            <div class="button-container">
-                <button class="accept">ОК</button>
-                <button class="cancel">Отмена</button>
-            </div>
-        </dialog>`;
     }
 
 

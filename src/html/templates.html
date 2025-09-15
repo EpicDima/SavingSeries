@@ -1,0 +1,219 @@
+<template id="fullitemTemplate">
+    <div class="fullitem hide">
+        <div class="outer-close">
+            <span class="close" title="Закрыть">&#10006;</span>
+        </div>
+        <div class="background">
+            <div class="image"></div>
+            <div class="gradient"></div>
+        </div>
+        <div class="content">
+            <div class="top">
+                <div class="name-title"></div>
+            </div>
+            <div class="general">
+                <form class="input-container" novalidate>
+                    <div class="row on-edit">
+                        <div class="label">Статус</div>
+                        <div class="input">
+                            <label>
+                                <select class="fullitem-input" name="status"></select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Сезон</div>
+                        <div class="value not-on-edit"></div>
+                        <div class="input on-edit">
+                            <label>
+                                <input class="fullitem-input" name="season" type="number" value="1" min="1" max="50"
+                                       required/>
+                            </label>
+                            <div class="invalid-tooltip">
+                                <label class="error"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Серия</div>
+                        <div class="value not-on-edit"></div>
+                        <div class="input on-edit">
+                            <label>
+                                <input class="fullitem-input" name="episode" type="number" value="1" min="1"
+                                       max="50000" required/>
+                            </label>
+                            <div class="invalid-tooltip">
+                                <label class="error"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Дата</div>
+                        <div class="value not-on-edit"></div>
+                        <div class="input on-edit">
+                            <label>
+                                <input class="fullitem-input" name="date" type="date"/>
+                            </label>
+                            <div class="invalid-tooltip">
+                                <label class="error"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Сайт</div>
+                        <div class="value not-on-edit"></div>
+                        <div class="input on-edit">
+                            <label>
+                                <input class="fullitem-input" name="site" type="url" maxlength="512"/>
+                            </label>
+                            <div class="invalid-tooltip">
+                                <label class="error"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row on-edit">
+                        <div class="label">Изображение</div>
+                        <div class="input">
+                            <input class="fullitem-input" name="image" type="file" accept="image/*"/>
+                            <div class="invalid-tooltip">
+                                <label class="error"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Заметки</div>
+                        <div class="value not-on-edit"></div>
+                        <div class="input on-edit">
+                            <label>
+                                <textarea class="fullitem-input" name="note" rows="3" maxlength="200"></textarea>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+                <div class="row button-container">
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<template id="fullitemInputsTemplate">
+    <div class="row on-edit">
+        <div class="label">Название</div>
+        <div class="input">
+            <label>
+                <input class="fullitem-input" name="name" type="text" minlength="1" maxlength="100" required/>
+            </label>
+            <div class="invalid-tooltip">
+                <label class="error"></label>
+            </div>
+        </div>
+    </div>
+</template>
+<template id="fullitemButtonsTemplate">
+    <div class="change-button not-on-edit">
+        <button>Редактировать</button>
+    </div>
+    <div class="update-button not-on-edit">
+        <button>Далее</button>
+    </div>
+    <div class="cancel-button on-edit">
+        <button>Отмена</button>
+    </div>
+    <div class="accept-button on-edit">
+        <button>Подтвердить</button>
+    </div>
+    <div class="delete-button on-edit">
+        <button>Удалить</button>
+    </div>
+</template>
+<template id="addingFullitemButtonsTemplate">
+    <div class="add-button on-edit">
+        <button>Добавить</button>
+    </div>
+</template>
+<template id="containerTemplate">
+    <div class="hlist-container hide">
+        <div class="top">
+            <div class="title"></div>
+            <div class="options">
+                <div class="count-icon four" title="Карточек в строке"></div>
+                <div class="grid-icon" title="Сетка"></div>
+            </div>
+        </div>
+        <div class="outer-container-list">
+            <div class="outer-list">
+                <div class="list"></div>
+            </div>
+            <div class="left-control">
+                <div class="left-icon"></div>
+            </div>
+            <div class="right-control">
+                <div class="right-icon"></div>
+            </div>
+        </div>
+    </div>
+</template>
+<template id="menuTemplate">
+    <header>
+        <nav class="navbar">
+            <div class="nav-item">
+                <div class="logo" title="SavingSeries">SavingSeries</div>
+            </div>
+            <div class="nav-item">
+                <ul>
+                    <li>
+                        <div id="openAddingElementMenuItem">Добавление</div>
+                    </li>
+                    <li>
+                        <div id="settingsSubMenuTitle" class="submenu-title">Настройки</div>
+                        <div id="settingsSubMenu" class="submenu hide">
+                            <div id="createBackupSubMenuItem">Создать Backup</div>
+                            <div id="loadBackupSubMenuItem">Загрузить Backup</div>
+                            <div id="goToOldSubMenuItem">Устаревшая версия</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</template>
+<template id="searchContainerTemplate">
+    <div class="nav-item search-container">
+        <input class="search" maxlength="100" placeholder="Поиск" aria-label="Поиск">
+        <span class="close">&#10006;</span>
+        <div class="search-list"></div>
+    </div>
+</template>
+<template id="dialogTemplate">
+    <dialog>
+        <div class="title"></div>
+        <div class="button-container">
+            <button class="accept">ОК</button>
+            <button class="cancel">Отмена</button>
+        </div>
+    </dialog>
+</template>
+<template id="seriesTemplate">
+    <div class="item-outer">
+        <div class="item">
+            <div class="image"></div>
+            <div class="gradient"></div>
+            <a class="link hide" target="_blank" title="Переход на сайт"></a>
+            <div class="info">
+                <div class="row season">
+                    <div class="label">Сезон</div>
+                    <div class="value"></div>
+                </div>
+                <div class="row episode">
+                    <div class="label">Серия</div>
+                    <div class="value"></div>
+                </div>
+                <div class="row date">
+                    <div class="label">Дата</div>
+                    <div class="value"></div>
+                </div>
+            </div>
+            <div class="name"></div>
+        </div>
+    </div>
+</template>

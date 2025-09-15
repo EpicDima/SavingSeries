@@ -1,4 +1,4 @@
-import {addClass, parseHtml, removeClass, debounce} from "./common";
+import {addClass, debounce, removeClass} from "./common";
 
 
 export default class SearchContainer {
@@ -25,7 +25,8 @@ export default class SearchContainer {
 
 
     generate() {
-        this.fragment = parseHtml(this.createHtml());
+        const template = document.getElementById("searchContainerTemplate");
+        this.fragment = template.content.cloneNode(true);
 
         this.container = this.fragment.querySelector(".search-container");
         this.search = this.fragment.querySelector(".search");
@@ -34,15 +35,6 @@ export default class SearchContainer {
 
         this.setListeners();
         this.clear();
-    }
-
-
-    createHtml() {
-        return `<div class="nav-item search-container">
-            <input class="search" maxlength="100" placeholder="Поиск" aria-label="Поиск">
-            <span class="close">&#10006;</span>
-            <div class="search-list"></div>
-        </div>`;
     }
 
 

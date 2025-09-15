@@ -1,6 +1,6 @@
 import Series from "./series";
 import Dialog from "./dialog";
-import {saveAs} from 'file-saver';
+import {saveAs} from "file-saver";
 
 
 export default class Backup {

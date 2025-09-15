@@ -30,13 +30,6 @@ export function showElement(elem) {
 }
 
 
-export function parseHtml(html) {
-    let template = document.createElement("template");
-    template.innerHTML = html;
-    return template.content;
-}
-
-
 export function animate({duration, draw, timing = (timeFraction) => timeFraction, complete = null}) {
     let start = performance.now();
     requestAnimationFrame(function animate(time) {

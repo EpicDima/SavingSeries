@@ -1,5 +1,5 @@
 import {STATUS} from "./constants";
-import {dateToLocaleString, hideElement, parseHtml, showElement} from "./common";
+import {dateToLocaleString, hideElement, showElement} from "./common";
 
 export default class Series {
 
@@ -67,40 +67,35 @@ export default class Series {
 
 
     generate() {
-        this.fragment = parseHtml(this.createHtml());
+        const template = document.getElementById("seriesTemplate");
+        this.fragment = template.content.cloneNode(true);
 
-        this.item = this.fragment.getElementById(`item${this.data.id}`);
+        this.item = this.fragment.querySelector(".item-outer");
+        this.item.id = `item${this.data.id}`;
+
         this.image = this.fragment.querySelector(".image");
+        this.image.style.backgroundImage = `url("${this.data.image}")`;
+
         this.link = this.fragment.querySelector(".link");
+        if (this.data.site) {
+            this.link.href = this.data.site;
+            showElement(this.link);
+        }
+
         this.info = this.fragment.querySelector(".info");
         this.infoSeasonValue = this.info.querySelector(".season > .value");
         this.infoEpisodeValue = this.info.querySelector(".episode > .value");
         this.infoDate = this.info.querySelector(".date");
         this.infoDateValue = this.info.querySelector(".date > .value");
 
+        const nameElement = this.fragment.querySelector(".name");
+        nameElement.title = this.data.name;
+        nameElement.textContent = this.data.name;
+
         this.item.onclick = () => Series.onItemClickListener(this.data.id);
         this.link.onclick = (e) => e.stopPropagation();
 
         this.updateInfo();
-    }
-
-
-    createHtml() {
-        return `<div id="item${this.data.id}" class="item-outer">
-            <div class="item">
-                <div class="image" style="background-image: url('${this.data.image}');"></div>
-                <div class="gradient"></div>
-                <a class="link${this.data.site === "" ? " hide" : ""}" href="${this.data.site}" target="_blank" title="Переход на сайт"></a>
-                <div class="info">
-                    ${[["season", "Сезон"], ["episode", "Серия"], ["date", "Дата"]].map(item =>
-                        `<div class="row ${item[0]}">
-                            <div class="label">${item[1]}</div>
-                            <div class="value"></div>
-                        </div>`).join("")}
-                </div>
-                <div class="name" title="${this.data.name}">${this.data.name}</div>
-            </div>
-        </div>`;
     }
 
 

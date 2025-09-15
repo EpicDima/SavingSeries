@@ -1,4 +1,4 @@
-import {hideElement, parseHtml} from "./common";
+import {hideElement} from "./common";
 import SearchContainer from "./searchContainer";
 
 
@@ -20,7 +20,8 @@ export class Menu {
 
 
     generate() {
-        this.fragment = parseHtml(this.createHtml());
+        const template = document.getElementById("menuTemplate");
+        this.fragment = template.content.cloneNode(true);
 
         this.header = this.fragment.querySelector("header");
         this.navbar = this.fragment.querySelector(".navbar");
@@ -40,32 +41,6 @@ export class Menu {
         }
 
         this.setListeners();
-    }
-
-
-    createHtml() {
-        return `<header>
-            <nav class="navbar">
-                <div class="nav-item">
-                    <div class="logo" title="SavingSeries">SavingSeries</div>
-                </div>
-                <div class="nav-item">
-                    <ul>
-                        <li>
-                            <div id="openAddingElementMenuItem">Добавление</div>
-                        </li>
-                        <li>
-                            <div id="settingsSubMenuTitle" class="submenu-title">Настройки</div>
-                            <div id="settingsSubMenu" class="submenu hide">
-                                <div id="createBackupSubMenuItem">Создать Backup</div>
-                                <div id="loadBackupSubMenuItem">Загрузить Backup</div>
-                                <div id="goToOldSubMenuItem">Устаревшая версия</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </header>`;
     }
 
 

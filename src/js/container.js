@@ -1,4 +1,4 @@
-import {addClass, animate, getSeriesListType, hideElement, parseHtml, removeClass, showElement} from "./common";
+import {addClass, animate, getSeriesListType, hideElement, removeClass, showElement} from "./common";
 import {FullItem} from "./fullitem";
 import {LIST_TYPE} from "./constants";
 
@@ -24,45 +24,25 @@ export default class HorizontalContainer {
 
 
     generate() {
-        this.fragment = parseHtml(this.createHtml());
+        const template = document.getElementById("containerTemplate");
+        this.fragment = template.content.cloneNode(true);
 
-        this.container = this.fragment.getElementById(`horizontalContainer${this.id}`);
+        this.container = this.fragment.querySelector(".hlist-container");
+        this.container.id = `horizontalContainer${this.id}`;
         this.container.append(this.fullitem.getFragment());
 
-        this.scrollableList = this.fragment.getElementById(`outerList${this.id}`);
-        this.hlcList = this.fragment.getElementById(`hlcList${this.id}`);
-        this.leftButton = this.fragment.getElementById(`leftButton${this.id}`);
-        this.rightButton = this.fragment.getElementById(`rightButton${this.id}`);
+        this.container.querySelector(".title").textContent = this.title;
+
+        this.scrollableList = this.fragment.querySelector(".outer-list");
+        this.hlcList = this.fragment.querySelector(".list");
+        this.leftButton = this.fragment.querySelector(".left-control");
+        this.rightButton = this.fragment.querySelector(".right-control");
         this.countButton = this.fragment.querySelector(`.count-icon`);
         this.gridButton = this.fragment.querySelector(`.grid-icon`);
 
         this.setButtonListeners();
         this.updateByCount();
         this.turnGridMode(this.grid);
-    }
-
-
-    createHtml() {
-        return `<div id="horizontalContainer${this.id}" class="hlist-container hide">
-            <div class="top">
-                <div class="title">${this.title}</div>
-                <div class="options">
-                    <div class="count-icon four" title="Карточек в строке"></div>
-                    <div class="grid-icon" title="Сетка"></div>
-                </div>
-            </div>
-            <div class="outer-container-list">
-                <div id="outerList${this.id}" class="outer-list">
-                    <div id="hlcList${this.id}" class="list"></div>
-                </div>
-                <div class="left-control" id="leftButton${this.id}">
-                    <div class="left-icon"></div>
-                </div>
-                <div class="right-control" id="rightButton${this.id}">
-                    <div class="right-icon"></div>
-                </div>
-            </div>
-        </div>`;
     }
 
 

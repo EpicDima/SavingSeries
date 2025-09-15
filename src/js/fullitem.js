@@ -8,7 +8,6 @@ import {
     getByQuery,
     getSeriesListType,
     hideElement,
-    parseHtml,
     removeClass,
     showElement
 } from "./common";
@@ -36,10 +35,35 @@ export class BaseFullItem {
 
 
     generate() {
-        this.fragment = parseHtml(this.createHtml());
+        const template = document.getElementById("fullitemTemplate");
+        this.fragment = template.content.cloneNode(true);
 
-        this.fullitem = this.fragment.getElementById(`fullitem${this.id}`);
+        this.fullitem = this.fragment.querySelector(".fullitem");
+        this.fullitem.id = `fullitem${this.id}`;
+
+        if (!this.needTop) {
+            const topElement = this.fragment.querySelector(".top");
+            if (topElement) {
+                topElement.remove();
+            }
+        } else {
+            const nameTitle = this.fragment.querySelector(".name-title");
+            if (nameTitle) {
+                nameTitle.id = `nameTitle${this.id}`;
+            }
+        }
+
         this.form = this.fragment.querySelector("form");
+        this.form.id = `form${this.id}`;
+
+        const inputs = this.getInputsHtml();
+        if (inputs) {
+            this.form.insertAdjacentHTML("afterbegin", inputs);
+        }
+
+        const buttonContainer = this.fragment.querySelector(".button-container");
+        buttonContainer.innerHTML = this.getButtonContainerInnerHtml();
+
         this.getFields();
         this.populateStatusOptions();
         this.getButtons();
@@ -50,101 +74,11 @@ export class BaseFullItem {
     populateStatusOptions() {
         const options = getStatusOptions();
         options.forEach(opt => {
-            const optionElement = document.createElement('option');
+            const optionElement = document.createElement("option");
             optionElement.value = opt.value;
             optionElement.textContent = opt.text;
             this.fields.status.input.appendChild(optionElement);
         });
-    }
-
-
-    createHtml() {
-        return `<div id="fullitem${this.id}" class="fullitem hide">
-            <div id="closeButton${this.id}" class="outer-close">
-                <span class="close" title="Закрыть">&#10006;</span>
-            </div>
-            <div class="background">
-                <div id="imageValue${this.id}" class="image"></div>
-                <div class="gradient"></div>
-            </div>
-            <div class="content">
-                ${this.needTop ? `<div class="top"><div id="nameTitle${this.id}" class="name-title"></div></div>` : ""}
-                <div class="general">
-                    <form class="input-container" novalidate>
-                        ${this.getInputsHtml()}
-                        <div id="statusRow${this.id}" class="row on-edit">
-                            <div class="label">Статус</div>
-                            <div class="input">
-                                <label>
-                                    <select class="fullitem-input" name="status"></select>
-                                </label>
-                            </div>
-                        </div>
-                        <div id="seasonRow${this.id}" class="row">
-                            <div class="label">Сезон</div>
-                            <div class="value not-on-edit"></div>
-                            <div class="input on-edit">
-                                <input id="season${this.id}" class="fullitem-input" name="season" type="number" value="1" min="1" max="50" required/>
-                                <div class="invalid-tooltip">
-                                    <label class="error" for="season${this.id}"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="episodeRow${this.id}" class="row">
-                            <div class="label">Серия</div>
-                            <div class="value not-on-edit"></div>
-                            <div class="input on-edit">
-                                <input id="episode${this.id}" class="fullitem-input" name="episode" type="number" value="1" min="1" max="50000" required/>
-                                <div class="invalid-tooltip">
-                                    <label class="error" for="episode${this.id}"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="dateRow${this.id}" class="row">
-                            <div class="label">Дата</div>
-                            <div class="value not-on-edit"></div>
-                            <div class="input on-edit">
-                                <input id="date${this.id}" class="fullitem-input" name="date" type="date"/>
-                                <div class="invalid-tooltip">
-                                    <label class="error" for="date${this.id}"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="siteRow${this.id}" class="row">
-                            <div class="label">Сайт</div>
-                            <div class="value not-on-edit"></div>
-                            <div class="input on-edit">
-                                <input id="site${this.id}" class="fullitem-input" name="site" type="url" maxlength="512"/>
-                                <div class="invalid-tooltip">
-                                    <label class="error" for="site${this.id}"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="imageRow${this.id}" class="row on-edit">
-                            <div class="label">Изображение</div>
-                            <div class="input">
-                                <input id="imageInput${this.id}" class="fullitem-input" name="image" type="file" accept="image/*"/>
-                                <div class="invalid-tooltip">
-                                    <label class="error" for="imageInput${this.id}"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="noteRow${this.id}" class="row">
-                            <div class="label">Заметки</div>
-                            <div class="value not-on-edit"></div>
-                            <div class="input on-edit">
-                                <label>
-                                    <textarea class="fullitem-input" name="note" rows="3" maxlength="200"></textarea>
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                    <div class="row button-container">
-                        ${this.getButtonContainerInnerHtml()}
-                    </div>
-                </div>
-            </div>
-        </div>`;
     }
 
 
@@ -161,43 +95,43 @@ export class BaseFullItem {
     getFields() {
         this.fields = {
             season: {
-                div: this.fragment.getElementById(`seasonRow${this.id}`),
-                value: this.fragment.querySelector(`#seasonRow${this.id} .value`),
-                input: this.fragment.querySelector(`#seasonRow${this.id} input`),
-                error: this.fragment.querySelector(`#seasonRow${this.id} .error`)
+                div: this.fragment.querySelector("input[name='season']").closest(".row"),
+                value: this.fragment.querySelector("input[name='season']").closest(".row").querySelector(".value"),
+                input: this.fragment.querySelector("input[name='season']"),
+                error: this.fragment.querySelector("input[name='season']").closest(".row").querySelector(".error")
             },
             episode: {
-                div: this.fragment.getElementById(`episodeRow${this.id}`),
-                value: this.fragment.querySelector(`#episodeRow${this.id} .value`),
-                input: this.fragment.querySelector(`#episodeRow${this.id} input`),
-                error: this.fragment.querySelector(`#episodeRow${this.id} .error`)
+                div: this.fragment.querySelector("input[name='episode']").closest(".row"),
+                value: this.fragment.querySelector("input[name='episode']").closest(".row").querySelector(".value"),
+                input: this.fragment.querySelector("input[name='episode']"),
+                error: this.fragment.querySelector("input[name='episode']").closest(".row").querySelector(".error")
             },
             date: {
-                div: this.fragment.getElementById(`dateRow${this.id}`),
-                value: this.fragment.querySelector(`#dateRow${this.id} .value`),
-                input: this.fragment.querySelector(`#dateRow${this.id} input`),
-                error: this.fragment.querySelector(`#dateRow${this.id} .error`)
+                div: this.fragment.querySelector("input[name='date']").closest(".row"),
+                value: this.fragment.querySelector("input[name='date']").closest(".row").querySelector(".value"),
+                input: this.fragment.querySelector("input[name='date']"),
+                error: this.fragment.querySelector("input[name='date']").closest(".row").querySelector(".error")
             },
             site: {
-                div: this.fragment.getElementById(`siteRow${this.id}`),
-                value: this.fragment.querySelector(`#siteRow${this.id} .value`),
-                input: this.fragment.querySelector(`#siteRow${this.id} input`),
-                error: this.fragment.querySelector(`#siteRow${this.id} .error`)
+                div: this.fragment.querySelector("input[name='site']").closest(".row"),
+                value: this.fragment.querySelector("input[name='site']").closest(".row").querySelector(".value"),
+                input: this.fragment.querySelector("input[name='site']"),
+                error: this.fragment.querySelector("input[name='site']").closest(".row").querySelector(".error")
             },
             image: {
-                div: this.fragment.getElementById(`imageRow${this.id}`),
-                value: this.fragment.getElementById(`imageValue${this.id}`),
-                input: this.fragment.querySelector(`#imageRow${this.id} input`),
-                error: this.fragment.querySelector(`#imageRow${this.id} .error`)
+                div: this.fragment.querySelector("input[name='image']").closest(".row"),
+                value: this.fragment.querySelector(".image"),
+                input: this.fragment.querySelector("input[name='image']"),
+                error: this.fragment.querySelector("input[name='image']").closest(".row").querySelector(".error")
             },
             status: {
-                div: this.fragment.getElementById(`statusRow${this.id}`),
-                input: this.fragment.querySelector(`#statusRow${this.id} select`)
+                div: this.fragment.querySelector("select[name='status']").closest(".row"),
+                input: this.fragment.querySelector("select[name='status']")
             },
             note: {
-                div: this.fragment.getElementById(`noteRow${this.id}`),
-                value: this.fragment.querySelector(`#noteRow${this.id} .value`),
-                input: this.fragment.querySelector(`#noteRow${this.id} textarea`)
+                div: this.fragment.querySelector("textarea[name='note']").closest(".row"),
+                value: this.fragment.querySelector("textarea[name='note']").closest(".row").querySelector(".value"),
+                input: this.fragment.querySelector("textarea[name='note']")
             }
         };
     }
@@ -206,8 +140,8 @@ export class BaseFullItem {
     getButtons() {
         this.buttons = {
             close: {
-                div: this.fragment.getElementById(`closeButton${this.id}`),
-                button: this.fragment.querySelector(`#closeButton${this.id} span`)
+                div: this.fragment.querySelector(".outer-close"),
+                button: this.fragment.querySelector(".close")
             }
         };
     }
@@ -441,28 +375,15 @@ export class FullItem extends BaseFullItem {
 
 
     getButtonContainerInnerHtml() {
-        return `<div id="changeButton${this.id}" class="change-button not-on-edit">
-            <button>Редактировать</button>
-        </div>
-        <div id="updateButton${this.id}" class="update-button not-on-edit">
-            <button>Далее</button>
-        </div>
-        <div id="cancelButton${this.id}" class="cancel-button on-edit">
-            <button>Отмена</button>
-        </div>
-        <div id="acceptButton${this.id}" class="accept-button on-edit">
-            <button>Подтвердить</button>
-        </div>
-        <div id="deleteButton${this.id}" class="delete-button on-edit">
-            <button>Удалить</button>
-        </div>`;
+        const template = document.getElementById("fullitemButtonsTemplate");
+        return template.innerHTML;
     }
 
 
     getFields() {
         super.getFields();
         this.fields.name = {
-            value: this.fragment.getElementById(`nameTitle${this.id}`)
+            value: this.fragment.querySelector(".name-title")
         };
     }
 
@@ -470,24 +391,24 @@ export class FullItem extends BaseFullItem {
     getButtons() {
         super.getButtons();
         this.buttons.change = {
-            div: this.fragment.getElementById(`changeButton${this.id}`),
-            button: this.fragment.querySelector(`#changeButton${this.id} button`)
+            div: this.fragment.querySelector(".change-button"),
+            button: this.fragment.querySelector(".change-button button")
         };
         this.buttons.update = {
-            div: this.fragment.getElementById(`updateButton${this.id}`),
-            button: this.fragment.querySelector(`#updateButton${this.id} button`)
+            div: this.fragment.querySelector(".update-button"),
+            button: this.fragment.querySelector(".update-button button")
         };
         this.buttons.cancel = {
-            div: this.fragment.getElementById(`cancelButton${this.id}`),
-            button: this.fragment.querySelector(`#cancelButton${this.id} button`)
+            div: this.fragment.querySelector(".cancel-button"),
+            button: this.fragment.querySelector(".cancel-button button")
         };
         this.buttons.accept = {
-            div: this.fragment.getElementById(`acceptButton${this.id}`),
-            button: this.fragment.querySelector(`#acceptButton${this.id} button`)
+            div: this.fragment.querySelector(".accept-button"),
+            button: this.fragment.querySelector(".accept-button button")
         };
         this.buttons.delete = {
-            div: this.fragment.getElementById(`deleteButton${this.id}`),
-            button: this.fragment.querySelector(`#deleteButton${this.id} button`)
+            div: this.fragment.querySelector(".delete-button"),
+            button: this.fragment.querySelector(".delete-button button")
         };
     }
 
@@ -517,7 +438,7 @@ export class FullItem extends BaseFullItem {
 
 
     showAllFields() {
-        this.form.querySelectorAll("div").forEach(elem => showElement(elem));
+        this.form.querySelectorAll(".row").forEach(elem => showElement(elem));
     }
 
 
@@ -716,22 +637,14 @@ export class AddingFullItem extends BaseFullItem {
 
 
     getInputsHtml() {
-        return `<div id="nameRow${this.id}" class="row on-edit">
-            <div class="label">Название</div>
-            <div class="input">
-                <input id="name${this.id}" class="fullitem-input" name="name" type="text" minlength="1" maxlength="100" required/>
-                <div class="invalid-tooltip">
-                    <label class="error" for="name${this.id}"></label>
-                </div>
-            </div>
-        </div>`;
+        const template = document.getElementById("fullitemInputsTemplate");
+        return template.innerHTML;
     }
 
 
     getButtonContainerInnerHtml() {
-        return `<div id="addButton${this.id}" class="add-button on-edit">
-            <button>Добавить</button>
-        </div>`;
+        const template = document.getElementById("addingFullitemButtonsTemplate");
+        return template.innerHTML;
     }
 
 
@@ -743,8 +656,8 @@ export class AddingFullItem extends BaseFullItem {
     getFields() {
         super.getFields();
         this.fields.name = {
-            input: this.fragment.querySelector(`#nameRow${this.id} input`),
-            error: this.fragment.querySelector(`#nameRow${this.id} .error`)
+            input: this.fragment.querySelector("input[name='name']"),
+            error: this.fragment.querySelector("input[name='name']").closest(".row").querySelector(".error")
         };
     }
 
@@ -752,8 +665,8 @@ export class AddingFullItem extends BaseFullItem {
     getButtons() {
         super.getButtons();
         this.buttons.add = {
-            div: this.fragment.getElementById(`addButton${this.id}`),
-            button: this.fragment.querySelector(`#addButton${this.id} button`)
+            div: this.fragment.querySelector(".add-button"),
+            button: this.fragment.querySelector(".add-button button")
         };
     }
 

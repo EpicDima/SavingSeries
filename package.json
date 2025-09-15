@@ -11,10 +11,12 @@
   "author": "Dima",
   "license": "Apache-2.0",
   "devDependencies": {
+    "glob": "^11.0.3",
     "vite": "^7.1.5"
   },
   "dependencies": {
     "file-saver": "^2.0.5",
-    "normalize.css": "^8.0.1"
+    "normalize.css": "^8.0.1",
+    "vite-plugin-html-minifier": "^1.0.5"
   }
 }
