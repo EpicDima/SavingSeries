@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "author": "Dima",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
     "vite": "^7.1.5"
   },
