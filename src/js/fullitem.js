@@ -553,13 +553,13 @@ export class FullItem extends BaseFullItem {
     }
 
 
-    update() {
+    async update() {
         let date = this.series.data.date;
         if (date !== "") {
             date = new Date(this.series.data.date);
             date.setDate(date.getDate() + 7);
         }
-        let changed = this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
+        let changed = await this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
             this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
         this.database.putSeriesInDb(this.series);
 
@@ -586,13 +586,13 @@ export class FullItem extends BaseFullItem {
     }
 
 
-    accept() {
+    async accept() {
         let data = this.getValuesFromInputs();
         if (!data) {
             return;
         }
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : this.series.data.image;
-        let changed = this.series.update(data.season, data.episode, data.date,
+        let changed = await this.series.update(data.season, data.episode, data.date,
             data.site, image, data.status, data.note);
         this.database.putSeriesInDb(this.series);
 

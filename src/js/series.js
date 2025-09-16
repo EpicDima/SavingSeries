@@ -131,21 +131,45 @@ export default class Series {
     }
 
 
-    static compressImage(image) {
-        let img = document.createElement("img");
-        img.src = image;
-        let canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        let ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        return canvas.toDataURL("image/jpeg", 0.5);
+    static async compressImage(image) {
+        return new Promise(async (resolve, reject) => {
+            const worker = new Worker(new URL('./compression.worker.js', import.meta.url));
+
+            worker.onmessage = (event) => {
+                const {compressedBlob} = event.data;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    resolve(reader.result);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(compressedBlob);
+                worker.terminate();
+            };
+
+            worker.onerror = (error) => {
+                reject(error);
+                worker.terminate();
+            };
+
+            try {
+                const response = await fetch(image);
+                const blob = await response.blob();
+                const imageBitmap = await createImageBitmap(blob);
+                worker.postMessage({imageBitmap}, [imageBitmap]);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
 
-    updateImage() {
+    async updateImage() {
         if (this.data.image.length > 0) {
-            this.data.image = Series.compressImage(this.data.image);
+            try {
+                this.data.image = await Series.compressImage(this.data.image);
+            } catch (error) {
+                console.error('Image compression failed:', error);
+            }
         }
         this.image.style.backgroundImage = `url("${this.data.image}")`;
     }
@@ -184,7 +208,7 @@ export default class Series {
     }
 
 
-    update(season, episode, date, site, image, status, note) {
+    async update(season, episode, date, site, image, status, note) {
         let changed = false;
         let changedInfo = false;
         if (this.data.season !== season) {
@@ -206,7 +230,7 @@ export default class Series {
         }
         if (this.data.image !== image) {
             this.data.image = image;
-            this.updateImage();
+            await this.updateImage();
         }
         if (this.data.status !== status) {
             this.data.status = status;
