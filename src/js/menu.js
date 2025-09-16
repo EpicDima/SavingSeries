@@ -1,6 +1,6 @@
 import {hideElement} from "./common";
 import SearchContainer from "./searchContainer";
-import LanguageDialog from "./languageDialog.js";
+import LanguageDialog from "./languageDialog";
 
 
 export class Menu {
@@ -8,10 +8,7 @@ export class Menu {
     constructor(app) {
         this.app = app;
         this.search = new SearchContainer(app);
-        if (!this.app.languageDialog) {
-            this.app.languageDialog = new LanguageDialog();
-        }
-        this.languageDialog = this.app.languageDialog;
+        this.languageDialog = new LanguageDialog();
 
         this.boundHandleClick = this.handleDocumentClick.bind(this);
 

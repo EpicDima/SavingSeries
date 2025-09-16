@@ -29,3 +29,41 @@ dialog > .button-container > button {
     padding: 0.3rem 0.7rem;
     font-size: 1rem;
 }
+
+dialog > .outer-close {
+    position: absolute;
+    right: 0.5rem;
+    top: 0;
+    z-index: 5;
+    color: #555;
+}
+
+dialog > .outer-close:hover {
+    color: #900f;
+}
+
+dialog > .outer-close > .close {
+    text-shadow: none;
+    cursor: pointer;
+    font-size: 2rem;
+    user-select: none;
+}
+
+dialog > .outer-close {
+    position: absolute;
+    right: 0.4rem;
+    top: 0;
+    z-index: 5;
+    color: #555;
+}
+
+dialog > .outer-close:hover {
+    color: #900f;
+}
+
+dialog > .outer-close > .close {
+    text-shadow: none;
+    cursor: pointer;
+    font-size: 2rem;
+    user-select: none;
+}

@@ -20,9 +20,9 @@ export default class Series {
                             name: series.name,
                             season: season,
                             episode: episode,
-                            date: series.date !== "" ? new Date(series.date) : "",
-                            site: series.site !== "" ? series.site : "",
-                            image: series.image ? /*Series.compressImage*/(series.image) : "",// chrome issue
+                            date: series.date ? (series.date.toDate ? series.date.toDate() : new Date(series.date)) : "",
+                            site: series.site ? series.site : "",
+                            image: series.image ? series.image : "",
                             note: series.note ? series.note : "",
                             status: series.status ? series.status : STATUS.RUN
                         };
@@ -36,8 +36,12 @@ export default class Series {
 
 
     static create(series) {
-        return new Series(series.id, series.name, series.season, series.episode,
-            series.date, series.site, series.image, series.status, series.note);
+        const validatedSeries = Series.validate(series);
+        if (validatedSeries) {
+            return new Series(series.id, validatedSeries.name, validatedSeries.season, validatedSeries.episode,
+                validatedSeries.date, validatedSeries.site, validatedSeries.image, validatedSeries.status, validatedSeries.note);
+        }
+        return null;
     }
 
 

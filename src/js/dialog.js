@@ -9,11 +9,17 @@ export default class Dialog {
         this.generate();
     }
 
+
     open() {
         if (this.dialog && typeof this.dialog.showModal === "function") {
+            if (!this.dialog.parentElement) {
+                getByQuery("body").append(this.dialog);
+            }
+            this.setListeners();
             this.dialog.showModal();
         }
     }
+
 
     close() {
         if (this.dialog && typeof this.dialog.close === "function") {
@@ -21,38 +27,41 @@ export default class Dialog {
         }
     }
 
+
     generate() {
         const template = document.getElementById(this.templateId);
         if (!template) {
             console.error(`Template with id "${this.templateId}" not found.`);
             return;
         }
-        this.fragment = template.content.cloneNode(true);
-        this.dialog = this.fragment.querySelector("dialog");
-
-        if (!this.dialog) {
-            this.dialog = this.fragment.firstElementChild;
-        }
+        const fragment = template.content.cloneNode(true);
+        this.dialog = fragment.querySelector("dialog") || fragment.firstElementChild;
 
         if (!this.dialog) {
             console.error(`No dialog element found in template with id "${this.templateId}".`);
             return;
         }
 
-        getByQuery("body").append(this.dialog);
+        this.dialog.addEventListener("close", () => {
+        });
     }
 
+
     setListeners() {
+        if (this.listenersSet) {
+            return;
+        }
         this.dialog.addEventListener("click", (e) => {
             if (e.target === this.dialog && this.options.closeOnBackdropClick) {
                 this.close();
             }
         });
 
-        const closeButton = this.dialog.querySelector(".close-button");
+        const closeButton = this.dialog.querySelector(".close");
         if (closeButton) {
             closeButton.onclick = () => this.close();
         }
+        this.listenersSet = true;
     }
 
     get element() {

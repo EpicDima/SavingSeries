@@ -90,8 +90,7 @@
                         </div>
                     </div>
                 </form>
-                <div class="row button-container">
-                </div>
+                <div class="row button-container"></div>
             </div>
         </div>
     </div>
@@ -188,15 +187,6 @@
         <div class="search-list"></div>
     </div>
 </template>
-<template id="dialogTemplate">
-    <dialog>
-        <div class="title"></div>
-        <div class="button-container">
-            <button class="accept" data-i18n-key="ok">ОК</button>
-            <button class="cancel" data-i18n-key="cancel">Отмена</button>
-        </div>
-    </dialog>
-</template>
 <template id="seriesTemplate">
     <div class="item-outer">
         <div class="item">
@@ -222,15 +212,15 @@
     </div>
 </template>
 <template id="languageDialogTemplate">
-    <div class="dialog-layout">
-        <div class="dialog">
-            <div class="dialog-header">
-                <h2 data-i18n-key="language">Язык</h2>
-                <button class="close-button">&times;</button>
-            </div>
-            <div class="dialog-body">
-                <div id="languageList"></div>
-            </div>
+    <dialog class="language-dialog">
+        <div class="outer-close">
+            <span class="close" data-i18n-title="close" title="Закрыть">&#10006;</span>
         </div>
-    </div>
+        <div class="dialog-header">
+            <h2 class="title" data-i18n-key="choose_language">Выбрать язык</h2>
+        </div>
+        <div class="dialog-body">
+            <div id="languageList"></div>
+        </div>
+    </dialog>
 </template>

@@ -1,14 +1,8 @@
 import Dialog from "./dialog";
 
-
 export default class LanguageDialog extends Dialog {
     constructor() {
-        super("dialogTemplate", {closeOnBackdropClick: true});
-
-        this.title = this.element.querySelector(".title");
-        this.buttonContainer = this.element.querySelector(".button-container");
-        this.title.setAttribute("data-i18n-key", "change_language");
-        this.buttonContainer.remove();
+        super("languageDialogTemplate", {closeOnBackdropClick: true});
 
         this.languageList = document.createElement("div");
         this.languageList.id = "languageList";

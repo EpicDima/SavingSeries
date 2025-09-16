@@ -50,6 +50,13 @@ export function animate({duration, draw, timing = (timeFraction) => timeFraction
 export function dateToLocaleString(series) {
     if (series) {
         if (series.data.date) {
+            if (series.data.date.toDate) {
+                return series.data.date.toDate().toLocaleDateString(window.i18n.getCurrentLanguage(), {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                });
+            }
             return series.data.date.toLocaleDateString(window.i18n.getCurrentLanguage(), {
                 year: "numeric",
                 month: "long",
@@ -64,6 +71,9 @@ export function dateToLocaleString(series) {
 export function dateObjectToInputString(series) {
     if (series) {
         if (series.data.date) {
+            if (series.data.date.toDate) {
+                return series.data.date.toDate().toISOString().split("T")[0];
+            }
             return series.data.date.toISOString().split("T")[0];
         }
     }
