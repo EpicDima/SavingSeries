@@ -96,8 +96,13 @@ export default class Series {
         this.link.onclick = (e) => e.stopPropagation();
 
         this.updateInfo();
+        window.i18n.applyTo(this.item);
     }
 
+    retranslate() {
+        window.i18n.applyTo(this.item);
+        this.updateInfo();
+    }
 
     updateInfo() {
         if (this.data.status === STATUS.COMPLETED) {

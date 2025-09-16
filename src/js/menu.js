@@ -1,5 +1,6 @@
 import {hideElement} from "./common";
 import SearchContainer from "./searchContainer";
+import LanguageDialog from "./languageDialog.js";
 
 
 export class Menu {
@@ -7,6 +8,10 @@ export class Menu {
     constructor(app) {
         this.app = app;
         this.search = new SearchContainer(app);
+        if (!this.app.languageDialog) {
+            this.app.languageDialog = new LanguageDialog();
+        }
+        this.languageDialog = this.app.languageDialog;
 
         this.boundHandleClick = this.handleDocumentClick.bind(this);
 
@@ -31,6 +36,7 @@ export class Menu {
         this.openAddingElementMenuItem = this.fragment.getElementById("openAddingElementMenuItem");
         this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
         this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
+        this.changeLanguageSubMenuItem = this.fragment.getElementById("changeLanguageSubMenuItem");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
         let position = this.app.localStorage.getNavBarPosition();
@@ -55,6 +61,7 @@ export class Menu {
         this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
+        this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
 
         this.navbar.addEventListener("dblclick", () => {
             let position = this.app.localStorage.getNavBarPosition();

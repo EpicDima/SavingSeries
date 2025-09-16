@@ -3,54 +3,59 @@ import {getByQuery} from "./common";
 
 export default class Dialog {
 
-    constructor(text) {
-        this.text = text;
+    constructor(templateId, options = {}) {
+        this.templateId = templateId;
+        this.options = options;
         this.generate();
     }
 
-
     open() {
-        return new Promise(resolve => {
-            if (this.showModal) {
-                this.acceptButton.onclick = () => {
-                    this.closeDialog();
-                    resolve(true);
-                };
-                this.cancelButton.onclick = () => {
-                    this.closeDialog();
-                    resolve(false);
-                };
-                this.dialog.showModal();
-            } else {
-                resolve(confirm(this.text));
-            }
-        });
-    }
-
-
-    generate() {
-        const template = document.getElementById("dialogTemplate");
-        this.fragment = template.content.cloneNode(true);
-        this.dialog = this.fragment.querySelector("dialog");
-
-        if (typeof this.dialog.showModal === "function") {
-            this.showModal = true;
-
-            this.title = this.fragment.querySelector(".title");
-            this.acceptButton = this.fragment.querySelector(".accept");
-            this.cancelButton = this.fragment.querySelector(".cancel");
-
-            this.title.innerText = this.text;
-
-            getByQuery("body").append(this.dialog);
-        } else {
-            this.showModal = false;
+        if (this.dialog && typeof this.dialog.showModal === "function") {
+            this.dialog.showModal();
         }
     }
 
+    close() {
+        if (this.dialog && typeof this.dialog.close === "function") {
+            this.dialog.close();
+        }
+    }
 
-    closeDialog() {
-        this.dialog.close();
-        this.dialog.remove();
+    generate() {
+        const template = document.getElementById(this.templateId);
+        if (!template) {
+            console.error(`Template with id "${this.templateId}" not found.`);
+            return;
+        }
+        this.fragment = template.content.cloneNode(true);
+        this.dialog = this.fragment.querySelector("dialog");
+
+        if (!this.dialog) {
+            this.dialog = this.fragment.firstElementChild;
+        }
+
+        if (!this.dialog) {
+            console.error(`No dialog element found in template with id "${this.templateId}".`);
+            return;
+        }
+
+        getByQuery("body").append(this.dialog);
+    }
+
+    setListeners() {
+        this.dialog.addEventListener("click", (e) => {
+            if (e.target === this.dialog && this.options.closeOnBackdropClick) {
+                this.close();
+            }
+        });
+
+        const closeButton = this.dialog.querySelector(".close-button");
+        if (closeButton) {
+            closeButton.onclick = () => this.close();
+        }
+    }
+
+    get element() {
+        return this.dialog;
     }
 }

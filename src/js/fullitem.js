@@ -227,9 +227,9 @@ export class BaseFullItem {
         let file = this.fields.image.input.files[0];
         if (file) {
             if (!file.type.startsWith("image/")) {
-                this.setErrorToImageInput("Выбранный файл не является изображением.");
+                this.setErrorToImageInput(window.i18n.t("not_an_image"));
             } else if (file.size > 10 * 1024 * 1024) {
-                this.setErrorToImageInput("Размер файла не должен превышать 10 мегабайт.");
+                this.setErrorToImageInput(window.i18n.t("file_too_large"));
             } else {
                 reader.readAsDataURL(file);
             }
@@ -460,9 +460,9 @@ export class FullItem extends BaseFullItem {
 
     applyUpdateButton() {
         if (this.series.data.date === "") {
-            this.buttons.update.button.title = "Переход к следующей серии";
+            this.buttons.update.button.title = window.i18n.t("next_episode");
         } else {
-            this.buttons.update.button.title = "Переход к следующей серии через неделю";
+            this.buttons.update.button.title = window.i18n.t("next_episode_in_a_week");
         }
     }
 
@@ -614,7 +614,7 @@ export class FullItem extends BaseFullItem {
 
 
     async delete() {
-        let dialog = new Dialog(`Вы действительно хотите удалить "${this.series.data.name}"?`);
+        let dialog = new Dialog(window.i18n.t("confirm_delete", {name: this.series.data.name}));
         let result = await dialog.open();
         if (result) {
             this.series.delete();

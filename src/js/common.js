@@ -50,7 +50,11 @@ export function animate({duration, draw, timing = (timeFraction) => timeFraction
 export function dateToLocaleString(series) {
     if (series) {
         if (series.data.date) {
-            return series.data.date.toLocaleDateString("ru", {year: "numeric", month: "long", day: "numeric"});
+            return series.data.date.toLocaleDateString(window.i18n.getCurrentLanguage(), {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
         }
     }
     return "";

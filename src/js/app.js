@@ -44,13 +44,21 @@ export default class App {
     onCreate() {
         this.database.connect(() => this.initialize());
         this.setDayTimer();
+        document.addEventListener("languagechange", () => {
+            this.updateContainerTitles();
+            for (const container of this.containers.values()) {
+                for (const series of container.map.values()) {
+                    series.retranslate();
+                }
+            }
+        });
     }
 
 
     initialize() {
         let inner = [this.addingFullItem.getFragment()];
         for (const k of Object.values(constants.LIST_TYPE)) {
-            let container = new HorizontalContainer(k, constants.LIST_NAMES.get(k), this);
+            let container = new HorizontalContainer(k, constants.getListNames().get(k), this);
             this.containers.set(k, container);
             inner.push(container.getFragment());
         }
@@ -58,6 +66,7 @@ export default class App {
         this.database.foreach((series) => this.initialSplitSeries(series),
             (id) => this.onInitialSplitSeriesEnd(id));
         App.scrollToTop();
+        window.i18n.applyTo(document.body);
     }
 
 
@@ -145,5 +154,12 @@ export default class App {
     onSearchItemClick(id) {
         document.activeElement.blur();
         this.openFullitem(id);
+    }
+
+    updateContainerTitles() {
+        const listNames = constants.getListNames();
+        for (const [id, container] of this.containers.entries()) {
+            container.updateTitle(listNames.get(id));
+        }
     }
 }

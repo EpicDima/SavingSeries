@@ -1,0 +1,21 @@
+#languageList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+#languageList > div {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 0.3rem;
+}
+
+#languageList > div:hover {
+    background-color: #ffffff1a;
+}
+
+#languageList > div.active {
+    background-color: #ffffff33;
+    font-weight: bold;
+}

@@ -18,6 +18,12 @@ export default class HorizontalContainer {
     }
 
 
+    updateTitle(newTitle) {
+        this.title = newTitle;
+        this.container.querySelector(".title").textContent = this.title;
+    }
+
+
     getFragment() {
         return this.container;
     }
