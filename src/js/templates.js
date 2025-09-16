@@ -1,6 +1,7 @@
 export async function injectTemplates() {
     try {
-        const response = await fetch("/src/html/templates.html");
+        const templatesUrl = new URL('../html/templates.html', import.meta.url).href;
+        const response = await fetch(templatesUrl);
         const htmlContent = await response.text();
         const div = document.createElement("div");
         div.innerHTML = htmlContent;
