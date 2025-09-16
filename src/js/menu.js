@@ -31,7 +31,6 @@ export class Menu {
         this.openAddingElementMenuItem = this.fragment.getElementById("openAddingElementMenuItem");
         this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
         this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
-        this.goToOldSubMenuItem = this.fragment.getElementById("goToOldSubMenuItem");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
         let position = this.app.localStorage.getNavBarPosition();
@@ -56,7 +55,6 @@ export class Menu {
         this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
-        this.goToOldSubMenuItem.onclick = () => this.goToOld();
 
         this.navbar.addEventListener("dblclick", () => {
             let position = this.app.localStorage.getNavBarPosition();
@@ -87,11 +85,6 @@ export class Menu {
         hideElement(this.settingsSubMenu);
     }
 
-
-    goToOld() {
-        history.replaceState({}, "", `/SavingSeries/v1`);
-        location.reload();
-    }
 
     handleDocumentClick(e) {
         if (!this.settingsSubMenu.contains(e.target) && !this.settingsSubMenuTitle.contains(e.target)) {
