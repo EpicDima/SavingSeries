@@ -287,11 +287,11 @@ export default class HorizontalContainer {
 
 
     showItems() {
-        let inner = [];
-        for (let series of this.map.values()) {
-            inner.push(series.getFragment());
+        const fragment = new DocumentFragment();
+        for (const series of this.map.values()) {
+            fragment.append(series.getFragment());
         }
-        this.hlcList.append(...inner);
+        this.hlcList.append(fragment);
     }
 
 

@@ -56,13 +56,14 @@ export default class App {
 
 
     initialize() {
-        let inner = [this.addingFullItem.getFragment()];
+        const fragment = new DocumentFragment();
+        fragment.append(this.addingFullItem.getFragment());
         for (const k of Object.values(constants.LIST_TYPE)) {
-            let container = new HorizontalContainer(k, constants.getListNames().get(k), this);
+            const container = new HorizontalContainer(k, constants.getListNames().get(k), this);
             this.containers.set(k, container);
-            inner.push(container.getFragment());
+            fragment.append(container.getFragment());
         }
-        this.main.append(...inner);
+        this.main.append(fragment);
         this.database.foreach((series) => this.initialSplitSeries(series),
             (id) => this.onInitialSplitSeriesEnd(id));
         App.scrollToTop();
