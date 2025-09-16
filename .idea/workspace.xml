@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9e0bc7f4-93a0-458a-9dbd-b35483eeb5ab" name="Changes" comment="Использование ветки main вместо веток с версиями">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SavingSeries [github].iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/watcherTasks.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/common.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/container.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/dialog.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/fullitem.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/item.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/navbar.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/css/style.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/html/templates.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/app.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/backup.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/common.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/constants.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/container.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/database.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/dialog.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/fullitem.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/localStorage.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/main.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/menu.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/searchContainer.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/series.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/templates.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/validator.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vite.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <excluded-from-favorite>
+      <branch-storage>
+        <map>
+          <entry type="REMOTE">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="origin/main" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </excluded-from-favorite>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="gh-pages" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;EpicDima&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/EpicDima/SavingSeries.git&quot;,
+    &quot;accountId&quot;: &quot;cb20b7e0-5530-4961-9730-75017d78660d&quot;
+  }
+}</component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/package.json" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="32kG8GRhsBWLtS5rF8D9qch7V8X" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "v2",
+    "javascript.nodejs.core.library.configured.version": "24.7.0",
+    "javascript.nodejs.core.library.typings.version": "24.5.0",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/html" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-WS-252.25557.126" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9e0bc7f4-93a0-458a-9dbd-b35483eeb5ab" name="Changes" comment="" />
+      <created>1757956995978</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757956995978</updated>
+      <workItem from="1757956997221" duration="213000" />
+      <workItem from="1757962080645" duration="16388000" />
+    </task>
+    <task id="LOCAL-00001" summary="Добавление в gitignore всего">
+      <option name="closed" value="true" />
+      <created>1757963314570</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757963314570</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Использование yarn и проверка работоспособности">
+      <option name="closed" value="true" />
+      <created>1757963861398</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1757963861398</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Замена webpack на vite">
+      <option name="closed" value="true" />
+      <created>1757964739700</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1757964739700</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Замена webpack на vite">
+      <option name="closed" value="true" />
+      <created>1757965208268</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1757965208268</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Миграция с scss на css">
+      <option name="closed" value="true" />
+      <created>1757968031642</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1757968031642</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Без отдельного запроса на favicon.ico">
+      <option name="closed" value="true" />
+      <created>1757968212038</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1757968212038</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Одинаковая лицензия в корне проекта и в package.json">
+      <option name="closed" value="true" />
+      <created>1757968299355</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1757968299355</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Маленькое изменение для сборки">
+      <option name="closed" value="true" />
+      <created>1757969739621</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1757969739621</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Фиксы коды">
+      <option name="closed" value="true" />
+      <created>1757971140304</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1757971140304</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Фиксы коды">
+      <option name="closed" value="true" />
+      <created>1757971378712</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1757971378712</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Использование html template вместо строк внутри js с минификацией html">
+      <option name="closed" value="true" />
+      <created>1757980335667</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1757980335667</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Использование html template вместо строк внутри js с минификацией html">
+      <option name="closed" value="true" />
+      <created>1757980378909</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1757980378909</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Добавление GitHub Actions для автоматической публикации обновлений">
+      <option name="closed" value="true" />
+      <created>1757981124496</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1757981124496</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Добавление GitHub Actions для автоматической публикации обновлений">
+      <option name="closed" value="true" />
+      <created>1757981373726</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1757981373726</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Добавление GitHub Actions для автоматической публикации обновлений">
+      <option name="closed" value="true" />
+      <created>1757981739954</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1757981739954</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Добавление GitHub Actions для автоматической публикации обновлений">
+      <option name="closed" value="true" />
+      <created>1757981777633</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1757981777633</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Удаление ссылки на старую версию">
+      <option name="closed" value="true" />
+      <created>1757982086002</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1757982086002</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Использование ветки main вместо веток с версиями">
+      <option name="closed" value="true" />
+      <created>1757982275566</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1757982275566</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="gh-pages" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Обновление зависимостей и исправление создания бэкапа" />
+    <MESSAGE value="Добавление в gitignore всего" />
+    <MESSAGE value="Использование yarn и проверка работоспособности" />
+    <MESSAGE value="Замена webpack на vite" />
+    <MESSAGE value="Миграция с scss на css" />
+    <MESSAGE value="Без отдельного запроса на favicon.ico" />
+    <MESSAGE value="Одинаковая лицензия в корне проекта и в package.json" />
+    <MESSAGE value="Маленькое изменение для сборки" />
+    <MESSAGE value="Фиксы коды" />
+    <MESSAGE value="Использование html template вместо строк внутри js с минификацией html" />
+    <MESSAGE value="Добавление GitHub Actions для автоматической публикации обновлений" />
+    <MESSAGE value="Удаление ссылки на старую версию" />
+    <MESSAGE value="Использование ветки main вместо веток с версиями" />
+    <option name="LAST_COMMIT_MESSAGE" value="Использование ветки main вместо веток с версиями" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="NON_MODAL_COMMIT_POSTPONE_SLOW_CHECKS" value="false" />
+  </component>
+</project>
