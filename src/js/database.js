@@ -29,7 +29,7 @@ export default class Database {
             window.addEventListener("pagehide", deleteDbOnClose);
             request.result.createObjectStore(Database.OBJECT_STORE_NAME, {keyPath: "id"});
 
-            let dialog = new AlertDialog("Данные будут храниться на вашем компьютере");
+            let dialog = new AlertDialog(window.i18n.t("database_store_on_computer"));
             let result = await dialog.open();
             if (result) {
                 window.removeEventListener("pagehide", deleteDbOnClose);
@@ -37,7 +37,7 @@ export default class Database {
             } else {
                 window.removeEventListener("pagehide", deleteDbOnClose);
                 indexedDB.deleteDatabase(Database.DATABASE_NAME);
-                alert("Приложение не может работать без доступа к хранилищу");
+                alert(window.i18n.t("database_no_access"));
                 getByQuery("body").style.display = "none";
             }
         }

@@ -31,7 +31,7 @@ export default class Backup {
 
 
     async loadBackup() {
-        let dialog = new AlertDialog("Все имеющиеся данные будут очищены и заменены на новые");
+        let dialog = new AlertDialog(window.i18n.t("backup_load_confirm"));
         let result = await dialog.open();
         if (result) {
             let element = document.createElement("input");
@@ -63,7 +63,7 @@ export default class Backup {
                 }
             } catch (e) {
             }
-            alert("Содержимое файла повреждено!");
+            alert(window.i18n.t("backup_file_corrupted"));
         };
         reader.readAsText(event.target.files[0]);
     }

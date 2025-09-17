@@ -44,5 +44,17 @@
   "file_too_large": "Размер файла не должен превышать 10 мегабайт.",
   "next_episode": "Переход к следующей серии",
   "next_episode_in_a_week": "Переход к следующей серии через неделю",
-  "confirm_delete": "Вы действительно хотите удалить \"{name}\"?"
+  "confirm_delete": "Вы действительно хотите удалить \"{name}\"?",
+  "backup_load_confirm": "Все имеющиеся данные будут очищены и заменены на новые",
+  "backup_file_corrupted": "Содержимое файла повреждено!",
+  "database_store_on_computer": "Данные будут храниться на вашем компьютере",
+  "database_no_access": "Приложение не может работать без доступа к хранилищу",
+  "validation_field_required": "Это поле необходимо заполнить.",
+  "validation_enter_number": "Пожалуйста, введите число.",
+  "validation_enter_valid_date": "Пожалуйста, введите корректную дату.",
+  "validation_enter_valid_url": "Пожалуйста, введите корректный URL.",
+  "validation_enter_valid_value": "Пожалуйста, введите правильное значение.",
+  "validation_number_greater_or_equal": "Пожалуйста, введите число, большее или равное {value}.",
+  "validation_number_less_or_equal": "Пожалуйста, введите число, меньшее или равное {value}.",
+  "validation_max_length": "Пожалуйста, введите не более {value} символов."
 }

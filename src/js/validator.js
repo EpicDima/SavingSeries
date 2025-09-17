@@ -1,38 +1,41 @@
-import {addClass, removeClass} from "./common";
-
-
 export function setValidator(input, error) {
     input.oninput = () => validate(input, error);
 }
 
-
-export function validate(input, error) {
-    let validState = input.validity;
+export function validate(event) {
+    const input = event.target;
+    let parent = input;
+    while (parent.tagName !== "LABEL") {
+        parent = parent.parentElement;
+    }
+    const error = parent.querySelector(".error-message");
+    const validState = input.validity;
+    input.classList.remove("invalid")
+    error.innerText = "";
     if (validState.valid) {
-        removeClass(input, "error");
-        error.innerText = "";
         return;
     }
+    input.classList.add("invalid")
     if (validState.valueMissing) {
-        error.innerText = "Это поле необходимо заполнить.";
+        error.innerText = window.i18n.t("validation_field_required");
     } else if (validState.typeMismatch) {
         if (input.type === "number") {
-            error.innerText = "Пожалуйста, введите число.";
+            error.innerText = window.i18n.t("validation_enter_number");
         } else if (input.type === "date") {
-            error.innerText = "Пожалуйста, введите корректную дату.";
+            error.innerText = window.i18n.t("validation_enter_valid_date");
         } else if (input.type === "url") {
-            error.innerText = "Пожалуйста, введите корректный URL.";
+            error.innerText = window.i18n.t("validation_enter_valid_url");
         } else {
-            error.innerText = "Пожалуйста, введите правильное значение.";
+            error.innerText = window.i18n.t("validation_enter_valid_value");
         }
     } else if (validState.rangeUnderflow) {
-        error.innerText = `Пожалуйста, введите число, большее или равное {0}.`.replace("{0}", input.min);
+        error.innerText = window.i18n.t("validation_number_greater_or_equal", {value: input.min});
     } else if (validState.rangeOverflow) {
-        error.innerText = `Пожалуйста, введите число, меньшее или равное {0}.`.replace("{0}", input.max);
+        error.innerText = window.i18n.t("validation_number_less_or_equal", {value: input.max});
     } else if (validState.tooLong) {
-        error.innerText = `Пожалуйста, введите не более {0} символов.`.replace("{0}", input.maxLength);
+        error.innerText = window.i18n.t("validation_max_length", {value: input.maxLength});
     } else {
-        error.innerText = "Пожалуйста, введите правильное значение.";
+        error.innerText = window.i18n.t("validation_enter_valid_value");
     }
-    addClass(input, "error");
 }
+
