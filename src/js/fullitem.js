@@ -146,6 +146,13 @@ export class BaseFullItem {
         };
     }
 
+    repopulateStatusOptions() {
+        const selectedStatus = this.fields.status.input.value;
+        this.fields.status.input.innerHTML = "";
+        this.populateStatusOptions();
+        this.fields.status.input.value = selectedStatus;
+    }
+
 
     setListeners() {
         this.form.onsubmit = (e) => e.preventDefault();
@@ -156,6 +163,8 @@ export class BaseFullItem {
         this.fields.status.input.onchange = () => this.onChangeStatus();
 
         this.setValidators();
+
+        document.addEventListener("languagechange", () => this.repopulateStatusOptions());
     }
 
 
@@ -420,6 +429,14 @@ export class FullItem extends BaseFullItem {
         this.buttons.cancel.button.onclick = () => this.cancel();
         this.buttons.accept.button.onclick = () => this.accept();
         this.buttons.delete.button.onclick = () => this.delete();
+
+        document.addEventListener("languagechange", () => this.repopulateDisplayValues());
+    }
+
+    repopulateDisplayValues() {
+        if (this.series) {
+            this.setDisplayValues(this.series);
+        }
     }
 
     keyboardListen(key) {
@@ -485,6 +502,7 @@ export class FullItem extends BaseFullItem {
             this.changeMode = false;
             this.moveByGridState();
             super.open();
+            window.i18n.applyTo(this.fullitem);
             this.setSeries(series);
             this.turnOnActiveItem();
             this.showAllFields();
@@ -708,6 +726,7 @@ export class AddingFullItem extends BaseFullItem {
     open() {
         if (this.fullitem.classList.contains("hide")) {
             super.open();
+            window.i18n.applyTo(this.fullitem);
             this.resetInputValues();
             this.showEditFields(true);
             this.onChangeStatus();
