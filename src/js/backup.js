@@ -1,6 +1,7 @@
 import Series from "./series";
 import {saveAs} from "file-saver";
 import AlertDialog from "./alertDialog";
+import Database from "./database";
 
 
 export default class Backup {
@@ -22,10 +23,20 @@ export default class Backup {
 
 
     createBackup() {
-        let request = this.database.getReadOnlyObjectStore().getAll();
-        request.onsuccess = () => {
-            const blob = new Blob([JSON.stringify(request.result)], {type: "text/plain;charset=utf-8"});
-            saveAs(blob, "SavingSeries.backup")
+        const metaRequest = this.database.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).getAll();
+        metaRequest.onsuccess = () => {
+            const imagesRequest = this.database.getReadOnlyObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).getAll();
+            imagesRequest.onsuccess = () => {
+                const series = metaRequest.result.map(meta => {
+                    const image = imagesRequest.result.find(image => image.id === meta.id);
+                    return {
+                        ...meta,
+                        image: image?.image
+                    };
+                });
+                const blob = new Blob([JSON.stringify(series)], {type: "text/plain;charset=utf-8"});
+                saveAs(blob, "SavingSeries.backup");
+            };
         };
     }
 
@@ -49,13 +60,16 @@ export default class Backup {
                 let data = JSON.parse("" + reader.result);
                 if (Array.isArray(data)) {
                     this.clear();
-                    let counterId = 0;
-                    let objectStore = this.database.getReadWriteObjectStore();
+                    let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+                    let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
                     for (let series of data) {
                         let temp = Series.validate(series);
                         if (temp) {
-                            temp.id = counterId++;
-                            objectStore.add(temp);
+                            const {image, ...meta} = temp;
+                            metaObjectStore.add(meta);
+                            if (image) {
+                                imagesObjectStore.add({id: meta.id, image: image});
+                            }
                         }
                     }
                     this.initialize();

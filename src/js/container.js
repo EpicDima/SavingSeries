@@ -261,6 +261,7 @@ export default class HorizontalContainer {
         this.showItems();
         this.checkLeftRightButtons();
         this.scrollFromAnother(series);
+        series.updateImage();
     }
 
 
@@ -302,6 +303,9 @@ export default class HorizontalContainer {
         this.showItems();
         if (this.map.size > 0) {
             this.show();
+        }
+        for (const series of this.map.values()) {
+            series.loadImageAsync();
         }
     }
 

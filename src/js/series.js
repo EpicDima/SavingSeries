@@ -1,5 +1,6 @@
 import {STATUS} from "./constants";
 import {dateToLocaleString, hideElement, showElement} from "./common";
+import Database from "./database";
 
 export default class Series {
 
@@ -16,13 +17,13 @@ export default class Series {
                     let episode = parseInt(series.episode);
                     if (season >= 1 && season <= 50 && episode >= 1 && episode <= 50000) {
                         return {
-                            id: 0,
+                            id: series.id,
                             name: series.name,
                             season: season,
                             episode: episode,
                             date: series.date ? (series.date.toDate ? series.date.toDate() : new Date(series.date)) : "",
                             site: series.site ? series.site : "",
-                            image: series.image ? series.image : "",
+                            image: series.image || "",
                             note: series.note ? series.note : "",
                             status: series.status ? series.status : STATUS.RUN
                         };
@@ -78,7 +79,6 @@ export default class Series {
         this.item.id = `item${this.data.id}`;
 
         this.image = this.fragment.querySelector(".image");
-        this.image.style.backgroundImage = `url("${this.data.image}")`;
 
         this.link = this.fragment.querySelector(".link");
         if (this.data.site) {
@@ -162,13 +162,21 @@ export default class Series {
         });
     }
 
+    async loadImageAsync() {
+        if (!this.data.image) {
+            this.data.image = await Database.getInstance().getSeriesImage(this.data.id);
+            if (this.data.image) {
+                this.image.style.backgroundImage = `url("${this.data.image}")`;
+            }
+        }
+    }
 
     async updateImage() {
         if (this.data.image.length > 0) {
             try {
                 this.data.image = await Series.compressImage(this.data.image);
             } catch (error) {
-                console.error('Image compression failed:', error);
+                console.error("Image compression failed:", error);
             }
         }
         this.image.style.backgroundImage = `url("${this.data.image}")`;
@@ -231,6 +239,8 @@ export default class Series {
         if (this.data.image !== image) {
             this.data.image = image;
             await this.updateImage();
+            this.image.style.backgroundImage = `url("${this.data.image}")`;
+            changed = true;
         }
         if (this.data.status !== status) {
             this.data.status = status;
