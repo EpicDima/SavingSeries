@@ -11,19 +11,22 @@ export default class Dialog {
 
 
     open() {
-        if (this.dialog && typeof this.dialog.showModal === "function") {
-            if (!this.dialog.parentElement) {
-                getByQuery("body").append(this.dialog);
+        return new Promise(resolve => {
+            if (this.dialog && typeof this.dialog.showModal === "function") {
+                if (!this.dialog.parentElement) {
+                    getByQuery("body").append(this.dialog);
+                }
+                this.setListeners();
+                this.dialog.showModal();
             }
-            this.setListeners();
-            this.dialog.showModal();
-        }
+            resolve();
+        });
     }
 
 
-    close() {
+    close(result) {
         if (this.dialog && typeof this.dialog.close === "function") {
-            this.dialog.close();
+            this.dialog.close(result);
         }
     }
 

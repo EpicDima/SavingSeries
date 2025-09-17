@@ -1,5 +1,5 @@
 import {getByQuery} from "./common";
-import Dialog from "./dialog";
+import AlertDialog from "./alertDialog";
 
 export default class Database {
     static DATABASE_NAME = "SavingSeries";
@@ -29,7 +29,7 @@ export default class Database {
             window.addEventListener("pagehide", deleteDbOnClose);
             request.result.createObjectStore(Database.OBJECT_STORE_NAME, {keyPath: "id"});
 
-            let dialog = new Dialog("Данные будут храниться на вашем компьютере");
+            let dialog = new AlertDialog("Данные будут храниться на вашем компьютере");
             let result = await dialog.open();
             if (result) {
                 window.removeEventListener("pagehide", deleteDbOnClose);

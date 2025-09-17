@@ -1,6 +1,6 @@
 import Series from "./series";
-import Dialog from "./dialog";
 import {saveAs} from "file-saver";
+import AlertDialog from "./alertDialog";
 
 
 export default class Backup {
@@ -31,7 +31,7 @@ export default class Backup {
 
 
     async loadBackup() {
-        let dialog = new Dialog("Все имеющиеся данные будут очищены и заменены на новые");
+        let dialog = new AlertDialog("Все имеющиеся данные будут очищены и заменены на новые");
         let result = await dialog.open();
         if (result) {
             let element = document.createElement("input");

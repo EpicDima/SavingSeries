@@ -13,7 +13,7 @@ import {
 } from "./common";
 import Series from "./series";
 import {setValidator, validate} from "./validator";
-import Dialog from "./dialog";
+import AlertDialog from "./alertDialog";
 
 
 export class BaseFullItem {
@@ -614,7 +614,7 @@ export class FullItem extends BaseFullItem {
 
 
     async delete() {
-        let dialog = new Dialog(window.i18n.t("confirm_delete", {name: this.series.data.name}));
+        let dialog = new AlertDialog(window.i18n.t("confirm_delete", {name: this.series.data.name}));
         let result = await dialog.open();
         if (result) {
             this.series.delete();
