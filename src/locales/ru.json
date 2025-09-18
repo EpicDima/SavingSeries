@@ -47,8 +47,6 @@
   "confirm_delete": "Вы действительно хотите удалить \"{name}\"?",
   "backup_load_confirm": "Все имеющиеся данные будут очищены и заменены на новые",
   "backup_file_corrupted": "Содержимое файла повреждено!",
-  "database_store_on_computer": "Данные будут храниться на вашем компьютере",
-  "database_no_access": "Приложение не может работать без доступа к хранилищу",
   "validation_field_required": "Это поле необходимо заполнить.",
   "validation_enter_number": "Пожалуйста, введите число.",
   "validation_enter_valid_date": "Пожалуйста, введите корректную дату.",

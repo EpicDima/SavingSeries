@@ -47,8 +47,6 @@
   "confirm_delete": "Are you sure you want to delete \"{name}\"?",
   "backup_load_confirm": "All existing data will be cleared and replaced with new data",
   "backup_file_corrupted": "The file content is corrupted!",
-  "database_store_on_computer": "The data will be stored on your computer",
-  "database_no_access": "The application cannot work without access to storage",
   "validation_field_required": "This field is required.",
   "validation_enter_number": "Please enter a number.",
   "validation_enter_valid_date": "Please enter a valid date.",

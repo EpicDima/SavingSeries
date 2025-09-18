@@ -1,6 +1,3 @@
-import {getByQuery} from "./common";
-import AlertDialog from "./alertDialog";
-
 export default class Database {
     static DATABASE_NAME = "SavingSeries";
     static #DB_VERSION = 2;
@@ -27,44 +24,36 @@ export default class Database {
             this.database = request.result;
             func();
         };
-        request.onupgradeneeded = async (event) => {
+        request.onupgradeneeded = (event) => {
             this.database = event.target.result;
-            if (event.oldVersion < 2) {
-                const objectStore = event.target.transaction.objectStore(Database.#SERIES_OBJECT_STORE_NAME);
-                const seriesMetaStore = this.database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
-                seriesMetaStore.createIndex("name_idx", "name");
-                const seriesImagesStore = this.database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
+            const transaction = event.target.transaction;
+            switch (event.oldVersion) {
+                case 0: {
+                    const seriesMetaStore = this.database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
+                    seriesMetaStore.createIndex("name_idx", "name");
+                    this.database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
+                    break;
+                }
+                case 1: {
+                    const objectStore = transaction.objectStore(Database.#SERIES_OBJECT_STORE_NAME);
+                    const seriesMetaStore = this.database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
+                    seriesMetaStore.createIndex("name_idx", "name");
+                    const seriesImagesStore = this.database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
 
-                objectStore.openCursor().onsuccess = (event) => {
-                    const cursor = event.target.result;
-                    if (cursor) {
-                        const {image, ...meta} = cursor.value;
-                        seriesMetaStore.add(meta);
-                        seriesImagesStore.add({id: meta.id, image: image});
-                        cursor.continue();
-                    } else {
-                        this.database.deleteObjectStore(Database.#SERIES_OBJECT_STORE_NAME);
-                    }
-                };
-            } else {
-                const deleteDbOnClose = () => indexedDB.deleteDatabase(Database.DATABASE_NAME);
-                window.addEventListener("pagehide", deleteDbOnClose);
-                this.database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
-                this.database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
-
-                let dialog = new AlertDialog(window.i18n.t("database_store_on_computer"));
-                let result = await dialog.open();
-                if (result) {
-                    window.removeEventListener("pagehide", deleteDbOnClose);
-                    this.connect(func);
-                } else {
-                    window.removeEventListener("pagehide", deleteDbOnClose);
-                    indexedDB.deleteDatabase(Database.DATABASE_NAME);
-                    alert(window.i18n.t("database_no_access"));
-                    getByQuery("body").style.display = "none";
+                    objectStore.openCursor().onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            const {image, ...meta} = cursor.value;
+                            seriesMetaStore.add(meta);
+                            seriesImagesStore.add({id: meta.id, image: image});
+                            cursor.continue();
+                        } else {
+                            this.database.deleteObjectStore(Database.#SERIES_OBJECT_STORE_NAME);
+                        }
+                    };
                 }
             }
-        }
+        };
     }
 
 

@@ -27,14 +27,14 @@ export default class Backup {
         metaRequest.onsuccess = () => {
             const imagesRequest = this.database.getReadOnlyObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).getAll();
             imagesRequest.onsuccess = () => {
-                const series = metaRequest.result.map(meta => {
-                    const image = imagesRequest.result.find(image => image.id === meta.id);
-                    return {
-                        ...meta,
-                        image: image?.image
-                    };
+                const series = metaRequest.result;
+                const images = imagesRequest.result;
+                const backup = series.map(meta => {
+                    const image = images.find(image => image.id === meta.id);
+                    return {...meta, ...(image && {image: image.image})};
                 });
-                const blob = new Blob([JSON.stringify(series)], {type: "text/plain;charset=utf-8"});
+
+                const blob = new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
                 saveAs(blob, "SavingSeries.backup");
             };
         };
@@ -58,10 +58,11 @@ export default class Backup {
         reader.onload = () => {
             try {
                 let data = JSON.parse("" + reader.result);
-                if (Array.isArray(data)) {
-                    this.clear();
-                    let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
-                    let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
+                this.clear();
+                let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+                let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
+
+                if (Array.isArray(data)) { // V1
                     for (let series of data) {
                         let temp = Series.validate(series);
                         if (temp) {
@@ -72,9 +73,9 @@ export default class Backup {
                             }
                         }
                     }
-                    this.initialize();
-                    return;
                 }
+                this.initialize();
+                return;
             } catch (e) {
             }
             alert(window.i18n.t("backup_file_corrupted"));
