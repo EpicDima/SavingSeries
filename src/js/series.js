@@ -172,14 +172,14 @@ export default class Series {
     }
 
     async updateImage() {
-        if (this.data.image.length > 0) {
+        if (this.data.image && this.data.image.length > 0) {
             try {
                 this.data.image = await Series.compressImage(this.data.image);
             } catch (error) {
                 console.error("Image compression failed:", error);
             }
         }
-        this.image.style.backgroundImage = `url("${this.data.image}")`;
+        this.image.style.backgroundImage = this.data.image ? `url("${this.data.image}")` : '';
     }
 
 
