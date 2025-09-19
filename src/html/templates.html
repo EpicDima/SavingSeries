@@ -172,6 +172,17 @@
                         <div id="settingsSubMenu" class="submenu hide">
                             <div id="createBackupSubMenuItem" data-i18n-key="create_backup">Создать Backup</div>
                             <div id="loadBackupSubMenuItem" data-i18n-key="load_backup">Загрузить Backup</div>
+                            <div class="submenu-divider"></div>
+                            <div id="googleDriveSettingsSubMenuItem" data-i18n-key="google_drive_settings">Google Drive
+                                Settings
+                            </div>
+                            <div id="backupToGoogleDriveSubMenuItem" data-i18n-key="backup_to_google_drive">Backup to
+                                Google Drive
+                            </div>
+                            <div id="restoreFromGoogleDriveSubMenuItem" data-i18n-key="restore_from_google_drive">
+                                Restore from Google Drive
+                            </div>
+                            <div class="submenu-divider"></div>
                             <div id="changeLanguageSubMenuItem" class="submenu-item" data-i18n-key="change_language">
                                 Сменить язык
                             </div>
@@ -232,6 +243,34 @@
         </div>
         <div class="dialog-body">
             <div id="languageList"></div>
+        </div>
+    </dialog>
+</template>
+<template id="googleDriveDialogTemplate">
+    <dialog class="google-drive-dialog">
+        <div class="outer-close">
+            <span class="close" data-i18n-title="close" title="Закрыть">&#10006;</span>
+        </div>
+        <div class="dialog-header">
+            <h2 class="title" data-i18n-key="google_drive_settings">Google Drive Settings</h2>
+        </div>
+        <div class="dialog-body">
+            <div class="connection-status">
+                <div class="status-label" data-i18n-key="google_drive_status">Status:</div>
+                <div class="status-value">
+                    <span class="status-text not-connected" data-i18n-key="google_drive_not_connected">Not connected to Google Drive</span>
+                    <span class="status-text connected"
+                          data-i18n-key="google_drive_connected">Connected to Google Drive</span>
+                </div>
+            </div>
+            <div class="user-info hide">
+                <div class="user-email"></div>
+            </div>
+            <div class="button-container">
+                <button class="login-button" data-i18n-key="google_drive_login">Login to Google Drive</button>
+                <button class="logout-button hide" data-i18n-key="google_drive_logout">Logout from Google Drive</button>
+                <button class="sync-button hide" data-i18n-key="google_drive_sync">Sync with Google Drive</button>
+            </div>
         </div>
     </dialog>
 </template>

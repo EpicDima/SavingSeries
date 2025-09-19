@@ -116,8 +116,26 @@ export default class Database {
     }
 
 
-    clear() {
-        this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).clear();
-        this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).clear();
+    async clear() {
+        const clearPromises = [];
+
+        // Clear series_meta store
+        const metaClearPromise = new Promise((resolve, reject) => {
+            const request = this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).clear();
+            request.onsuccess = () => resolve();
+            request.onerror = (e) => reject(e);
+        });
+        clearPromises.push(metaClearPromise);
+
+        // Clear series_images store
+        const imagesClearPromise = new Promise((resolve, reject) => {
+            const request = this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).clear();
+            request.onsuccess = () => resolve();
+            request.onerror = (e) => reject(e);
+        });
+        clearPromises.push(imagesClearPromise);
+
+        // Wait for both clear operations to complete
+        await Promise.all(clearPromises);
     }
 }

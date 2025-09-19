@@ -88,10 +88,10 @@ export default class App {
     }
 
 
-    clearAll() {
+    async clearAll() {
         this.clearRuntime();
         this.localStorage.clear();
-        this.database.clear();
+        await this.database.clear();
     }
 
 
