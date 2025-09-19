@@ -1,21 +1,22 @@
-export function setValidator(input, error) {
-    input.oninput = () => validate(input, error);
+export function setValidator(input) {
+    input.oninput = validate;
 }
 
-export function validate(event) {
+function validate(event) {
     const input = event.target;
-    let parent = input;
-    while (parent.tagName !== "LABEL") {
-        parent = parent.parentElement;
+    const parent = input.closest(".input");
+    if (!parent) {
+        return;
     }
-    const error = parent.querySelector(".error-message");
+    const inputLabel = input.closest(".fullitem-input-label");
+    const error = parent.querySelector(".error");
     const validState = input.validity;
-    input.classList.remove("invalid")
+    inputLabel.classList.remove("invalid")
     error.innerText = "";
     if (validState.valid) {
         return;
     }
-    input.classList.add("invalid")
+    inputLabel.classList.add("invalid")
     if (validState.valueMissing) {
         error.innerText = window.i18n.t("validation_field_required");
     } else if (validState.typeMismatch) {
@@ -38,4 +39,3 @@ export function validate(event) {
         error.innerText = window.i18n.t("validation_enter_valid_value");
     }
 }
-

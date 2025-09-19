@@ -178,6 +178,7 @@
     color: red;
 }
 
-.fullitem .fullitem-input.error ~ .invalid-tooltip {
+.fullitem .fullitem-input-label.invalid ~ .invalid-tooltip,
+.fullitem .fullitem-input-label.error ~ .invalid-tooltip {
     display: block !important;
 }

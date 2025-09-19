@@ -16,7 +16,7 @@
                     <div class="row on-edit">
                         <div class="label" data-i18n-key="status">Статус</div>
                         <div class="input">
-                            <label>
+                            <label class="fullitem-input-label">
                                 <select class="fullitem-input" name="status"></select>
                             </label>
                         </div>
@@ -25,7 +25,7 @@
                         <div class="label" data-i18n-key="season">Сезон</div>
                         <div class="value not-on-edit"></div>
                         <div class="input on-edit">
-                            <label>
+                            <label class="fullitem-input-label">
                                 <input class="fullitem-input" name="season" type="number" value="1" min="1" max="50"
                                        required/>
                             </label>
@@ -38,7 +38,7 @@
                         <div class="label" data-i18n-key="episode">Серия</div>
                         <div class="value not-on-edit"></div>
                         <div class="input on-edit">
-                            <label>
+                            <label class="fullitem-input-label">
                                 <input class="fullitem-input" name="episode" type="number" value="1" min="1"
                                        max="50000" required/>
                             </label>
@@ -51,7 +51,7 @@
                         <div class="label" data-i18n-key="date">Дата</div>
                         <div class="value not-on-edit"></div>
                         <div class="input on-edit">
-                            <label>
+                            <label class="fullitem-input-label">
                                 <input class="fullitem-input" name="date" type="date"/>
                             </label>
                             <div class="invalid-tooltip">
@@ -63,7 +63,7 @@
                         <div class="label" data-i18n-key="site">Сайт</div>
                         <div class="value not-on-edit"></div>
                         <div class="input on-edit">
-                            <label>
+                            <label class="fullitem-input-label">
                                 <input class="fullitem-input" name="site" type="url" maxlength="512"/>
                             </label>
                             <div class="invalid-tooltip">
@@ -74,7 +74,9 @@
                     <div class="row on-edit">
                         <div class="label" data-i18n-key="image">Изображение</div>
                         <div class="input">
-                            <input class="fullitem-input" name="image" type="file" accept="image/*"/>
+                            <label class="fullitem-input-label">
+                                <input class="fullitem-input" name="image" type="file" accept="image/*"/>
+                            </label>
                             <div class="invalid-tooltip">
                                 <label class="error"></label>
                             </div>
@@ -84,7 +86,7 @@
                         <div class="label" data-i18n-key="notes">Заметки</div>
                         <div class="value not-on-edit"></div>
                         <div class="input on-edit">
-                            <label>
+                            <label class="fullitem-input-label">
                                 <textarea class="fullitem-input" name="note" rows="3" maxlength="200"></textarea>
                             </label>
                         </div>

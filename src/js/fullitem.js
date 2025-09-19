@@ -12,7 +12,7 @@ import {
     showElement
 } from "./common";
 import Series from "./series";
-import {setValidator, validate} from "./validator";
+import {setValidator} from "./validator";
 import AlertDialog from "./alertDialog";
 
 
@@ -169,18 +169,18 @@ export class BaseFullItem {
 
 
     setValidators() {
-        setValidator(this.fields.season.input, this.fields.season.error);
-        setValidator(this.fields.episode.input, this.fields.episode.error);
-        setValidator(this.fields.date.input, this.fields.date.error);
-        setValidator(this.fields.site.input, this.fields.site.error);
+        setValidator(this.fields.season.input);
+        setValidator(this.fields.episode.input);
+        setValidator(this.fields.date.input);
+        setValidator(this.fields.site.input);
     }
 
 
     validateInputs() {
-        validate(this.fields.season.input, this.fields.season.error);
-        validate(this.fields.episode.input, this.fields.episode.error);
-        validate(this.fields.date.input, this.fields.date.error);
-        validate(this.fields.site.input, this.fields.site.error);
+        this.fields.season.input.oninput({target: this.fields.season.input});
+        this.fields.episode.input.oninput({target: this.fields.episode.input});
+        this.fields.date.input.oninput({target: this.fields.date.input});
+        this.fields.site.input.oninput({target: this.fields.site.input});
     }
 
 
@@ -696,14 +696,14 @@ export class AddingFullItem extends BaseFullItem {
 
 
     setValidators() {
-        setValidator(this.fields.name.input, this.fields.name.error);
+        setValidator(this.fields.name.input);
         super.setValidators();
     }
 
 
     validateInputs() {
         super.validateInputs();
-        validate(this.fields.name.input, this.fields.name.error);
+        this.fields.name.input.oninput({target: this.fields.name.input});
     }
 
 
