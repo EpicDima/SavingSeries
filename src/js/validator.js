@@ -2,6 +2,22 @@ export function setValidator(input) {
     input.oninput = validate;
 }
 
+document.addEventListener("languagechange", function () {
+    const errorElements = document.querySelectorAll(".error");
+    errorElements.forEach(function (errorElement) {
+        if (errorElement.innerText && errorElement.innerText.trim() !== "") {
+            const inputContainer = errorElement.closest(".input");
+            if (inputContainer) {
+                const input = inputContainer.querySelector("input, select, textarea");
+                if (input) {
+                    const event = new Event("input", {bubbles: true});
+                    input.dispatchEvent(event);
+                }
+            }
+        }
+    });
+});
+
 function validate(event) {
     const input = event.target;
     const parent = input.closest(".input");
