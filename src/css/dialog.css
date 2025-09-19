@@ -49,6 +49,48 @@ dialog > .outer-close > .close {
     user-select: none;
 }
 
+.google-drive-dialog {
+    min-width: min(32rem, calc(100vw - 2rem));
+}
+
+.google-drive-dialog .dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: min(28rem, calc(100vw - 3rem));
+    padding: 0.5rem 1rem 1rem;
+}
+
+.google-drive-dialog .connection-status {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.google-drive-dialog .status-label {
+    color: #b8b8b8;
+    font-size: 0.95rem;
+}
+
+.google-drive-dialog .status-value,
+.google-drive-dialog .user-email {
+    font-size: 1rem;
+}
+
+.google-drive-dialog .button-container {
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+    .google-drive-dialog {
+        width: calc(100vw - 1rem);
+        min-width: 0;
+    }
+
+    .google-drive-dialog .dialog-body {
+        min-width: 0;
+    }
+}
+
 dialog > .outer-close {
     position: absolute;
     right: 0.4rem;

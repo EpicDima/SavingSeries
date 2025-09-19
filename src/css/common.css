@@ -68,3 +68,85 @@ button:active {
     color: black;
     border-color: white;
 }
+
+.google-drive-progress {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1200;
+    width: min(24rem, calc(100vw - 2rem));
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #3a3a3a;
+    border-radius: 0.75rem;
+    background: rgba(20, 20, 20, 0.96);
+    box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.35);
+    color: white;
+}
+
+.google-drive-progress[data-tone="success"] {
+    border-color: #2d7d4f;
+}
+
+.google-drive-progress[data-tone="error"] {
+    border-color: #9a3f3f;
+}
+
+.google-drive-progress .progress-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.google-drive-progress .progress-title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.google-drive-progress .progress-close {
+    min-width: 2rem;
+    padding: 0.15rem 0.45rem;
+    line-height: 1;
+}
+
+.google-drive-progress .progress-message {
+    color: #d3d3d3;
+    line-height: 1.4;
+}
+
+.google-drive-progress .progress-summary {
+    color: #9dc0ff;
+    font-size: 0.92rem;
+}
+
+.google-drive-progress .progress-bar {
+    width: 100%;
+    height: 0.7rem;
+}
+
+.google-drive-progress .progress-bar::-webkit-progress-bar {
+    background: #2c2c2c;
+    border-radius: 999px;
+}
+
+.google-drive-progress .progress-bar::-webkit-progress-value {
+    background: linear-gradient(90deg, #5ca6ff 0%, #8ec5ff 100%);
+    border-radius: 999px;
+}
+
+.google-drive-progress .progress-bar::-moz-progress-bar {
+    background: linear-gradient(90deg, #5ca6ff 0%, #8ec5ff 100%);
+    border-radius: 999px;
+}
+
+@media (max-width: 640px) {
+    .google-drive-progress {
+        right: 0.5rem;
+        bottom: 0.5rem;
+        width: calc(100vw - 1rem);
+    }
+}

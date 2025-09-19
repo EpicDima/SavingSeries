@@ -1,6 +1,7 @@
-import {hideElement} from "./common";
+import {hideElement} from "./common.js";
 import SearchContainer from "./searchContainer";
 import LanguageDialog from "./languageDialog";
+import GoogleDriveIntegration from "./googleDriveIntegration";
 
 
 export class Menu {
@@ -9,10 +10,14 @@ export class Menu {
         this.app = app;
         this.search = new SearchContainer(app);
         this.languageDialog = new LanguageDialog();
+        this.googleDriveIntegration = new GoogleDriveIntegration(app);
 
         this.boundHandleClick = this.handleDocumentClick.bind(this);
 
         this.generate();
+
+        // Initialize Google Drive integration
+        this.googleDriveIntegration.init().catch(console.error);
     }
 
 
@@ -33,6 +38,9 @@ export class Menu {
         this.openAddingElementMenuItem = this.fragment.getElementById("openAddingElementMenuItem");
         this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
         this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
+        this.googleDriveSettingsSubMenuItem = this.fragment.getElementById("googleDriveSettingsSubMenuItem");
+        this.backupToGoogleDriveSubMenuItem = this.fragment.getElementById("backupToGoogleDriveSubMenuItem");
+        this.restoreFromGoogleDriveSubMenuItem = this.fragment.getElementById("restoreFromGoogleDriveSubMenuItem");
         this.changeLanguageSubMenuItem = this.fragment.getElementById("changeLanguageSubMenuItem");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
@@ -58,6 +66,12 @@ export class Menu {
         this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
+
+        // Google Drive menu items
+        this.googleDriveSettingsSubMenuItem.onclick = () => this.googleDriveIntegration.showAuthDialog();
+        this.backupToGoogleDriveSubMenuItem.onclick = () => this.googleDriveIntegration.backupToDrive();
+        this.restoreFromGoogleDriveSubMenuItem.onclick = () => this.googleDriveIntegration.restoreFromDrive();
+        
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
 
         this.navbar.addEventListener("dblclick", () => {

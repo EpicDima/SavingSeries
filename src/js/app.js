@@ -20,7 +20,7 @@ export default class App {
         this.containers = new Map();
 
         this.localStorage = new LocalStorage();
-        this.backup = new Backup(this.database, () => this.clearAll(), () => this.initialize());
+        this.backup = new Backup(this.database, () => this.clearDataOnly(), () => this.initialize());
 
         Series.onItemClickListener = (id) => this.openFullitem(id);
 
@@ -88,10 +88,16 @@ export default class App {
     }
 
 
-    clearAll() {
+    async clearAll() {
         this.clearRuntime();
         this.localStorage.clear();
-        this.database.clear();
+        await this.database.clear();
+    }
+
+
+    async clearDataOnly() {
+        this.clearRuntime();
+        await this.database.clear();
     }
 
 
