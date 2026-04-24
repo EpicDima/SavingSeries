@@ -18,6 +18,7 @@ export default class Series {
                     if (season >= 1 && season <= 50 && episode >= 1 && episode <= 50000) {
                         return {
                             id: series.id,
+                            syncId: series.syncId,
                             name: series.name,
                             season: season,
                             episode: episode,
@@ -25,7 +26,12 @@ export default class Series {
                             site: series.site ? series.site : "",
                             image: series.image || "",
                             note: series.note ? series.note : "",
-                            status: series.status ? series.status : STATUS.RUN
+                            status: series.status ? series.status : STATUS.RUN,
+                            updatedAt: series.updatedAt,
+                            deletedAt: series.deletedAt || null,
+                            imageUpdatedAt: series.imageUpdatedAt || null,
+                            deviceId: series.deviceId,
+                            rev: series.rev
                         };
                     }
                 }
@@ -40,15 +46,24 @@ export default class Series {
         const validatedSeries = Series.validate(series);
         if (validatedSeries) {
             return new Series(series.id, validatedSeries.name, validatedSeries.season, validatedSeries.episode,
-                validatedSeries.date, validatedSeries.site, validatedSeries.image, validatedSeries.status, validatedSeries.note);
+                validatedSeries.date, validatedSeries.site, validatedSeries.image, validatedSeries.status, validatedSeries.note,
+                {
+                    syncId: validatedSeries.syncId,
+                    updatedAt: validatedSeries.updatedAt,
+                    deletedAt: validatedSeries.deletedAt,
+                    imageUpdatedAt: validatedSeries.imageUpdatedAt,
+                    deviceId: validatedSeries.deviceId,
+                    rev: validatedSeries.rev
+                });
         }
         return null;
     }
 
 
-    constructor(id, name, season, episode, date, site, image, status, note) {
+    constructor(id, name, season, episode, date, site, image, status, note, sync = {}) {
         this.data = {
             id: id,
+            syncId: sync.syncId,
             name: name,
             season: season,
             episode: episode,
@@ -56,7 +71,12 @@ export default class Series {
             site: site,
             image: image,
             status: status,
-            note: note
+            note: note,
+            updatedAt: sync.updatedAt,
+            deletedAt: sync.deletedAt || null,
+            imageUpdatedAt: sync.imageUpdatedAt || null,
+            deviceId: sync.deviceId,
+            rev: sync.rev
         };
 
         this.onUpdateListener = null;

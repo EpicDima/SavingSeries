@@ -579,7 +579,7 @@ export class FullItem extends BaseFullItem {
         }
         let changed = await this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
             this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
-        this.database.putSeriesInDb(this.series);
+        await this.database.putSeriesInDb(this.series);
 
         if (changed) {
             if (getSeriesListType(this.series) !== this.id) {
@@ -612,7 +612,7 @@ export class FullItem extends BaseFullItem {
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : this.series.data.image;
         let changed = await this.series.update(data.season, data.episode, data.date,
             data.site, image, data.status, data.note);
-        this.database.putSeriesInDb(this.series);
+        await this.database.putSeriesInDb(this.series);
 
         if (changed) {
             if (getSeriesListType(this.series) !== this.id) {
@@ -636,7 +636,7 @@ export class FullItem extends BaseFullItem {
         let result = await dialog.open();
         if (result) {
             this.series.delete();
-            this.database.deleteSeriesFromDb(this.series);
+            await this.database.deleteSeriesFromDb(this.series);
             this.close();
         }
     }
@@ -743,7 +743,7 @@ export class AddingFullItem extends BaseFullItem {
     }
 
 
-    add() {
+    async add() {
         let data = this.getValuesFromInputs();
         if (!data) {
             this.validateInputs();
@@ -751,9 +751,17 @@ export class AddingFullItem extends BaseFullItem {
         }
         let name = this.fields.name.input.value;
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : "";
+        const now = Date.now();
         let series = new Series(AddingFullItem.seriesId++, name, data.season, data.episode, data.date,
-            data.site, image, data.status, data.note);
-        this.database.putSeriesInDb(series);
+            data.site, image, data.status, data.note, {
+                syncId: this.database.createSyncId(),
+                updatedAt: now,
+                deletedAt: null,
+                imageUpdatedAt: image ? now : null,
+                deviceId: await this.database.getDeviceId(),
+                rev: 0
+            });
+        await this.database.putSeriesInDb(series);
         this.close();
         this.showSeries(series);
     }
