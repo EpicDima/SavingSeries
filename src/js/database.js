@@ -8,6 +8,8 @@ export default class Database {
     static SYNC_DELETED_OBJECT_STORE_NAME = "sync_deleted";
 
     static #DEVICE_ID_KEY = "deviceId";
+    static #LOCAL_GENERATION_KEY = "localGeneration";
+    static #SYNC_LOCK_KEY = "syncLock";
     static #DEVICE_ID_LOCAL_STORAGE_KEY = "savingSeries.deviceId";
     static GOOGLE_DRIVE_SYNC_STATE_KEY = "googleDrive";
 
@@ -15,6 +17,7 @@ export default class Database {
 
     constructor() {
         this.deviceId = null;
+        this.instanceId = Database.#generateUuid();
     }
 
     static getInstance() {
@@ -74,6 +77,10 @@ export default class Database {
                 }
                 transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME)
                     .put({key: Database.#DEVICE_ID_KEY, value: deviceId});
+                transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME)
+                    .put({key: Database.#LOCAL_GENERATION_KEY, value: 0});
+                transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME)
+                    .put({key: Database.#SYNC_LOCK_KEY, value: null});
                 if (syncStateStoreCreated) {
                     transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME)
                         .put(Database.#createDefaultGoogleDriveSyncState());
@@ -291,6 +298,91 @@ export default class Database {
     }
 
 
+    async getLocalGeneration() {
+        const generation = await this.#getByKey(Database.SYNC_STATE_OBJECT_STORE_NAME, Database.#LOCAL_GENERATION_KEY);
+        return Number(generation?.value || 0);
+    }
+
+
+    async updateGoogleDriveSyncStateIfGeneration(expectedGeneration, cleanPatch, dirtyPatch) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(Database.SYNC_STATE_OBJECT_STORE_NAME, "readwrite");
+            const store = transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME);
+            let next;
+
+            const generationRequest = store.get(Database.#LOCAL_GENERATION_KEY);
+            generationRequest.onsuccess = () => {
+                const currentGeneration = Number(generationRequest.result?.value || 0);
+                const stateRequest = store.get(Database.GOOGLE_DRIVE_SYNC_STATE_KEY);
+                stateRequest.onsuccess = () => {
+                    const previous = stateRequest.result || Database.#createDefaultGoogleDriveSyncState();
+                    next = {
+                        ...previous,
+                        ...(currentGeneration === expectedGeneration ? cleanPatch : dirtyPatch),
+                        key: Database.GOOGLE_DRIVE_SYNC_STATE_KEY
+                    };
+                    store.put(next);
+                };
+                stateRequest.onerror = () => reject(stateRequest.error);
+            };
+            generationRequest.onerror = () => reject(generationRequest.error);
+            transaction.oncomplete = () => resolve(next);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
+    }
+
+
+    async acquireSyncLock(ttlMs = 60000) {
+        const now = Date.now();
+        const lock = {
+            owner: this.instanceId,
+            expiresAt: now + ttlMs
+        };
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(Database.SYNC_STATE_OBJECT_STORE_NAME, "readwrite");
+            const store = transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME);
+            const request = store.get(Database.#SYNC_LOCK_KEY);
+            let acquired = false;
+
+            request.onsuccess = () => {
+                const current = request.result?.value;
+                if (current?.owner && current.owner !== this.instanceId && Number(current.expiresAt || 0) > now) {
+                    return;
+                }
+                store.put({key: Database.#SYNC_LOCK_KEY, value: lock});
+                acquired = true;
+            };
+            request.onerror = () => reject(request.error);
+            transaction.oncomplete = () => resolve(acquired ? lock : null);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
+    }
+
+
+    async releaseSyncLock(lock) {
+        if (!lock) {
+            return;
+        }
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(Database.SYNC_STATE_OBJECT_STORE_NAME, "readwrite");
+            const store = transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME);
+            const request = store.get(Database.#SYNC_LOCK_KEY);
+            request.onsuccess = () => {
+                const current = request.result?.value;
+                if (current?.owner === lock.owner) {
+                    store.put({key: Database.#SYNC_LOCK_KEY, value: null});
+                }
+            };
+            request.onerror = () => reject(request.error);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
+    }
+
+
     async deleteSeriesFromDb(series) {
         const previousMeta = await this.#getByKey(Database.SERIES_META_OBJECT_STORE_NAME, series.data.id);
         const syncId = series.data.syncId || previousMeta?.syncId || Database.#generateUuid();
@@ -314,8 +406,25 @@ export default class Database {
 
     async #markGoogleDriveSyncDirty() {
         const status = navigator.onLine ? "pending" : "offline";
+        await this.#incrementLocalGeneration();
         await this.updateGoogleDriveSyncState({dirty: true, status: status, lastError: null});
         window.dispatchEvent(new CustomEvent("savingseries:local-sync-dirty"));
+    }
+
+
+    async #incrementLocalGeneration() {
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(Database.SYNC_STATE_OBJECT_STORE_NAME, "readwrite");
+            const store = transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME);
+            const request = store.get(Database.#LOCAL_GENERATION_KEY);
+            request.onsuccess = () => {
+                store.put({key: Database.#LOCAL_GENERATION_KEY, value: Number(request.result?.value || 0) + 1});
+            };
+            request.onerror = () => reject(request.error);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
     }
 
     getSeriesImage(id) {

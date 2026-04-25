@@ -3,6 +3,8 @@ import SyncRepository from "./syncRepository";
 
 
 export default class SyncService {
+    static MAX_CONFLICT_RETRIES = 2;
+
     constructor(database, syncRepository, googleDriveClient) {
         this.database = database;
         this.syncRepository = syncRepository;
@@ -11,39 +13,101 @@ export default class SyncService {
 
 
     async syncNow() {
+        const lock = await this.database.acquireSyncLock();
+        if (!lock) {
+            await this.database.updateGoogleDriveSyncState({status: "pending"});
+            return null;
+        }
         try {
-            await this.database.updateGoogleDriveSyncState({status: "syncing", lastError: null});
-
-            const [localState, remoteState] = await Promise.all([
-                this.syncRepository.getLocalState(),
-                this.googleDriveClient.readJsonFileByName()
-            ]);
-            const mergedState = this.#mergeStates(localState, remoteState || this.#createEmptyState());
-
-            await this.syncRepository.applyMergedState(mergedState);
-            const file = await this.googleDriveClient.createOrUpdateJsonFileByName(
-                GoogleDriveClient.STATE_FILE_NAME,
-                mergedState
-            );
-
-            const now = Date.now();
-            await this.database.updateGoogleDriveSyncState({
-                signedIn: true,
-                dirty: false,
-                status: "synced",
-                lastSyncAt: now,
-                lastPullAt: now,
-                lastPushAt: now,
-                lastError: null,
-                remoteUpdatedAt: mergedState.updatedAt,
-                stateFileId: file.id
-            });
-
-            return mergedState;
+            return await this.#syncWithConflictRetry();
         } catch (error) {
             await this.database.updateGoogleDriveSyncState({status: navigator.onLine ? "error" : "offline", lastError: error.message});
             throw error;
+        } finally {
+            await this.database.releaseSyncLock(lock);
         }
+    }
+
+
+    async #syncWithConflictRetry() {
+        for (let attempt = 0; attempt <= SyncService.MAX_CONFLICT_RETRIES; attempt++) {
+            try {
+                return await this.#syncOnce();
+            } catch (error) {
+                if (!GoogleDriveClient.isConflictError(error) || attempt === SyncService.MAX_CONFLICT_RETRIES) {
+                    throw error;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    async #syncOnce() {
+        await this.database.updateGoogleDriveSyncState({status: "syncing", lastError: null});
+        const syncState = await this.database.getGoogleDriveSyncState();
+        const initialGeneration = await this.database.getLocalGeneration();
+
+        const [localState, remoteFileState] = await Promise.all([
+            this.syncRepository.getLocalState(),
+            this.#readRemoteState(syncState.stateFileId)
+        ]);
+        const remoteState = remoteFileState?.content || this.#createEmptyState();
+        const mergedState = this.#mergeStates(localState, remoteState);
+
+        await this.syncRepository.applyMergedState(mergedState);
+        const file = await this.#writeRemoteState(remoteFileState?.file, mergedState);
+
+        const now = Date.now();
+        await this.database.updateGoogleDriveSyncStateIfGeneration(initialGeneration, {
+            signedIn: true,
+            dirty: false,
+            status: "metadata-synced",
+            lastSyncAt: now,
+            lastPullAt: now,
+            lastPushAt: now,
+            lastError: null,
+            remoteUpdatedAt: mergedState.updatedAt,
+            stateFileId: file.id
+        }, {
+            signedIn: true,
+            dirty: true,
+            status: "pending",
+            lastSyncAt: now,
+            lastPullAt: now,
+            lastPushAt: now,
+            lastError: null,
+            remoteUpdatedAt: mergedState.updatedAt,
+            stateFileId: file.id
+        });
+
+        return mergedState;
+    }
+
+
+    async syncAfterRemoteConflict() {
+        await this.database.updateGoogleDriveSyncState({status: "pending"});
+        return this.syncNow();
+    }
+
+
+    async #readRemoteState(stateFileId) {
+        try {
+            if (stateFileId) {
+                return await this.googleDriveClient.readJsonFileById(stateFileId);
+            }
+        } catch (error) {
+            console.warn("Stored Google Drive state file is unavailable, falling back to name lookup:", error);
+        }
+        return this.googleDriveClient.readJsonFileByName();
+    }
+
+
+    async #writeRemoteState(remoteFile, state) {
+        if (remoteFile?.id) {
+            return this.googleDriveClient.updateJsonFile(remoteFile.id, state, remoteFile.etag);
+        }
+        return this.googleDriveClient.createJsonFile(GoogleDriveClient.STATE_FILE_NAME, state);
     }
 
 
@@ -148,6 +212,10 @@ export default class SyncService {
         if (deleted && Number(deleted.deletedAt) > Number(active.updatedAt || 0)) {
             return {type: "deleted", value: {...deleted}};
         }
+        if (deleted && Number(deleted.deletedAt) === Number(active.updatedAt || 0)
+            && this.#compareVersion(deleted, active, "deletedAt") > 0) {
+            return {type: "deleted", value: {...deleted}};
+        }
 
         return {
             type: "series",
@@ -166,7 +234,7 @@ export default class SyncService {
         if (!remote) {
             return {...local};
         }
-        if (Number(remote.updatedAt || 0) > Number(local.updatedAt || 0)) {
+        if (this.#compareVersion(remote, local, "updatedAt") > 0) {
             return {...remote};
         }
         return {...local};
@@ -180,7 +248,20 @@ export default class SyncService {
         if (!remoteDeleted) {
             return localDeleted;
         }
-        return Number(remoteDeleted.deletedAt || 0) > Number(localDeleted.deletedAt || 0) ? remoteDeleted : localDeleted;
+        return this.#compareVersion(remoteDeleted, localDeleted, "deletedAt") > 0 ? remoteDeleted : localDeleted;
+    }
+
+
+    #compareVersion(left, right, timestampKey) {
+        const timestampDiff = Number(left?.[timestampKey] || 0) - Number(right?.[timestampKey] || 0);
+        if (timestampDiff !== 0) {
+            return timestampDiff;
+        }
+        const revDiff = Number(left?.rev || 0) - Number(right?.rev || 0);
+        if (revDiff !== 0) {
+            return revDiff;
+        }
+        return String(left?.deviceId || "").localeCompare(String(right?.deviceId || ""));
     }
 
 

@@ -15,7 +15,7 @@ export default class GoogleAuthService {
     }
 
 
-    async signIn() {
+    async signIn({prompt = null} = {}) {
         if (!this.clientId) {
             throw new Error("Missing VITE_GOOGLE_CLIENT_ID");
         }
@@ -38,15 +38,25 @@ export default class GoogleAuthService {
                 this.expiresAt = Date.now() + Number(response.expires_in || 0) * 1000;
                 resolve(response);
             };
-            this.tokenClient.requestAccessToken({prompt: this.accessToken ? "" : "consent"});
+            this.tokenClient.requestAccessToken({prompt: prompt ?? (this.accessToken ? "" : "consent")});
         });
+    }
+
+
+    async refreshToken() {
+        return this.signIn({prompt: ""});
+    }
+
+
+    clearToken() {
+        this.accessToken = null;
+        this.expiresAt = null;
     }
 
 
     signOut() {
         const token = this.accessToken;
-        this.accessToken = null;
-        this.expiresAt = null;
+        this.clearToken();
         if (token && window.google?.accounts?.oauth2?.revoke) {
             google.accounts.oauth2.revoke(token, () => {
             });

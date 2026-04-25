@@ -183,6 +183,7 @@
 }
 
 .navbar .sync-status[data-status="synced"],
+.navbar .sync-status[data-status="metadata-synced"],
 .navbar .sync-status[data-status="signed-in"],
 .navbar .sync-status[data-status="written"],
 .navbar .sync-status[data-status="read"] {

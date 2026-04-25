@@ -9,7 +9,7 @@ import {Menu} from "./menu";
 import LocalStorage from "./localStorage";
 import SyncRepository from "./syncRepository";
 import GoogleAuthService from "./googleAuthService";
-import GoogleDriveClient from "./googleDriveClient";
+import GoogleDriveClient, {GoogleDriveError} from "./googleDriveClient";
 import SyncService from "./syncService";
 
 
@@ -17,6 +17,7 @@ export default class App {
 
     static AUTO_SYNC_DELAY = 3000;
     static FOCUS_SYNC_STALE_MS = 30 * 60 * 1000;
+    static AUTO_SYNC_RETRY_DELAYS = [15000, 60000, 300000];
 
     database;
 
@@ -33,6 +34,7 @@ export default class App {
         this.syncService = new SyncService(this.database, this.syncRepository, this.googleDriveClient);
         this.autoSyncTimeout = null;
         this.syncInProgress = false;
+        this.autoSyncRetryCount = 0;
         this.backup = new Backup(this.database, () => this.clearAll(), () => {
             this.clearRuntime();
             this.initialize();
@@ -269,7 +271,7 @@ export default class App {
             this.syncInProgress = true;
             this.cancelScheduledAutoSync();
             if (!this.googleAuthService.isSignedIn()) {
-                await this.signInToGoogleDrive();
+                await this.ensureGoogleDriveToken();
             }
             this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "syncing", lastError: null}));
             const state = await this.syncService.syncNow();
@@ -311,10 +313,14 @@ export default class App {
 
         const state = await this.database.getGoogleDriveSyncState();
         if (!this.googleAuthService.isSignedIn()) {
-            if (state.dirty) {
-                this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "sign-in-required"}));
+            try {
+                await this.ensureGoogleDriveToken({silent: true});
+            } catch (error) {
+                if (state.dirty) {
+                    this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "sign-in-required"}));
+                }
+                return;
             }
-            return;
         }
         if (!state.dirty && (!allowStalePull || !this.#isSyncStale(state))) {
             return;
@@ -322,9 +328,55 @@ export default class App {
 
         try {
             await this.syncNow();
+            this.autoSyncRetryCount = 0;
         } catch (error) {
             console.error("Automatic Google Drive sync failed:", error);
+            if (this.#shouldRefreshToken(error)) {
+                this.googleAuthService.clearToken();
+            }
+            if (this.#shouldRetrySync(error)) {
+                this.#scheduleSyncRetry(error);
+            }
         }
+    }
+
+
+    async ensureGoogleDriveToken({silent = false} = {}) {
+        if (this.googleAuthService.isSignedIn()) {
+            return null;
+        }
+        if (silent) {
+            const response = await this.googleAuthService.refreshToken();
+            const state = await this.database.updateGoogleDriveSyncState({
+                signedIn: true,
+                status: "signed-in",
+                lastError: null,
+                tokenExpiresAt: this.googleAuthService.expiresAt,
+                scope: response.scope || GoogleAuthService.DRIVE_APPDATA_SCOPE
+            });
+            this.menu.updateSyncStatus(state);
+            return state;
+        }
+        return this.signInToGoogleDrive();
+    }
+
+
+    #shouldRefreshToken(error) {
+        return error instanceof GoogleDriveError && error.isUnauthorized;
+    }
+
+
+    #shouldRetrySync(error) {
+        return error instanceof GoogleDriveError && error.isRetryable;
+    }
+
+
+    #scheduleSyncRetry(error) {
+        const retryAfterMs = Number(error.retryAfter) > 0 ? Number(error.retryAfter) * 1000 : null;
+        const fallbackDelay = App.AUTO_SYNC_RETRY_DELAYS[Math.min(this.autoSyncRetryCount, App.AUTO_SYNC_RETRY_DELAYS.length - 1)];
+        this.autoSyncRetryCount++;
+        clearTimeout(this.autoSyncTimeout);
+        this.autoSyncTimeout = setTimeout(() => this.autoSync(), retryAfterMs || fallbackDelay);
     }
 
 
@@ -371,7 +423,8 @@ export default class App {
     async readGoogleDriveState() {
         try {
             this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "reading", lastError: null}));
-            const state = await this.googleDriveClient.readJsonFileByName();
+            const remoteState = await this.googleDriveClient.readJsonFileByName();
+            const state = remoteState?.content || null;
             const update = {
                 status: state ? "read" : "missing",
                 lastPullAt: Date.now(),
@@ -379,6 +432,7 @@ export default class App {
             };
             if (state) {
                 update.remoteUpdatedAt = state.updatedAt || null;
+                update.stateFileId = remoteState.file.id;
             }
             await this.database.updateGoogleDriveSyncState({
                 ...update
@@ -397,7 +451,13 @@ export default class App {
         try {
             this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "writing", lastError: null}));
             const state = await this.syncRepository.getLocalState();
-            const file = await this.googleDriveClient.createOrUpdateJsonFileByName(GoogleDriveClient.STATE_FILE_NAME, state);
+            const syncState = await this.database.getGoogleDriveSyncState();
+            const remoteState = syncState.stateFileId
+                ? await this.googleDriveClient.readJsonFileById(syncState.stateFileId)
+                : await this.googleDriveClient.readJsonFileByName();
+            const file = remoteState?.file
+                ? await this.googleDriveClient.updateJsonFile(remoteState.file.id, state, remoteState.file.etag)
+                : await this.googleDriveClient.createJsonFile(GoogleDriveClient.STATE_FILE_NAME, state);
             const nextState = await this.database.updateGoogleDriveSyncState({
                 status: "written",
                 lastPushAt: Date.now(),

@@ -34,14 +34,11 @@ export default class SyncRepository {
 
 
     async applyMergedState(state) {
-        if (!state || state.schemaVersion !== SyncRepository.SCHEMA_VERSION || !Array.isArray(state.series)) {
-            throw new Error("Unsupported sync state format");
-        }
-
         const [existingImages, localDeviceId] = await Promise.all([
             this.#getExistingImagesBySyncId(),
             this.database.getDeviceId()
         ]);
+        const preparedState = this.#prepareStateForApply(state, localDeviceId);
 
         const transaction = this.database.database.transaction([
             Database.SERIES_META_OBJECT_STORE_NAME,
@@ -56,39 +53,63 @@ export default class SyncRepository {
         imagesStore.clear();
         deletedStore.clear();
 
-        let nextId = 1;
-        for (const item of state.series) {
-            const series = Series.validate({
-                ...item,
-                id: nextId,
-                deviceId: item.deviceId || localDeviceId
-            });
-            if (series && series.syncId && !series.deletedAt) {
-                const {image, ...meta} = series;
-                meta.id = nextId++;
-                metaStore.put(meta);
+        for (const meta of preparedState.series) {
+            metaStore.put(meta);
 
-                const existingImage = existingImages.get(meta.syncId);
-                if (existingImage && meta.imageUpdatedAt !== null) {
-                    imagesStore.put({id: meta.id, image: existingImage});
-                }
+            const existingImage = existingImages.get(meta.syncId);
+            if (existingImage && meta.imageUpdatedAt !== null) {
+                imagesStore.put({id: meta.id, image: existingImage});
             }
         }
 
-        if (Array.isArray(state.deleted)) {
-            for (const item of state.deleted) {
-                if (item?.syncId && item.deletedAt) {
-                    deletedStore.put({
-                        syncId: item.syncId,
-                        deletedAt: item.deletedAt,
-                        deviceId: item.deviceId || localDeviceId
-                    });
-                }
-            }
+        for (const item of preparedState.deleted) {
+            deletedStore.put(item);
         }
 
         await this.#waitForTransaction(transaction);
         this.#applySettings(state.settings);
+    }
+
+
+    #prepareStateForApply(state, localDeviceId) {
+        if (!state || state.schemaVersion !== SyncRepository.SCHEMA_VERSION || !Array.isArray(state.series)) {
+            throw new Error("Unsupported sync state format");
+        }
+        if (state.deleted && !Array.isArray(state.deleted)) {
+            throw new Error("Unsupported sync state format");
+        }
+
+        let nextId = 1;
+        const syncIds = new Set();
+        const series = state.series.map(item => {
+            const validated = Series.validate({
+                ...item,
+                id: nextId,
+                deviceId: item.deviceId || localDeviceId
+            });
+            if (!validated || !validated.syncId || validated.deletedAt) {
+                throw new Error("Unsupported sync state format");
+            }
+            if (syncIds.has(validated.syncId)) {
+                throw new Error("Unsupported sync state format");
+            }
+            syncIds.add(validated.syncId);
+            const {image, ...meta} = validated;
+            meta.id = nextId++;
+            return meta;
+        });
+        const deleted = (state.deleted || []).map(item => {
+            if (!item?.syncId || !item.deletedAt) {
+                throw new Error("Unsupported sync state format");
+            }
+            return {
+                syncId: item.syncId,
+                deletedAt: item.deletedAt,
+                deviceId: item.deviceId || localDeviceId
+            };
+        });
+
+        return {series, deleted};
     }
 
 
@@ -148,8 +169,10 @@ export default class SyncRepository {
         if (date.toDate) {
             return date.toDate().toISOString().split("T")[0];
         }
-        const timezoneOffset = date.getTimezoneOffset() * 60000;
-        return new Date(date.getTime() - timezoneOffset).toISOString().split("T")[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
     }
 
 

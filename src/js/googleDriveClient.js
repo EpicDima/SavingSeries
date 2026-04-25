@@ -8,17 +8,26 @@ export default class GoogleDriveClient {
     }
 
 
+    static isConflictError(error) {
+        return error instanceof GoogleDriveError && error.status === 412;
+    }
+
+
     async findAppDataFileByName(name) {
         const query = `name='${this.#escapeDriveQueryValue(name)}' and trashed=false`;
         const params = new URLSearchParams({
             spaces: "appDataFolder",
             q: query,
-            fields: "files(id,name,modifiedTime)",
-            pageSize: "1"
+            fields: "files(id,name,modifiedTime,version,etag)",
+            orderBy: "modifiedTime desc",
+            pageSize: "10"
         });
         const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files?${params.toString()}`);
         const data = await response.json();
-        return data.files?.[0] || null;
+        if ((data.files || []).length > 1) {
+            throw new Error(`Multiple Google Drive sync state files found: ${data.files.length}`);
+        }
+        return data.files?.[0] ? this.#withEtag(data.files[0]) : null;
     }
 
 
@@ -33,36 +42,60 @@ export default class GoogleDriveClient {
         if (!file) {
             return null;
         }
-        return this.readJsonFile(file.id);
+        const content = await this.readJsonFile(file.id);
+        return {file, content};
+    }
+
+
+    async readJsonFileById(fileId) {
+        const [file, content] = await Promise.all([
+            this.getFileMetadata(fileId),
+            this.readJsonFile(fileId)
+        ]);
+        return {file, content};
+    }
+
+
+    async getFileMetadata(fileId) {
+        const params = new URLSearchParams({fields: "id,name,modifiedTime,version,etag"});
+        const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files/${fileId}?${params.toString()}`);
+        return this.#jsonWithEtag(response);
     }
 
 
     async createJsonFile(name, content) {
         const metadata = {
             name: name,
+            mimeType: "application/json",
             parents: ["appDataFolder"]
         };
-        const response = await this.#upload("POST", `${GoogleDriveClient.DRIVE_UPLOAD_URL}/files?uploadType=multipart`, metadata, content);
-        return response.json();
+        const params = new URLSearchParams({uploadType: "multipart", fields: "id,name,modifiedTime,version,etag"});
+        const response = await this.#upload("POST", `${GoogleDriveClient.DRIVE_UPLOAD_URL}/files?${params.toString()}`, metadata, content);
+        return this.#jsonWithEtag(response);
     }
 
 
-    async updateJsonFile(fileId, content) {
-        const response = await this.#request(`${GoogleDriveClient.DRIVE_UPLOAD_URL}/files/${fileId}?uploadType=media`, {
+    async updateJsonFile(fileId, content, etag = null) {
+        const params = new URLSearchParams({uploadType: "media", fields: "id,name,modifiedTime,version,etag"});
+        const headers = {
+            "Content-Type": "application/json; charset=UTF-8"
+        };
+        if (etag) {
+            headers["If-Match"] = etag;
+        }
+        const response = await this.#request(`${GoogleDriveClient.DRIVE_UPLOAD_URL}/files/${fileId}?${params.toString()}`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json; charset=UTF-8"
-            },
+            headers: headers,
             body: JSON.stringify(content)
         });
-        return response.json();
+        return this.#jsonWithEtag(response);
     }
 
 
     async createOrUpdateJsonFileByName(name, content) {
         const file = await this.findAppDataFileByName(name);
         if (file) {
-            return this.updateJsonFile(file.id, content);
+            return this.updateJsonFile(file.id, content, file.etag);
         }
         return this.createJsonFile(name, content);
     }
@@ -77,7 +110,7 @@ export default class GoogleDriveClient {
             }
         });
         if (!response.ok) {
-            throw new Error(`Google Drive request failed: ${response.status} ${await response.text()}`);
+            throw new GoogleDriveError(response.status, await response.text(), response.headers.get("Retry-After"));
         }
         return response;
     }
@@ -114,5 +147,39 @@ export default class GoogleDriveClient {
 
     #escapeDriveQueryValue(value) {
         return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+
+    async #jsonWithEtag(response) {
+        return this.#withEtag(await response.json(), response.headers.get("ETag"));
+    }
+
+
+    #withEtag(file, etag = null) {
+        return {
+            ...file,
+            etag: etag || file.etag || null
+        };
+    }
+}
+
+
+export class GoogleDriveError extends Error {
+    constructor(status, body, retryAfter = null) {
+        super(`Google Drive request failed: ${status}`);
+        this.name = "GoogleDriveError";
+        this.status = status;
+        this.body = body;
+        this.retryAfter = retryAfter;
+    }
+
+
+    get isRetryable() {
+        return this.status === 429 || this.status >= 500;
+    }
+
+
+    get isUnauthorized() {
+        return this.status === 401;
     }
 }
