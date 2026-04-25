@@ -50,10 +50,12 @@ If both are deleted:
 
 Images are merged independently from metadata.
 
+All remote image files use static raw WebP (`image/webp`). The local IndexedDB representation may remain a Data URL, but merge and transfer decisions are based on `imageUpdatedAt` from metadata and `saving-series-images-index.json`, not on the encoded image body.
+
 For each `syncId`:
 
-- If local `imageUpdatedAt` is greater than remote, upload local image.
-- If remote `imageUpdatedAt` is greater than local, download remote image.
+- If local `imageUpdatedAt` is greater than remote, convert local image to WebP and upload it.
+- If remote `imageUpdatedAt` is greater than local, download the remote WebP image and store it locally.
 - If timestamps are equal, do nothing.
 
 Metadata sync must not wait for all images.

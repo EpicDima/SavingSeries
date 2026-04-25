@@ -14,7 +14,7 @@ Create these files in `appDataFolder`:
 saving-series-manifest.json
 saving-series-state.json
 saving-series-images-index.json
-saving-series-image-{syncId}.json
+saving-series-image-{syncId}.webp
 ```
 
 ## Manifest
@@ -77,6 +77,8 @@ saving-series-image-{syncId}.json
   "images": {
     "uuid": {
       "fileId": "google-drive-file-id",
+      "fileName": "saving-series-image-uuid.webp",
+      "mimeType": "image/webp",
       "imageUpdatedAt": 1777142400000,
       "size": 123456
     }
@@ -86,16 +88,17 @@ saving-series-image-{syncId}.json
 
 ## Image File
 
-Each image file contains one image.
+Each image file contains one image as raw WebP bytes, not JSON and not Base64.
 
-```json
-{
-  "schemaVersion": 1,
-  "syncId": "uuid",
-  "imageUpdatedAt": 1777142400000,
-  "image": "data:image/jpeg;base64,..."
-}
+```text
+Drive file name: saving-series-image-{syncId}.webp
+Content-Type: image/webp
+Body: raw WebP image bytes
 ```
+
+The app may keep using Data URLs internally in IndexedDB for compatibility with the existing UI, but Google Drive image sync must upload and download raw WebP files. Convert Data URL to `Blob` before upload and convert downloaded WebP bytes back to the local storage format after download.
+
+All synced images are static WebP. Animated images are flattened to the first rendered frame during conversion.
 
 ## Why Images Are Separate
 

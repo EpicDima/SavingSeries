@@ -113,8 +113,9 @@ Tasks:
 
 - Create `ImageSyncQueue`.
 - Add `saving-series-images-index.json` support.
-- Upload changed images separately.
-- Download remote images by priority.
+- Convert changed images to static WebP.
+- Upload changed images as separate raw `.webp` Drive files.
+- Download remote WebP images by priority.
 - Prioritize visible cards and opened full item.
 - Limit concurrent image requests.
 - Save downloaded images into `series_images`.
@@ -123,6 +124,7 @@ Acceptance criteria:
 
 - Metadata appears before images.
 - Images appear progressively.
+- Synced images are stored in Google Drive as raw WebP files, not Base64 JSON.
 - Opening a series prioritizes its image.
 - Large image sets do not freeze the UI.
 

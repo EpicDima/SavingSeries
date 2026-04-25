@@ -86,6 +86,8 @@ Cases:
 - Series without image.
 - Series with small image.
 - Series with near-limit image.
+- PNG image with transparency.
+- Animated image.
 - Many series with images.
 - Remote image missing from Drive.
 
@@ -93,6 +95,9 @@ Expected result:
 
 - Metadata loads before images.
 - Images appear progressively.
+- Uploaded images are raw WebP Drive files, not Base64 JSON.
+- Transparency is preserved when converted to WebP.
+- Animated images are flattened to the first rendered frame.
 - Missing image does not break metadata sync.
 - UI does not freeze.
 

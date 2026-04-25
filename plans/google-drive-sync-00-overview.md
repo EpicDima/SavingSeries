@@ -25,6 +25,7 @@ The current app stores user data locally only.
 - App starts from local IndexedDB first.
 - Light data syncs first: series metadata, deletion markers, settings.
 - Heavy data syncs later: images.
+- Synced images are converted to static WebP and stored as separate raw Drive files.
 - Local changes are saved immediately and uploaded in the background.
 - User can run manual sync.
 - App handles offline mode without blocking normal usage.
