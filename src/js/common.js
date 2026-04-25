@@ -71,10 +71,11 @@ export function dateToLocaleString(series) {
 export function dateObjectToInputString(series) {
     if (series) {
         if (series.data.date) {
-            if (series.data.date.toDate) {
-                return series.data.date.toDate().toISOString().split("T")[0];
-            }
-            return series.data.date.toISOString().split("T")[0];
+            const date = series.data.date.toDate ? series.data.date.toDate() : series.data.date;
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
         }
     }
     return "";
@@ -82,7 +83,14 @@ export function dateObjectToInputString(series) {
 
 
 export function dateInputStringToObject(date) {
-    return date === "" ? "" : new Date(date);
+    if (date === "") {
+        return "";
+    }
+    const [year, month, day] = String(date).split("-").map(Number);
+    if (!year || !month || !day) {
+        return new Date(date);
+    }
+    return new Date(year, month - 1, day);
 }
 
 

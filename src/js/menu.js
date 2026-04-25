@@ -36,6 +36,7 @@ export class Menu {
         this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
         this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
         this.changeLanguageSubMenuItem = this.fragment.getElementById("changeLanguageSubMenuItem");
+        this.settingsSubMenuTitle.setAttribute("aria-expanded", "false");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
         let position = this.app.localStorage.getNavBarPosition();
@@ -62,6 +63,12 @@ export class Menu {
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
+        this.#bindKeyboardClick(this.settingsSubMenuTitle);
+        this.#bindKeyboardClick(this.openAddingElementMenuItem);
+        this.#bindKeyboardClick(this.syncNowSubMenuItem);
+        this.#bindKeyboardClick(this.createBackupSubMenuItem);
+        this.#bindKeyboardClick(this.loadBackupSubMenuItem);
+        this.#bindKeyboardClick(this.changeLanguageSubMenuItem);
 
         this.navbar.addEventListener("dblclick", () => {
             let position = this.app.localStorage.getNavBarPosition();
@@ -84,28 +91,34 @@ export class Menu {
 
     async syncNow() {
         this.hideSubMenu();
+        if (this.syncNowSubMenuItem.classList.contains("disabled")) {
+            return;
+        }
         this.setSyncNowEnabled(false);
         try {
             await this.app.syncNow();
         } catch (error) {
             console.error("Google Drive sync failed:", error);
         } finally {
-            this.setSyncNowEnabled(true);
+            this.app.database.getGoogleDriveSyncState()
+                .then(state => this.updateSyncStatus(state));
         }
     }
 
 
     updateSyncStatus(state = {}) {
         const status = state.status || "idle";
+        const text = this.#getSyncStatusText(state);
         this.syncStatus.dataset.status = status;
-        this.syncStatus.textContent = this.#getSyncStatusText(state);
-        this.syncStatus.title = state.lastError || this.syncStatus.textContent;
+        this.syncStatus.textContent = state.lastError && state.status === "error" ? `${text}: ${state.lastError}` : text;
+        this.syncStatus.title = this.syncStatus.textContent;
         this.setSyncNowEnabled(status !== "syncing" && status !== "syncing-images" && status !== "signing-in" && status !== "offline");
     }
 
 
     setSyncNowEnabled(enabled) {
         this.syncNowSubMenuItem.classList.toggle("disabled", !enabled);
+        this.syncNowSubMenuItem.setAttribute("aria-disabled", String(!enabled));
     }
 
 
@@ -126,11 +139,13 @@ export class Menu {
     toggleSubMenu(e) {
         e.stopPropagation();
         this.settingsSubMenu.classList.toggle("hide");
+        this.settingsSubMenuTitle.setAttribute("aria-expanded", String(!this.settingsSubMenu.classList.contains("hide")));
     }
 
 
     hideSubMenu() {
         hideElement(this.settingsSubMenu);
+        this.settingsSubMenuTitle.setAttribute("aria-expanded", "false");
     }
 
 
@@ -138,5 +153,15 @@ export class Menu {
         if (!this.settingsSubMenu.contains(e.target) && !this.settingsSubMenuTitle.contains(e.target)) {
             this.hideSubMenu();
         }
+    }
+
+
+    #bindKeyboardClick(element) {
+        element.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                element.click();
+            }
+        });
     }
 }

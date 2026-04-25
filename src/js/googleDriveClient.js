@@ -15,21 +15,43 @@ export default class GoogleDriveClient {
     }
 
 
+    static isNotFoundError(error) {
+        return error instanceof GoogleDriveError && error.status === 404;
+    }
+
+
     async findAppDataFileByName(name) {
         const query = `name='${this.#escapeDriveQueryValue(name)}' and trashed=false`;
         const params = new URLSearchParams({
             spaces: "appDataFolder",
             q: query,
-            fields: "files(id,name,modifiedTime,version,etag)",
+            fields: "files(id,name,modifiedTime,version,size)",
             orderBy: "modifiedTime desc",
             pageSize: "10"
         });
         const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files?${params.toString()}`);
         const data = await response.json();
-        if ((data.files || []).length > 1) {
-            throw new Error(`Multiple Google Drive files named ${name} found: ${data.files.length}`);
+        const files = data.files || [];
+        if (files.length > 1) {
+            throw new Error(`Duplicate Google Drive appDataFolder files found for ${name}`);
         }
-        return data.files?.[0] ? this.#withEtag(data.files[0]) : null;
+        return files[0] ? this.getFileMetadata(files[0].id) : null;
+    }
+
+
+    async assertAppDataFileUnique(name) {
+        const query = `name='${this.#escapeDriveQueryValue(name)}' and trashed=false`;
+        const params = new URLSearchParams({
+            spaces: "appDataFolder",
+            q: query,
+            fields: "files(id,name,modifiedTime,version,size)",
+            pageSize: "2"
+        });
+        const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files?${params.toString()}`);
+        const data = await response.json();
+        if ((data.files || []).length > 1) {
+            throw new Error(`Duplicate Google Drive appDataFolder files found for ${name}`);
+        }
     }
 
 
@@ -50,16 +72,14 @@ export default class GoogleDriveClient {
 
 
     async readJsonFileById(fileId) {
-        const [file, content] = await Promise.all([
-            this.getFileMetadata(fileId),
-            this.readJsonFile(fileId)
-        ]);
+        const file = await this.getFileMetadata(fileId);
+        const content = await this.readJsonFile(fileId);
         return {file, content};
     }
 
 
     async getFileMetadata(fileId) {
-        const params = new URLSearchParams({fields: "id,name,modifiedTime,version,etag"});
+        const params = new URLSearchParams({fields: "id,name,modifiedTime,version,size"});
         const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files/${fileId}?${params.toString()}`);
         return this.#jsonWithEtag(response);
     }
@@ -71,14 +91,14 @@ export default class GoogleDriveClient {
             mimeType: "application/json",
             parents: ["appDataFolder"]
         };
-        const params = new URLSearchParams({uploadType: "multipart", fields: "id,name,modifiedTime,version,etag"});
+        const params = new URLSearchParams({uploadType: "multipart", fields: "id,name,modifiedTime,version"});
         const response = await this.#upload("POST", `${GoogleDriveClient.DRIVE_UPLOAD_URL}/files?${params.toString()}`, metadata, content);
         return this.#jsonWithEtag(response);
     }
 
 
     async updateJsonFile(fileId, content, etag = null) {
-        const params = new URLSearchParams({uploadType: "media", fields: "id,name,modifiedTime,version,etag"});
+        const params = new URLSearchParams({uploadType: "media", fields: "id,name,modifiedTime,version"});
         const headers = {
             "Content-Type": "application/json; charset=UTF-8"
         };
@@ -106,7 +126,7 @@ export default class GoogleDriveClient {
             mimeType: mimeType,
             parents: ["appDataFolder"]
         };
-        const params = new URLSearchParams({uploadType: "multipart", fields: "id,name,modifiedTime,version,etag,size"});
+        const params = new URLSearchParams({uploadType: "multipart", fields: "id,name,modifiedTime,version,size"});
         const response = await this.#multipartUpload("POST", `${GoogleDriveClient.DRIVE_UPLOAD_URL}/files?${params.toString()}`,
             metadata, blob, mimeType);
         return this.#jsonWithEtag(response);
@@ -114,13 +134,14 @@ export default class GoogleDriveClient {
 
 
     async updateBlobFile(fileId, blob, mimeType = GoogleDriveClient.IMAGE_MIME_TYPE, etag = null) {
-        const params = new URLSearchParams({uploadType: "media", fields: "id,name,modifiedTime,version,etag,size"});
-        const headers = {
-            "Content-Type": mimeType
-        };
-        if (etag) {
-            headers["If-Match"] = etag;
+        if (!etag) {
+            throw new Error("Google Drive file ETag is required for image update");
         }
+        const params = new URLSearchParams({uploadType: "media", fields: "id,name,modifiedTime,version,size"});
+        const headers = {
+            "Content-Type": mimeType,
+            "If-Match": etag
+        };
         const response = await this.#request(`${GoogleDriveClient.DRIVE_UPLOAD_URL}/files/${fileId}?${params.toString()}`, {
             method: "PATCH",
             headers: headers,
@@ -130,9 +151,9 @@ export default class GoogleDriveClient {
     }
 
 
-    async createOrUpdateBlobFileByName(name, blob, mimeType = GoogleDriveClient.IMAGE_MIME_TYPE, fileId = null) {
+    async createOrUpdateBlobFileByName(name, blob, mimeType = GoogleDriveClient.IMAGE_MIME_TYPE, fileId = null, etag = null) {
         if (fileId) {
-            return this.updateBlobFile(fileId, blob, mimeType);
+            return this.updateBlobFile(fileId, blob, mimeType, etag);
         }
         const file = await this.findAppDataFileByName(name);
         if (file) {
@@ -142,8 +163,12 @@ export default class GoogleDriveClient {
     }
 
 
-    async deleteFile(fileId) {
-        await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files/${fileId}`, {method: "DELETE"});
+    async deleteFile(fileId, etag = null) {
+        if (!etag) {
+            throw new Error("Google Drive file ETag is required for delete");
+        }
+        const headers = {"If-Match": etag};
+        await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files/${fileId}`, {method: "DELETE", headers});
     }
 
 
@@ -239,7 +264,7 @@ export class GoogleDriveError extends Error {
 
 
     get isRetryable() {
-        return this.status === 429 || this.status >= 500;
+        return this.status === 429 || this.status >= 500 || (this.status === 403 && /rateLimitExceeded|userRateLimitExceeded/i.test(this.body || ""));
     }
 
 

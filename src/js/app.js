@@ -10,7 +10,7 @@ import LocalStorage from "./localStorage";
 import SyncRepository from "./syncRepository";
 import GoogleAuthService from "./googleAuthService";
 import GoogleDriveClient, {GoogleDriveError} from "./googleDriveClient";
-import SyncService from "./syncService";
+import SyncService, {SyncRestartRequiredError} from "./syncService";
 import ImageSyncQueue from "./imageSyncQueue";
 
 
@@ -92,6 +92,7 @@ export default class App {
             importState: async (state) => {
                 this.clearRuntime();
                 await this.syncRepository.applyMergedState(state);
+                await this.database.markGoogleDriveSyncDirty();
                 this.initialize();
             },
             signIn: () => this.signInToGoogleDrive(),
@@ -125,10 +126,16 @@ export default class App {
             (id) => this.onInitialSplitSeriesEnd(id));
         this.database.getGoogleDriveSyncState()
             .then(state => {
-                this.menu.updateSyncStatus(this.#withCurrentNetworkStatus(state));
-                if (state.dirty) {
-                    this.scheduleAutoSync();
-                }
+                const normalizedState = this.#normalizeStartupSyncState(state);
+                const updatePromise = normalizedState === state
+                    ? Promise.resolve(normalizedState)
+                    : this.database.updateGoogleDriveSyncState(normalizedState);
+                updatePromise.then(nextState => {
+                    this.menu.updateSyncStatus(this.#withCurrentNetworkStatus(nextState));
+                    if (nextState.dirty) {
+                        this.scheduleAutoSync();
+                    }
+                });
             });
         App.scrollToTop();
         window.i18n.applyTo(document.body);
@@ -277,6 +284,11 @@ export default class App {
                 this.menu.updateSyncStatus(state);
                 return null;
             }
+            if (!this.googleAuthService.isConfigured()) {
+                const state = await this.database.updateGoogleDriveSyncState({status: "sign-in-required"});
+                this.menu.updateSyncStatus(state);
+                return null;
+            }
             if (this.syncInProgress) {
                 return null;
             }
@@ -300,6 +312,10 @@ export default class App {
 
 
     scheduleAutoSync() {
+        if (!this.googleAuthService.isConfigured()) {
+            this.database.getGoogleDriveSyncState().then(state => this.menu.updateSyncStatus(state));
+            return;
+        }
         if (!navigator.onLine) {
             this.database.updateGoogleDriveSyncState({status: "offline"})
                 .then(state => this.menu.updateSyncStatus(state));
@@ -319,11 +335,18 @@ export default class App {
 
 
     async autoSync({allowStalePull = false} = {}) {
-        if (!navigator.onLine || this.syncInProgress) {
+        if (!navigator.onLine) {
+            return;
+        }
+        if (this.syncInProgress) {
+            this.scheduleAutoSync();
             return;
         }
 
         const state = await this.database.getGoogleDriveSyncState();
+        if (!this.googleAuthService.isConfigured()) {
+            return;
+        }
         if (!this.googleAuthService.isSignedIn()) {
             try {
                 await this.ensureGoogleDriveToken({silent: true});
@@ -379,7 +402,7 @@ export default class App {
 
 
     #shouldRetrySync(error) {
-        return error instanceof GoogleDriveError && error.isRetryable;
+        return error instanceof SyncRestartRequiredError || error instanceof GoogleDriveError && error.isRetryable;
     }
 
 
@@ -388,7 +411,7 @@ export default class App {
         const fallbackDelay = App.AUTO_SYNC_RETRY_DELAYS[Math.min(this.autoSyncRetryCount, App.AUTO_SYNC_RETRY_DELAYS.length - 1)];
         this.autoSyncRetryCount++;
         clearTimeout(this.autoSyncTimeout);
-        this.autoSyncTimeout = setTimeout(() => this.autoSync(), retryAfterMs || fallbackDelay);
+        this.autoSyncTimeout = setTimeout(() => this.autoSync(), retryAfterMs || (error instanceof SyncRestartRequiredError ? App.AUTO_SYNC_DELAY : fallbackDelay));
     }
 
 
@@ -413,7 +436,7 @@ export default class App {
             this.scheduleAutoSync();
             return;
         }
-        if (document.visibilityState === "visible" && this.googleAuthService.isSignedIn() && this.#isSyncStale(state)) {
+        if (document.visibilityState === "visible" && this.googleAuthService.isConfigured() && this.#isSyncStale(state)) {
             await this.autoSync({allowStalePull: true});
         }
     }
@@ -425,8 +448,35 @@ export default class App {
 
 
     #withCurrentNetworkStatus(state) {
-        if (!navigator.onLine && state.status !== "error") {
+        if (!navigator.onLine) {
             return {...state, status: "offline"};
+        }
+        if (state.status === "offline") {
+            return {...state, status: state.dirty ? "pending" : "idle"};
+        }
+        return state;
+    }
+
+
+    #normalizeStartupSyncState(state) {
+        const transientStatuses = new Set(["syncing", "syncing-images", "signing-in", "reading", "writing"]);
+        if (transientStatuses.has(state.status)) {
+            return {
+                ...state,
+                status: state.dirty ? "pending" : "idle"
+            };
+        }
+        if (navigator.onLine && state.status === "offline") {
+            return {
+                ...state,
+                status: state.dirty ? "pending" : "idle"
+            };
+        }
+        if (!navigator.onLine) {
+            return {
+                ...state,
+                status: "offline"
+            };
         }
         return state;
     }

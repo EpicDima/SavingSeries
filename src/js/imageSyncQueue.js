@@ -14,11 +14,13 @@ export default class ImageSyncQueue {
     }
 
 
-    async syncImages(mergedState, remoteIndexFileState = null, localState = mergedState, remoteState = mergedState) {
+    async syncImages(mergedState, remoteIndexFileState = null, localState = mergedState, remoteState = mergedState,
+        assertCanMutate = async () => {}) {
         const remoteIndex = this.#normalizeIndex(remoteIndexFileState?.content);
         const remoteImages = remoteIndex.images || {};
         const localSeries = this.#mapSeriesBySyncId(localState.series);
         const remoteSeries = this.#mapSeriesBySyncId(remoteState.series);
+        const localImageInfo = await this.database.getSeriesImageInfoBySyncId();
         const deletedSyncIds = new Set((mergedState.deleted || []).map(item => item.syncId));
         const uploadTasks = [];
         const downloadTasks = [];
@@ -26,21 +28,34 @@ export default class ImageSyncQueue {
         const localDeleteTasks = [];
 
         for (const item of mergedState.series || []) {
+            const mergedImageUpdatedAt = Number(item.imageUpdatedAt || 0);
             const localImageUpdatedAt = Number(localSeries.get(item.syncId)?.imageUpdatedAt || 0);
             const remoteMetadataImageUpdatedAt = Number(remoteSeries.get(item.syncId)?.imageUpdatedAt || 0);
             const remoteImageUpdatedAt = Number(remoteImages[item.syncId]?.imageUpdatedAt || 0);
-            if (!Number(item.imageUpdatedAt || 0)) {
+            const hasLocalImage = Boolean(localImageInfo.get(item.syncId)?.hasImage);
+            if (!mergedImageUpdatedAt) {
                 if (remoteImages[item.syncId]) {
                     deleteTasks.push({syncId: item.syncId, remote: remoteImages[item.syncId]});
                 }
                 continue;
             }
-            if (localImageUpdatedAt > remoteImageUpdatedAt && localImageUpdatedAt >= remoteMetadataImageUpdatedAt) {
-                uploadTasks.push({syncId: item.syncId, imageUpdatedAt: item.imageUpdatedAt, remote: remoteImages[item.syncId]});
-            } else if (remoteImageUpdatedAt > localImageUpdatedAt && remoteImages[item.syncId]?.fileId) {
+            if (mergedImageUpdatedAt === localImageUpdatedAt && localImageUpdatedAt > remoteImageUpdatedAt
+                && localImageUpdatedAt >= remoteMetadataImageUpdatedAt && hasLocalImage) {
+                uploadTasks.push({syncId: item.syncId, imageUpdatedAt: mergedImageUpdatedAt, remote: remoteImages[item.syncId]});
+            } else if (mergedImageUpdatedAt === localImageUpdatedAt && !hasLocalImage
+                && remoteImages[item.syncId]?.fileId && remoteImageUpdatedAt === mergedImageUpdatedAt) {
+                downloadTasks.push({syncId: item.syncId, imageUpdatedAt: mergedImageUpdatedAt, remote: remoteImages[item.syncId]});
+            } else if (mergedImageUpdatedAt === remoteImageUpdatedAt && remoteImages[item.syncId]?.fileId
+                && (remoteImageUpdatedAt > localImageUpdatedAt || !hasLocalImage)) {
                 downloadTasks.push({syncId: item.syncId, imageUpdatedAt: remoteImageUpdatedAt, remote: remoteImages[item.syncId]});
-            } else if (remoteMetadataImageUpdatedAt > localImageUpdatedAt && !remoteImages[item.syncId]) {
-                localDeleteTasks.push({syncId: item.syncId, imageUpdatedAt: remoteMetadataImageUpdatedAt});
+            } else if (mergedImageUpdatedAt > localImageUpdatedAt) {
+                if (remoteImages[item.syncId]?.fileId && remoteImageUpdatedAt === mergedImageUpdatedAt) {
+                    downloadTasks.push({syncId: item.syncId, imageUpdatedAt: mergedImageUpdatedAt, remote: remoteImages[item.syncId]});
+                } else if (!remoteImages[item.syncId]?.fileId && remoteMetadataImageUpdatedAt === mergedImageUpdatedAt) {
+                    localDeleteTasks.push({syncId: item.syncId, imageUpdatedAt: mergedImageUpdatedAt});
+                } else {
+                    throw new Error(`Google Drive image is missing for ${item.syncId}`);
+                }
             }
         }
 
@@ -51,9 +66,12 @@ export default class ImageSyncQueue {
         }
 
         const nextImages = {...remoteImages};
-        await this.#runLimited(deleteTasks, ImageSyncQueue.MAX_CONCURRENT_DELETES, task => this.#deleteRemoteImage(task, nextImages));
+        await assertCanMutate();
+        await this.#hydrateMutationEtags([...deleteTasks, ...uploadTasks]);
+        await assertCanMutate();
+        await this.#runLimited(deleteTasks, ImageSyncQueue.MAX_CONCURRENT_DELETES, task => this.#deleteRemoteImage(task, nextImages, assertCanMutate));
         await this.#runLimited(localDeleteTasks, ImageSyncQueue.MAX_CONCURRENT_DELETES, task => this.#deleteLocalImage(task));
-        await this.#runLimited(uploadTasks, ImageSyncQueue.MAX_CONCURRENT_UPLOADS, task => this.#uploadImage(task, nextImages));
+        await this.#runLimited(uploadTasks, ImageSyncQueue.MAX_CONCURRENT_UPLOADS, task => this.#uploadImage(task, nextImages, assertCanMutate));
         await this.#runLimited(downloadTasks, ImageSyncQueue.MAX_CONCURRENT_DOWNLOADS, task => this.#downloadImage(task));
 
         const nextIndex = {
@@ -62,7 +80,7 @@ export default class ImageSyncQueue {
             images: nextImages
         };
         const file = uploadTasks.length || downloadTasks.length || deleteTasks.length || !remoteIndexFileState?.file
-            ? await this.#writeRemoteIndex(remoteIndexFileState?.file, nextIndex)
+            ? await this.#writeRemoteIndex(remoteIndexFileState?.file, nextIndex, assertCanMutate)
             : remoteIndexFileState.file;
 
         return {
@@ -80,17 +98,23 @@ export default class ImageSyncQueue {
                 return await this.googleDriveClient.readJsonFileById(indexFileId);
             }
         } catch (error) {
-            console.warn("Stored Google Drive images index is unavailable, falling back to name lookup:", error);
+            if (!GoogleDriveClient.isNotFoundError(error)) {
+                throw error;
+            }
+            console.warn("Stored Google Drive images index is missing, falling back to name lookup:", error);
         }
         return this.googleDriveClient.readJsonFileByName(GoogleDriveClient.IMAGES_INDEX_FILE_NAME);
     }
 
 
-    async #writeRemoteIndex(remoteFile, index) {
+    async #writeRemoteIndex(remoteFile, index, assertCanMutate) {
+        await assertCanMutate();
         if (remoteFile?.id) {
             return this.googleDriveClient.updateJsonFile(remoteFile.id, index, remoteFile.etag);
         }
-        return this.googleDriveClient.createJsonFile(GoogleDriveClient.IMAGES_INDEX_FILE_NAME, index);
+        const file = await this.googleDriveClient.createJsonFile(GoogleDriveClient.IMAGES_INDEX_FILE_NAME, index);
+        await this.googleDriveClient.assertAppDataFileUnique(GoogleDriveClient.IMAGES_INDEX_FILE_NAME);
+        return file;
     }
 
 
@@ -120,23 +144,24 @@ export default class ImageSyncQueue {
     }
 
 
-    async #uploadImage(task, nextImages) {
+    async #uploadImage(task, nextImages, assertCanMutate) {
         const image = await this.database.getSeriesImageBySyncId(task.syncId);
         if (!image) {
-            await this.#deleteRemoteImage(task, nextImages);
-            delete nextImages[task.syncId];
+            await this.#deleteRemoteImage(task, nextImages, assertCanMutate);
             return;
         }
         const blob = await this.#dataUrlToWebpBlob(image);
+        await assertCanMutate();
         const fileName = this.#getImageFileName(task.syncId);
         const file = await this.googleDriveClient.createOrUpdateBlobFileByName(fileName, blob,
-            GoogleDriveClient.IMAGE_MIME_TYPE, task.remote?.fileId);
+            GoogleDriveClient.IMAGE_MIME_TYPE, task.remote?.fileId, task.remote?.etag);
         nextImages[task.syncId] = {
             fileId: file.id,
             fileName: fileName,
             mimeType: GoogleDriveClient.IMAGE_MIME_TYPE,
             imageUpdatedAt: task.imageUpdatedAt,
-            size: Number(file.size || blob.size || 0)
+            size: Number(file.size || blob.size || 0),
+            etag: file.etag || null
         };
     }
 
@@ -151,15 +176,28 @@ export default class ImageSyncQueue {
     }
 
 
-    async #deleteRemoteImage(task, nextImages) {
+    async #deleteRemoteImage(task, nextImages, assertCanMutate) {
         if (task.remote?.fileId) {
             try {
-                await this.googleDriveClient.deleteFile(task.remote.fileId);
+                await assertCanMutate();
+                await this.googleDriveClient.deleteFile(task.remote.fileId, task.remote.etag);
             } catch (error) {
-                console.warn("Failed to delete Google Drive image file:", error);
+                if (!GoogleDriveClient.isNotFoundError(error)) {
+                    throw error;
+                }
             }
         }
         delete nextImages[task.syncId];
+    }
+
+
+    async #hydrateMutationEtags(tasks) {
+        await Promise.all(tasks.map(async (task) => {
+            if (task.remote?.fileId && !task.remote.etag) {
+                const file = await this.googleDriveClient.getFileMetadata(task.remote.fileId);
+                task.remote.etag = file.etag;
+            }
+        }));
     }
 
 
@@ -203,17 +241,21 @@ export default class ImageSyncQueue {
 
     async #runLimited(tasks, concurrency, handler) {
         const queue = [...tasks];
+        const errors = [];
         const workers = Array.from({length: Math.min(concurrency, queue.length)}, async () => {
             while (queue.length > 0) {
                 const task = queue.shift();
                 try {
                     await handler(task);
                 } catch (error) {
-                    console.warn("Google Drive image sync task failed:", error);
+                    errors.push(error);
                 }
             }
         });
         await Promise.all(workers);
+        if (errors.length > 0) {
+            throw errors[0];
+        }
     }
 
 

@@ -1,6 +1,7 @@
 import Database from "./database";
 import Series from "./series";
 import LocalStorage from "./localStorage";
+import {SyncRestartRequiredError} from "./syncService";
 
 
 export default class SyncRepository {
@@ -37,41 +38,77 @@ export default class SyncRepository {
     }
 
 
-    async applyMergedState(state) {
+    async applyMergedState(state, {expectedGeneration = null} = {}) {
+        await this.#replaceState(state, {expectedGeneration});
+        this.#applySettings(state.settings);
+    }
+
+
+    async applyImportedState(state) {
+        await this.#replaceState(state, {markDirty: true});
+        this.#applySettings(state.settings);
+    }
+
+
+    async #replaceState(state, {expectedGeneration = null, markDirty = false} = {}) {
         const [existingImages, localDeviceId] = await Promise.all([
             this.#getExistingImagesBySyncId(),
             this.database.getDeviceId()
         ]);
         const preparedState = this.#prepareStateForApply(state, localDeviceId);
 
-        const transaction = this.database.database.transaction([
-            Database.SERIES_META_OBJECT_STORE_NAME,
-            Database.SERIES_IMAGES_OBJECT_STORE_NAME,
-            Database.SYNC_DELETED_OBJECT_STORE_NAME
-        ], "readwrite");
-        const metaStore = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME);
-        const imagesStore = transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
-        const deletedStore = transaction.objectStore(Database.SYNC_DELETED_OBJECT_STORE_NAME);
+        await new Promise((resolve, reject) => {
+            const transaction = this.database.database.transaction([
+                Database.SERIES_META_OBJECT_STORE_NAME,
+                Database.SERIES_IMAGES_OBJECT_STORE_NAME,
+                Database.SYNC_DELETED_OBJECT_STORE_NAME,
+                Database.SYNC_STATE_OBJECT_STORE_NAME
+            ], "readwrite");
+            const metaStore = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+            const imagesStore = transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
+            const deletedStore = transaction.objectStore(Database.SYNC_DELETED_OBJECT_STORE_NAME);
+            const syncStateStore = transaction.objectStore(Database.SYNC_STATE_OBJECT_STORE_NAME);
+            const generationRequest = syncStateStore.get(Database.LOCAL_GENERATION_KEY);
 
-        metaStore.clear();
-        imagesStore.clear();
-        deletedStore.clear();
+            generationRequest.onsuccess = () => {
+                const currentGeneration = Number(generationRequest.result?.value || 0);
+                if (expectedGeneration !== null && currentGeneration !== Number(expectedGeneration)) {
+                    transaction.abort();
+                    return;
+                }
 
-        for (const meta of preparedState.series) {
-            metaStore.put(meta);
+                metaStore.clear();
+                imagesStore.clear();
+                deletedStore.clear();
 
-            const existingImage = existingImages.get(meta.syncId);
-            if (existingImage && meta.imageUpdatedAt !== null) {
-                imagesStore.put({id: meta.id, image: existingImage});
-            }
+                for (const prepared of preparedState.images) {
+                    const meta = prepared.meta;
+                    metaStore.put(meta);
+
+                    const existingImage = existingImages.get(meta.syncId);
+                    if (prepared.image) {
+                        imagesStore.put({id: meta.id, image: prepared.image});
+                    } else if (existingImage?.image && Number(existingImage.imageUpdatedAt || 0) === Number(meta.imageUpdatedAt || 0)) {
+                        imagesStore.put({id: meta.id, image: existingImage.image});
+                    }
+                }
+
+                for (const item of preparedState.deleted) {
+                    deletedStore.put(item);
+                }
+
+                if (markDirty) {
+                    this.database.markGoogleDriveSyncDirtyInTransaction(transaction);
+                }
+            };
+            generationRequest.onerror = () => reject(generationRequest.error);
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(new SyncRestartRequiredError("Local data changed during sync; retrying"));
+        });
+        if (markDirty) {
+            window.dispatchEvent(new CustomEvent("savingseries:local-sync-dirty"));
         }
-
-        for (const item of preparedState.deleted) {
-            deletedStore.put(item);
-        }
-
-        await this.#waitForTransaction(transaction);
-        this.#applySettings(state.settings);
     }
 
 
@@ -100,7 +137,7 @@ export default class SyncRepository {
             syncIds.add(validated.syncId);
             const {image, ...meta} = validated;
             meta.id = nextId++;
-            return meta;
+            return {meta, image: image || ""};
         });
         const deleted = (state.deleted || []).map(item => {
             if (!item?.syncId || !item.deletedAt) {
@@ -113,7 +150,7 @@ export default class SyncRepository {
             };
         });
 
-        return {series, deleted};
+        return {series: series.map(item => item.meta), images: series, deleted};
     }
 
 
@@ -131,12 +168,15 @@ export default class SyncRepository {
             this.#getAll(Database.SERIES_META_OBJECT_STORE_NAME),
             this.#getAll(Database.SERIES_IMAGES_OBJECT_STORE_NAME)
         ]);
-        const syncIdsByLocalId = new Map(series.map(item => [item.id, item.syncId]));
+        const metaByLocalId = new Map(series.map(item => [item.id, item]));
         const imagesBySyncId = new Map();
         for (const image of images) {
-            const syncId = syncIdsByLocalId.get(image.id);
-            if (syncId && image.image) {
-                imagesBySyncId.set(syncId, image.image);
+            const meta = metaByLocalId.get(image.id);
+            if (meta?.syncId && image.image) {
+                imagesBySyncId.set(meta.syncId, {
+                    image: image.image,
+                    imageUpdatedAt: meta.imageUpdatedAt || null
+                });
             }
         }
         return imagesBySyncId;

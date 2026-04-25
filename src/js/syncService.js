@@ -5,6 +5,7 @@ import ImageSyncQueue from "./imageSyncQueue";
 
 export default class SyncService {
     static MAX_CONFLICT_RETRIES = 2;
+    static LOCK_RENEW_INTERVAL_MS = 30000;
 
     constructor(database, syncRepository, googleDriveClient, imageSyncQueue = new ImageSyncQueue(database, googleDriveClient)) {
         this.database = database;
@@ -20,23 +21,45 @@ export default class SyncService {
             await this.database.updateGoogleDriveSyncState({status: "pending"});
             return null;
         }
+        let renewInterval = null;
+        let lockLost = false;
         try {
-            return await this.#syncWithConflictRetry();
+            renewInterval = setInterval(async () => {
+                try {
+                    lockLost = !await this.database.renewSyncLock(lock);
+                } catch (error) {
+                    lockLost = true;
+                    console.warn("Failed to renew sync lock:", error);
+                }
+            }, SyncService.LOCK_RENEW_INTERVAL_MS);
+            return await this.#syncWithConflictRetry(async () => {
+                if (lockLost || !await this.database.validateSyncLock(lock)) {
+                    lockLost = true;
+                    throw new SyncRestartRequiredError("Google Drive sync lock was lost; retrying");
+                }
+            });
         } catch (error) {
-            await this.database.updateGoogleDriveSyncState({status: navigator.onLine ? "error" : "offline", lastError: error.message});
+            await this.database.updateGoogleDriveSyncState({
+                status: error instanceof SyncRestartRequiredError ? "pending" : (navigator.onLine ? "error" : "offline"),
+                lastError: error instanceof SyncRestartRequiredError ? null : error.message
+            });
             throw error;
         } finally {
+            if (renewInterval) {
+                clearInterval(renewInterval);
+            }
             await this.database.releaseSyncLock(lock);
         }
     }
 
 
-    async #syncWithConflictRetry() {
+    async #syncWithConflictRetry(assertLockActive) {
         for (let attempt = 0; attempt <= SyncService.MAX_CONFLICT_RETRIES; attempt++) {
             try {
-                return await this.#syncOnce();
+                return await this.#syncOnce(assertLockActive);
             } catch (error) {
-                if (!GoogleDriveClient.isConflictError(error) || attempt === SyncService.MAX_CONFLICT_RETRIES) {
+                if (!(GoogleDriveClient.isConflictError(error) || error instanceof SyncRestartRequiredError)
+                    || attempt === SyncService.MAX_CONFLICT_RETRIES) {
                     throw error;
                 }
             }
@@ -45,7 +68,7 @@ export default class SyncService {
     }
 
 
-    async #syncOnce() {
+    async #syncOnce(assertLockActive = () => {}) {
         await this.database.updateGoogleDriveSyncState({status: "syncing", lastError: null});
         const syncState = await this.database.getGoogleDriveSyncState();
         const initialGeneration = await this.database.getLocalGeneration();
@@ -57,11 +80,17 @@ export default class SyncService {
         ]);
         const remoteState = remoteFileState?.content || this.#createEmptyState();
         const mergedState = this.#mergeStates(localState, remoteState);
+        await this.#assertLocalGeneration(initialGeneration);
+        await assertLockActive();
 
-        await this.syncRepository.applyMergedState(mergedState);
+        await this.syncRepository.applyMergedState(mergedState, {expectedGeneration: initialGeneration});
+        await this.#assertLocalGeneration(initialGeneration);
+        await assertLockActive();
         const file = await this.#writeRemoteState(remoteFileState?.file, mergedState);
+        await assertLockActive();
         await this.database.updateGoogleDriveSyncState({status: "syncing-images"});
-        const imageResult = await this.imageSyncQueue.syncImages(mergedState, remoteIndexFileState, localState, remoteState);
+        const imageResult = await this.imageSyncQueue.syncImages(mergedState, remoteIndexFileState, localState, remoteState, assertLockActive);
+        await assertLockActive();
 
         const now = Date.now();
         await this.database.updateGoogleDriveSyncStateIfGeneration(initialGeneration, {
@@ -94,6 +123,13 @@ export default class SyncService {
     }
 
 
+    async #assertLocalGeneration(expectedGeneration) {
+        if (await this.database.getLocalGeneration() !== Number(expectedGeneration)) {
+            throw new SyncRestartRequiredError("Local data changed during sync; retrying");
+        }
+    }
+
+
     async syncAfterRemoteConflict() {
         await this.database.updateGoogleDriveSyncState({status: "pending"});
         return this.syncNow();
@@ -106,7 +142,10 @@ export default class SyncService {
                 return await this.googleDriveClient.readJsonFileById(stateFileId);
             }
         } catch (error) {
-            console.warn("Stored Google Drive state file is unavailable, falling back to name lookup:", error);
+            if (!GoogleDriveClient.isNotFoundError(error)) {
+                throw error;
+            }
+            console.warn("Stored Google Drive state file is missing, falling back to name lookup:", error);
         }
         return this.googleDriveClient.readJsonFileByName();
     }
@@ -116,7 +155,9 @@ export default class SyncService {
         if (remoteFile?.id) {
             return this.googleDriveClient.updateJsonFile(remoteFile.id, state, remoteFile.etag);
         }
-        return this.googleDriveClient.createJsonFile(GoogleDriveClient.STATE_FILE_NAME, state);
+        const file = await this.googleDriveClient.createJsonFile(GoogleDriveClient.STATE_FILE_NAME, state);
+        await this.googleDriveClient.assertAppDataFileUnique(GoogleDriveClient.STATE_FILE_NAME);
+        return file;
     }
 
 
@@ -176,7 +217,8 @@ export default class SyncService {
 
 
     #validateState(state) {
-        if (!state || state.schemaVersion !== SyncRepository.SCHEMA_VERSION || !Array.isArray(state.series)) {
+        if (!state || state.schemaVersion !== SyncRepository.SCHEMA_VERSION || !Array.isArray(state.series)
+            || (state.deleted && !Array.isArray(state.deleted))) {
             throw new Error("Unsupported sync state format");
         }
     }
@@ -280,5 +322,13 @@ export default class SyncService {
             Number(remote?.imageUpdatedAt || 0),
             Number(active.imageUpdatedAt || 0)
         ) || null;
+    }
+}
+
+
+export class SyncRestartRequiredError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "SyncRestartRequiredError";
     }
 }

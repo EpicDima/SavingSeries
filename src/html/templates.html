@@ -165,21 +165,21 @@
             <div class="nav-item">
                 <ul>
                     <li>
-                        <div id="openAddingElementMenuItem" data-i18n-key="add_new">Добавление</div>
+                        <div id="openAddingElementMenuItem" role="button" tabindex="0" data-i18n-key="add_new">Добавление</div>
                     </li>
                     <li>
-                        <div id="settingsSubMenuTitle" class="submenu-title" data-i18n-key="settings">Настройки</div>
+                        <div id="settingsSubMenuTitle" class="submenu-title" role="button" tabindex="0" aria-controls="settingsSubMenu" aria-expanded="false" data-i18n-key="settings">Настройки</div>
                         <div id="settingsSubMenu" class="submenu hide">
-                            <div id="syncNowSubMenuItem" data-i18n-key="sync_now">Синхронизировать</div>
-                            <div id="createBackupSubMenuItem" data-i18n-key="create_backup">Создать Backup</div>
-                            <div id="loadBackupSubMenuItem" data-i18n-key="load_backup">Загрузить Backup</div>
-                            <div id="changeLanguageSubMenuItem" class="submenu-item" data-i18n-key="change_language">
+                            <div id="syncNowSubMenuItem" role="button" tabindex="0" data-i18n-key="sync_now">Синхронизировать</div>
+                            <div id="createBackupSubMenuItem" role="button" tabindex="0" data-i18n-key="create_backup">Создать Backup</div>
+                            <div id="loadBackupSubMenuItem" role="button" tabindex="0" data-i18n-key="load_backup">Загрузить Backup</div>
+                            <div id="changeLanguageSubMenuItem" class="submenu-item" role="button" tabindex="0" data-i18n-key="change_language">
                                 Сменить язык
                             </div>
                         </div>
                     </li>
                 </ul>
-                <div id="syncStatus" class="sync-status" data-status="idle" data-i18n-key="sync_status_idle">
+                <div id="syncStatus" class="sync-status" role="status" aria-live="polite" data-status="idle" data-i18n-key="sync_status_idle">
                     Sync idle
                 </div>
             </div>

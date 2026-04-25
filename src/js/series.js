@@ -22,7 +22,7 @@ export default class Series {
                             name: series.name,
                             season: season,
                             episode: episode,
-                            date: series.date ? (series.date.toDate ? series.date.toDate() : new Date(series.date)) : "",
+                            date: series.date ? (series.date.toDate ? series.date.toDate() : Series.#parseDate(series.date)) : "",
                             site: series.site ? series.site : "",
                             image: series.image || "",
                             note: series.note ? series.note : "",
@@ -39,6 +39,18 @@ export default class Series {
             }
         }
         return null;
+    }
+
+
+    static #parseDate(date) {
+        if (date instanceof Date) {
+            return date;
+        }
+        const [year, month, day] = String(date).split("-").map(Number);
+        if (year && month && day) {
+            return new Date(year, month - 1, day);
+        }
+        return new Date(date);
     }
 
 

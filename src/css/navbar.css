@@ -165,6 +165,11 @@
     color: #888;
 }
 
+.navbar [role="button"]:focus-visible {
+    outline: 2px solid #8fc7ff;
+    outline-offset: 2px;
+}
+
 .navbar .sync-status {
     margin-top: 0.25rem;
     padding: 0 0.5rem;
