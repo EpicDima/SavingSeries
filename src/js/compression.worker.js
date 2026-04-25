@@ -5,7 +5,7 @@ self.onmessage = async (event) => {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(imageBitmap, 0, 0);
 
-    const compressedBlob = await canvas.convertToBlob({type: "image/jpeg", quality: 0.5});
+    const compressedBlob = await canvas.convertToBlob({type: "image/webp", quality: 0.8});
 
     self.postMessage({compressedBlob});
 };

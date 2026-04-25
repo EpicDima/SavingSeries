@@ -1,5 +1,7 @@
 export default class GoogleDriveClient {
     static STATE_FILE_NAME = "saving-series-state.json";
+    static IMAGES_INDEX_FILE_NAME = "saving-series-images-index.json";
+    static IMAGE_MIME_TYPE = "image/webp";
     static DRIVE_API_URL = "https://www.googleapis.com/drive/v3";
     static DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3";
 
@@ -25,7 +27,7 @@ export default class GoogleDriveClient {
         const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files?${params.toString()}`);
         const data = await response.json();
         if ((data.files || []).length > 1) {
-            throw new Error(`Multiple Google Drive sync state files found: ${data.files.length}`);
+            throw new Error(`Multiple Google Drive files named ${name} found: ${data.files.length}`);
         }
         return data.files?.[0] ? this.#withEtag(data.files[0]) : null;
     }
@@ -92,6 +94,59 @@ export default class GoogleDriveClient {
     }
 
 
+    async readBlobFile(fileId) {
+        const response = await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files/${fileId}?alt=media`);
+        return response.blob();
+    }
+
+
+    async createBlobFile(name, blob, mimeType = GoogleDriveClient.IMAGE_MIME_TYPE) {
+        const metadata = {
+            name: name,
+            mimeType: mimeType,
+            parents: ["appDataFolder"]
+        };
+        const params = new URLSearchParams({uploadType: "multipart", fields: "id,name,modifiedTime,version,etag,size"});
+        const response = await this.#multipartUpload("POST", `${GoogleDriveClient.DRIVE_UPLOAD_URL}/files?${params.toString()}`,
+            metadata, blob, mimeType);
+        return this.#jsonWithEtag(response);
+    }
+
+
+    async updateBlobFile(fileId, blob, mimeType = GoogleDriveClient.IMAGE_MIME_TYPE, etag = null) {
+        const params = new URLSearchParams({uploadType: "media", fields: "id,name,modifiedTime,version,etag,size"});
+        const headers = {
+            "Content-Type": mimeType
+        };
+        if (etag) {
+            headers["If-Match"] = etag;
+        }
+        const response = await this.#request(`${GoogleDriveClient.DRIVE_UPLOAD_URL}/files/${fileId}?${params.toString()}`, {
+            method: "PATCH",
+            headers: headers,
+            body: blob
+        });
+        return this.#jsonWithEtag(response);
+    }
+
+
+    async createOrUpdateBlobFileByName(name, blob, mimeType = GoogleDriveClient.IMAGE_MIME_TYPE, fileId = null) {
+        if (fileId) {
+            return this.updateBlobFile(fileId, blob, mimeType);
+        }
+        const file = await this.findAppDataFileByName(name);
+        if (file) {
+            return this.updateBlobFile(file.id, blob, mimeType, file.etag);
+        }
+        return this.createBlobFile(name, blob, mimeType);
+    }
+
+
+    async deleteFile(fileId) {
+        await this.#request(`${GoogleDriveClient.DRIVE_API_URL}/files/${fileId}`, {method: "DELETE"});
+    }
+
+
     async createOrUpdateJsonFileByName(name, content) {
         const file = await this.findAppDataFileByName(name);
         if (file) {
@@ -117,6 +172,11 @@ export default class GoogleDriveClient {
 
 
     async #upload(method, url, metadata, content) {
+        return this.#multipartUpload(method, url, metadata, JSON.stringify(content), "application/json; charset=UTF-8");
+    }
+
+
+    async #multipartUpload(method, url, metadata, content, contentType) {
         const delimiter = "----SavingSeriesDriveBoundary";
         const parts = [];
         if (metadata) {
@@ -129,18 +189,22 @@ export default class GoogleDriveClient {
         }
         parts.push(
             `--${delimiter}`,
-            "Content-Type: application/json; charset=UTF-8",
+            `Content-Type: ${contentType}`,
             "",
-            JSON.stringify(content),
+            content,
             `--${delimiter}--`
         );
+        const bodyParts = [];
+        for (const part of parts) {
+            bodyParts.push(part, "\r\n");
+        }
 
         return this.#request(url, {
             method: method,
             headers: {
                 "Content-Type": `multipart/related; boundary=${delimiter}`
             },
-            body: parts.join("\r\n")
+            body: new Blob(bodyParts, {type: `multipart/related; boundary=${delimiter}`})
         });
     }
 

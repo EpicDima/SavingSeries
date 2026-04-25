@@ -100,7 +100,7 @@ export class Menu {
         this.syncStatus.dataset.status = status;
         this.syncStatus.textContent = this.#getSyncStatusText(state);
         this.syncStatus.title = state.lastError || this.syncStatus.textContent;
-        this.setSyncNowEnabled(status !== "syncing" && status !== "signing-in" && status !== "offline");
+        this.setSyncNowEnabled(status !== "syncing" && status !== "syncing-images" && status !== "signing-in" && status !== "offline");
     }
 
 

@@ -6,6 +6,10 @@ import LocalStorage from "./localStorage";
 export default class SyncRepository {
     static SCHEMA_VERSION = 1;
 
+    static sanitizeDriveFileNamePart(value) {
+        return String(value).replace(/[^a-zA-Z0-9_-]/g, "-");
+    }
+
     constructor(database, localStorage = new LocalStorage()) {
         this.database = database;
         this.localStorage = localStorage;

@@ -178,6 +178,7 @@
 .navbar .sync-status[data-status="signing-in"],
 .navbar .sync-status[data-status="reading"],
 .navbar .sync-status[data-status="writing"],
+.navbar .sync-status[data-status="syncing-images"],
 .navbar .sync-status[data-status="pending"] {
     color: #8fc7ff;
 }

@@ -439,6 +439,81 @@ export default class Database {
         });
     }
 
+
+    async getSeriesMetaBySyncId(syncId) {
+        return new Promise((resolve, reject) => {
+            const request = this.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).openCursor();
+            request.onsuccess = () => {
+                const cursor = request.result;
+                if (!cursor) {
+                    resolve(null);
+                    return;
+                }
+                if (cursor.value.syncId === syncId) {
+                    resolve(cursor.value);
+                    return;
+                }
+                cursor.continue();
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+
+    async getSeriesImageBySyncId(syncId) {
+        const meta = await this.getSeriesMetaBySyncId(syncId);
+        return meta ? this.getSeriesImage(meta.id) : null;
+    }
+
+
+    async putSeriesImageBySyncIdIfCurrent(syncId, image, imageUpdatedAt) {
+        return this.#updateSeriesImageBySyncIdIfCurrent(syncId, image, imageUpdatedAt);
+    }
+
+
+    async deleteSeriesImageBySyncIdIfCurrent(syncId, imageUpdatedAt) {
+        return this.#updateSeriesImageBySyncIdIfCurrent(syncId, null, imageUpdatedAt);
+    }
+
+
+    async #updateSeriesImageBySyncIdIfCurrent(syncId, image, imageUpdatedAt) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction([
+                Database.SERIES_META_OBJECT_STORE_NAME,
+                Database.SERIES_IMAGES_OBJECT_STORE_NAME
+            ], "readwrite");
+            const metaStore = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+            const imagesStore = transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
+            const request = metaStore.openCursor();
+            let updated = false;
+
+            request.onsuccess = () => {
+                const cursor = request.result;
+                if (!cursor) {
+                    return;
+                }
+                const meta = cursor.value;
+                if (meta.syncId !== syncId) {
+                    cursor.continue();
+                    return;
+                }
+                if (Number(meta.imageUpdatedAt || 0) !== Number(imageUpdatedAt || 0)) {
+                    return;
+                }
+                if (image) {
+                    imagesStore.put({id: meta.id, image: image});
+                } else {
+                    imagesStore.delete(meta.id);
+                }
+                updated = true;
+            };
+            request.onerror = () => reject(request.error);
+            transaction.oncomplete = () => resolve(updated);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
+    }
+
     foreach(func, funcOnEnd = null) {
         let request = this.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).openCursor();
         let id = 0;

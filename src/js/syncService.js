@@ -1,14 +1,16 @@
 import GoogleDriveClient from "./googleDriveClient";
 import SyncRepository from "./syncRepository";
+import ImageSyncQueue from "./imageSyncQueue";
 
 
 export default class SyncService {
     static MAX_CONFLICT_RETRIES = 2;
 
-    constructor(database, syncRepository, googleDriveClient) {
+    constructor(database, syncRepository, googleDriveClient, imageSyncQueue = new ImageSyncQueue(database, googleDriveClient)) {
         this.database = database;
         this.syncRepository = syncRepository;
         this.googleDriveClient = googleDriveClient;
+        this.imageSyncQueue = imageSyncQueue;
     }
 
 
@@ -48,27 +50,32 @@ export default class SyncService {
         const syncState = await this.database.getGoogleDriveSyncState();
         const initialGeneration = await this.database.getLocalGeneration();
 
-        const [localState, remoteFileState] = await Promise.all([
+        const [localState, remoteFileState, remoteIndexFileState] = await Promise.all([
             this.syncRepository.getLocalState(),
-            this.#readRemoteState(syncState.stateFileId)
+            this.#readRemoteState(syncState.stateFileId),
+            this.imageSyncQueue.readRemoteIndex(syncState.imagesIndexFileId)
         ]);
         const remoteState = remoteFileState?.content || this.#createEmptyState();
         const mergedState = this.#mergeStates(localState, remoteState);
 
         await this.syncRepository.applyMergedState(mergedState);
         const file = await this.#writeRemoteState(remoteFileState?.file, mergedState);
+        await this.database.updateGoogleDriveSyncState({status: "syncing-images"});
+        const imageResult = await this.imageSyncQueue.syncImages(mergedState, remoteIndexFileState, localState, remoteState);
 
         const now = Date.now();
         await this.database.updateGoogleDriveSyncStateIfGeneration(initialGeneration, {
             signedIn: true,
             dirty: false,
-            status: "metadata-synced",
+            status: "synced",
             lastSyncAt: now,
             lastPullAt: now,
             lastPushAt: now,
             lastError: null,
             remoteUpdatedAt: mergedState.updatedAt,
-            stateFileId: file.id
+            stateFileId: file.id,
+            imagesIndexFileId: imageResult.indexFileId,
+            lastImageSyncAt: now
         }, {
             signedIn: true,
             dirty: true,
@@ -78,7 +85,9 @@ export default class SyncService {
             lastPushAt: now,
             lastError: null,
             remoteUpdatedAt: mergedState.updatedAt,
-            stateFileId: file.id
+            stateFileId: file.id,
+            imagesIndexFileId: imageResult.indexFileId,
+            lastImageSyncAt: now
         });
 
         return mergedState;

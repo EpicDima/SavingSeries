@@ -11,6 +11,7 @@ import SyncRepository from "./syncRepository";
 import GoogleAuthService from "./googleAuthService";
 import GoogleDriveClient, {GoogleDriveError} from "./googleDriveClient";
 import SyncService from "./syncService";
+import ImageSyncQueue from "./imageSyncQueue";
 
 
 export default class App {
@@ -31,7 +32,8 @@ export default class App {
         this.syncRepository = new SyncRepository(this.database, this.localStorage);
         this.googleAuthService = new GoogleAuthService();
         this.googleDriveClient = new GoogleDriveClient(this.googleAuthService);
-        this.syncService = new SyncService(this.database, this.syncRepository, this.googleDriveClient);
+        this.imageSyncQueue = new ImageSyncQueue(this.database, this.googleDriveClient);
+        this.syncService = new SyncService(this.database, this.syncRepository, this.googleDriveClient, this.imageSyncQueue);
         this.autoSyncTimeout = null;
         this.syncInProgress = false;
         this.autoSyncRetryCount = 0;
@@ -98,6 +100,16 @@ export default class App {
             readRemoteState: () => this.readGoogleDriveState(),
             writeRemoteState: () => this.writeGoogleDriveState(),
             syncNow: () => this.syncNow(),
+            syncImages: async () => {
+                const localState = await this.syncRepository.getLocalState();
+                const syncState = await this.database.getGoogleDriveSyncState();
+                const remoteState = syncState.stateFileId
+                    ? await this.googleDriveClient.readJsonFileById(syncState.stateFileId)
+                    : await this.googleDriveClient.readJsonFileByName();
+                return this.imageSyncQueue.syncImages(localState,
+                    await this.imageSyncQueue.readRemoteIndex(syncState.imagesIndexFileId), localState,
+                    remoteState?.content || localState);
+            },
             isGoogleDriveConfigured: () => this.googleAuthService.isConfigured()
         };
 
