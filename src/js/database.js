@@ -9,7 +9,7 @@ export default class Database {
 
     static #DEVICE_ID_KEY = "deviceId";
     static #DEVICE_ID_LOCAL_STORAGE_KEY = "savingSeries.deviceId";
-    static #GOOGLE_DRIVE_SYNC_STATE_KEY = "googleDrive";
+    static GOOGLE_DRIVE_SYNC_STATE_KEY = "googleDrive";
 
     static #instance;
 
@@ -132,7 +132,7 @@ export default class Database {
 
     static #createDefaultGoogleDriveSyncState() {
         return {
-            key: Database.#GOOGLE_DRIVE_SYNC_STATE_KEY,
+            key: Database.GOOGLE_DRIVE_SYNC_STATE_KEY,
             signedIn: false,
             lastSyncAt: null,
             lastPullAt: null,
@@ -255,6 +255,27 @@ export default class Database {
             transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).put({id: meta.id, image: image});
         }
         await this.#waitForTransaction(transaction);
+    }
+
+
+    async getGoogleDriveSyncState() {
+        const state = await this.#getByKey(Database.SYNC_STATE_OBJECT_STORE_NAME, Database.GOOGLE_DRIVE_SYNC_STATE_KEY);
+        return state || Database.#createDefaultGoogleDriveSyncState();
+    }
+
+
+    async updateGoogleDriveSyncState(patch) {
+        const previous = await this.getGoogleDriveSyncState();
+        const next = {
+            ...previous,
+            ...patch,
+            key: Database.GOOGLE_DRIVE_SYNC_STATE_KEY
+        };
+        return new Promise((resolve, reject) => {
+            const request = this.getReadWriteObjectStore(Database.SYNC_STATE_OBJECT_STORE_NAME).put(next);
+            request.onsuccess = () => resolve(next);
+            request.onerror = () => reject(request.error);
+        });
     }
 
 

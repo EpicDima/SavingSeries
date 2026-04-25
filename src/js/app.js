@@ -8,6 +8,8 @@ import Series from "./series";
 import {Menu} from "./menu";
 import LocalStorage from "./localStorage";
 import SyncRepository from "./syncRepository";
+import GoogleAuthService from "./googleAuthService";
+import GoogleDriveClient from "./googleDriveClient";
 
 
 export default class App {
@@ -22,6 +24,8 @@ export default class App {
 
         this.localStorage = new LocalStorage();
         this.syncRepository = new SyncRepository(this.database, this.localStorage);
+        this.googleAuthService = new GoogleAuthService();
+        this.googleDriveClient = new GoogleDriveClient(this.googleAuthService);
         this.backup = new Backup(this.database, () => this.clearAll(), () => this.initialize());
 
         Series.onItemClickListener = (id) => this.openFullitem(id);
@@ -64,7 +68,13 @@ export default class App {
                 this.clearRuntime();
                 await this.syncRepository.applyMergedState(state);
                 this.initialize();
-            }
+            },
+            signIn: () => this.signInToGoogleDrive(),
+            signOut: () => this.signOutFromGoogleDrive(),
+            getGoogleDriveStatus: () => this.database.getGoogleDriveSyncState(),
+            readRemoteState: () => this.readGoogleDriveState(),
+            writeRemoteState: () => this.writeGoogleDriveState(),
+            isGoogleDriveConfigured: () => this.googleAuthService.isConfigured()
         };
 
         const fragment = new DocumentFragment();
@@ -172,6 +182,81 @@ export default class App {
         const listNames = constants.getListNames();
         for (const [id, container] of this.containers.entries()) {
             container.updateTitle(listNames.get(id));
+        }
+    }
+
+
+    async signInToGoogleDrive() {
+        try {
+            await this.database.updateGoogleDriveSyncState({status: "signing-in", lastError: null});
+            const response = await this.googleAuthService.signIn();
+            return this.database.updateGoogleDriveSyncState({
+                signedIn: true,
+                status: "signed-in",
+                lastError: null,
+                tokenExpiresAt: this.googleAuthService.expiresAt,
+                scope: response.scope || GoogleAuthService.DRIVE_APPDATA_SCOPE
+            });
+        } catch (error) {
+            await this.database.updateGoogleDriveSyncState({
+                signedIn: false,
+                status: "error",
+                lastError: error.message
+            });
+            throw error;
+        }
+    }
+
+
+    async signOutFromGoogleDrive() {
+        this.googleAuthService.signOut();
+        return this.database.updateGoogleDriveSyncState({
+            signedIn: false,
+            status: "signed-out",
+            lastError: null,
+            tokenExpiresAt: null
+        });
+    }
+
+
+    async readGoogleDriveState() {
+        try {
+            await this.database.updateGoogleDriveSyncState({status: "reading", lastError: null});
+            const state = await this.googleDriveClient.readJsonFileByName();
+            const update = {
+                status: state ? "read" : "missing",
+                lastPullAt: Date.now(),
+                lastError: null
+            };
+            if (state) {
+                update.remoteUpdatedAt = state.updatedAt || null;
+            }
+            await this.database.updateGoogleDriveSyncState({
+                ...update
+            });
+            return state;
+        } catch (error) {
+            await this.database.updateGoogleDriveSyncState({status: "error", lastError: error.message});
+            throw error;
+        }
+    }
+
+
+    async writeGoogleDriveState() {
+        try {
+            await this.database.updateGoogleDriveSyncState({status: "writing", lastError: null});
+            const state = await this.syncRepository.getLocalState();
+            const file = await this.googleDriveClient.createOrUpdateJsonFileByName(GoogleDriveClient.STATE_FILE_NAME, state);
+            return this.database.updateGoogleDriveSyncState({
+                status: "written",
+                lastPushAt: Date.now(),
+                lastSyncAt: Date.now(),
+                lastError: null,
+                stateFileId: file.id
+            });
+        } catch (error) {
+            await this.database.updateGoogleDriveSyncState({status: "error", lastError: error.message});
+            throw error;
         }
     }
 }
