@@ -165,6 +165,12 @@ export default class Database {
     }
 
 
+    async prepareImportedSeries(series) {
+        const deviceId = await this.getDeviceId();
+        return Database.#withMigratedSyncMetadata(series, series.updatedAt || Date.now(), deviceId, Boolean(series.image));
+    }
+
+
     getDeviceId() {
         if (this.deviceId) {
             return Promise.resolve(this.deviceId);
@@ -233,7 +239,9 @@ export default class Database {
             || previousMeta.site !== meta.site
             || previousMeta.note !== meta.note
             || previousMeta.status !== meta.status;
-        const imageChanged = Boolean(image) && image !== (previousImage || "");
+        const normalizedImage = image || "";
+        const normalizedPreviousImage = previousImage || "";
+        const imageChanged = normalizedImage !== normalizedPreviousImage;
         const hasSyncMetadata = meta.syncId && meta.updatedAt && meta.deviceId && meta.rev;
         const shouldBump = metaChanged || imageChanged || !hasSyncMetadata;
 
@@ -251,8 +259,10 @@ export default class Database {
             Database.SERIES_IMAGES_OBJECT_STORE_NAME
         ], "readwrite");
         transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME).put(meta);
-        if (image) {
-            transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).put({id: meta.id, image: image});
+        if (normalizedImage) {
+            transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).put({id: meta.id, image: normalizedImage});
+        } else if (previousImage) {
+            transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(meta.id);
         }
         await this.#waitForTransaction(transaction);
     }

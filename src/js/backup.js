@@ -72,16 +72,20 @@ export default class Backup {
                     await this.syncRepository.applyMergedState(data);
                 } else if (Array.isArray(data)) { // V1
                     this.clear();
+                    const preparedSeries = [];
+                    for (let series of data) {
+                        const temp = Series.validate(series);
+                        if (temp) {
+                            preparedSeries.push(await this.database.prepareImportedSeries(temp));
+                        }
+                    }
                     let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
                     let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
-                    for (let series of data) {
-                        let temp = Series.validate(series);
-                        if (temp) {
-                            const {image, ...meta} = temp;
-                            metaObjectStore.add(meta);
-                            if (image) {
-                                imagesObjectStore.add({id: meta.id, image: image});
-                            }
+                    for (let series of preparedSeries) {
+                        const {image, ...meta} = series;
+                        metaObjectStore.add(meta);
+                        if (image) {
+                            imagesObjectStore.add({id: meta.id, image: image});
                         }
                     }
                 }

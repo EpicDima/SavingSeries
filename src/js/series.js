@@ -259,7 +259,6 @@ export default class Series {
         if (this.data.image !== image) {
             this.data.image = image;
             await this.updateImage();
-            this.image.style.backgroundImage = `url("${this.data.image}")`;
             changed = true;
         }
         if (this.data.status !== status) {

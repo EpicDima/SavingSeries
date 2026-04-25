@@ -26,7 +26,10 @@ export default class App {
         this.syncRepository = new SyncRepository(this.database, this.localStorage);
         this.googleAuthService = new GoogleAuthService();
         this.googleDriveClient = new GoogleDriveClient(this.googleAuthService);
-        this.backup = new Backup(this.database, () => this.clearAll(), () => this.initialize());
+        this.backup = new Backup(this.database, () => this.clearAll(), () => {
+            this.clearRuntime();
+            this.initialize();
+        });
 
         Series.onItemClickListener = (id) => this.openFullitem(id);
 

@@ -69,7 +69,7 @@ export default class SyncRepository {
                 metaStore.put(meta);
 
                 const existingImage = existingImages.get(meta.syncId);
-                if (existingImage) {
+                if (existingImage && meta.imageUpdatedAt !== null) {
                     imagesStore.put({id: meta.id, image: existingImage});
                 }
             }

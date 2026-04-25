@@ -48,7 +48,13 @@ export default class GoogleDriveClient {
 
 
     async updateJsonFile(fileId, content) {
-        const response = await this.#upload("PATCH", `${GoogleDriveClient.DRIVE_UPLOAD_URL}/files/${fileId}?uploadType=media`, null, content);
+        const response = await this.#request(`${GoogleDriveClient.DRIVE_UPLOAD_URL}/files/${fileId}?uploadType=media`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify(content)
+        });
         return response.json();
     }
 
