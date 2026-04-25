@@ -15,6 +15,9 @@ import SyncService from "./syncService";
 
 export default class App {
 
+    static AUTO_SYNC_DELAY = 3000;
+    static FOCUS_SYNC_STALE_MS = 30 * 60 * 1000;
+
     database;
 
     static #instance;
@@ -28,6 +31,8 @@ export default class App {
         this.googleAuthService = new GoogleAuthService();
         this.googleDriveClient = new GoogleDriveClient(this.googleAuthService);
         this.syncService = new SyncService(this.database, this.syncRepository, this.googleDriveClient);
+        this.autoSyncTimeout = null;
+        this.syncInProgress = false;
         this.backup = new Backup(this.database, () => this.clearAll(), () => {
             this.clearRuntime();
             this.initialize();
@@ -55,6 +60,7 @@ export default class App {
     onCreate() {
         this.database.connect(() => this.initialize());
         this.setDayTimer();
+        this.setSyncListeners();
         document.addEventListener("languagechange", () => {
             this.updateContainerTitles();
             this.database.getGoogleDriveSyncState()
@@ -65,6 +71,14 @@ export default class App {
                 }
             }
         });
+    }
+
+
+    setSyncListeners() {
+        window.addEventListener("savingseries:local-sync-dirty", () => this.scheduleAutoSync());
+        window.addEventListener("online", () => this.handleOnline());
+        window.addEventListener("offline", () => this.handleOffline());
+        window.addEventListener("focus", () => this.syncIfStale());
     }
 
 
@@ -96,7 +110,12 @@ export default class App {
         this.database.foreach((series) => this.initialSplitSeries(series),
             (id) => this.onInitialSplitSeriesEnd(id));
         this.database.getGoogleDriveSyncState()
-            .then(state => this.menu.updateSyncStatus(state));
+            .then(state => {
+                this.menu.updateSyncStatus(this.#withCurrentNetworkStatus(state));
+                if (state.dirty) {
+                    this.scheduleAutoSync();
+                }
+            });
         App.scrollToTop();
         window.i18n.applyTo(document.body);
     }
@@ -198,6 +217,9 @@ export default class App {
 
     async signInToGoogleDrive() {
         try {
+            if (!navigator.onLine) {
+                throw new Error("Google Drive sync is offline");
+            }
             this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "signing-in", lastError: null}));
             const response = await this.googleAuthService.signIn();
             const state = await this.database.updateGoogleDriveSyncState({
@@ -212,7 +234,7 @@ export default class App {
         } catch (error) {
             const state = await this.database.updateGoogleDriveSyncState({
                 signedIn: false,
-                status: "error",
+                status: navigator.onLine ? "error" : "offline",
                 lastError: error.message
             });
             this.menu.updateSyncStatus(state);
@@ -236,6 +258,16 @@ export default class App {
 
     async syncNow() {
         try {
+            if (!navigator.onLine) {
+                const state = await this.database.updateGoogleDriveSyncState({status: "offline"});
+                this.menu.updateSyncStatus(state);
+                return null;
+            }
+            if (this.syncInProgress) {
+                return null;
+            }
+            this.syncInProgress = true;
+            this.cancelScheduledAutoSync();
             if (!this.googleAuthService.isSignedIn()) {
                 await this.signInToGoogleDrive();
             }
@@ -247,7 +279,92 @@ export default class App {
         } catch (error) {
             this.menu.updateSyncStatus(await this.database.getGoogleDriveSyncState());
             throw error;
+        } finally {
+            this.syncInProgress = false;
         }
+    }
+
+
+    scheduleAutoSync() {
+        if (!navigator.onLine) {
+            this.database.updateGoogleDriveSyncState({status: "offline"})
+                .then(state => this.menu.updateSyncStatus(state));
+            return;
+        }
+        clearTimeout(this.autoSyncTimeout);
+        this.autoSyncTimeout = setTimeout(() => this.autoSync(), App.AUTO_SYNC_DELAY);
+        this.database.updateGoogleDriveSyncState({status: "pending", lastError: null})
+            .then(state => this.menu.updateSyncStatus(state));
+    }
+
+
+    cancelScheduledAutoSync() {
+        clearTimeout(this.autoSyncTimeout);
+        this.autoSyncTimeout = null;
+    }
+
+
+    async autoSync({allowStalePull = false} = {}) {
+        if (!navigator.onLine || this.syncInProgress) {
+            return;
+        }
+
+        const state = await this.database.getGoogleDriveSyncState();
+        if (!this.googleAuthService.isSignedIn()) {
+            if (state.dirty) {
+                this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "sign-in-required"}));
+            }
+            return;
+        }
+        if (!state.dirty && (!allowStalePull || !this.#isSyncStale(state))) {
+            return;
+        }
+
+        try {
+            await this.syncNow();
+        } catch (error) {
+            console.error("Automatic Google Drive sync failed:", error);
+        }
+    }
+
+
+    async handleOnline() {
+        const state = await this.database.getGoogleDriveSyncState();
+        this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: state.dirty ? "pending" : "idle"}));
+        if (state.dirty) {
+            this.scheduleAutoSync();
+        }
+    }
+
+
+    async handleOffline() {
+        this.cancelScheduledAutoSync();
+        this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "offline"}));
+    }
+
+
+    async syncIfStale() {
+        const state = await this.database.getGoogleDriveSyncState();
+        if (state.dirty) {
+            this.scheduleAutoSync();
+            return;
+        }
+        if (document.visibilityState === "visible" && this.googleAuthService.isSignedIn() && this.#isSyncStale(state)) {
+            await this.autoSync({allowStalePull: true});
+        }
+    }
+
+
+    #isSyncStale(state) {
+        return !state.lastSyncAt || Date.now() - Number(state.lastSyncAt) > App.FOCUS_SYNC_STALE_MS;
+    }
+
+
+    #withCurrentNetworkStatus(state) {
+        if (!navigator.onLine && state.status !== "error") {
+            return {...state, status: "offline"};
+        }
+        return state;
     }
 
 

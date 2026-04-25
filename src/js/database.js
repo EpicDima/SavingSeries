@@ -134,6 +134,7 @@ export default class Database {
         return {
             key: Database.GOOGLE_DRIVE_SYNC_STATE_KEY,
             signedIn: false,
+            dirty: false,
             lastSyncAt: null,
             lastPullAt: null,
             lastPushAt: null,
@@ -265,6 +266,7 @@ export default class Database {
             transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(meta.id);
         }
         await this.#waitForTransaction(transaction);
+        await this.#markGoogleDriveSyncDirty();
     }
 
 
@@ -306,6 +308,14 @@ export default class Database {
         transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME).delete(series.data.id);
         transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(series.data.id);
         await this.#waitForTransaction(transaction);
+        await this.#markGoogleDriveSyncDirty();
+    }
+
+
+    async #markGoogleDriveSyncDirty() {
+        const status = navigator.onLine ? "pending" : "offline";
+        await this.updateGoogleDriveSyncState({dirty: true, status: status, lastError: null});
+        window.dispatchEvent(new CustomEvent("savingseries:local-sync-dirty"));
     }
 
     getSeriesImage(id) {

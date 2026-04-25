@@ -63,7 +63,12 @@ export default class GoogleAuthService {
 
 
     isSignedIn() {
-        return Boolean(this.accessToken);
+        return Boolean(this.accessToken) && !this.isTokenExpired();
+    }
+
+
+    isTokenExpired() {
+        return Boolean(this.expiresAt) && Date.now() >= this.expiresAt - 60000;
     }
 
 

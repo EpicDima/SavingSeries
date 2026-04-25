@@ -29,6 +29,7 @@ export default class SyncService {
             const now = Date.now();
             await this.database.updateGoogleDriveSyncState({
                 signedIn: true,
+                dirty: false,
                 status: "synced",
                 lastSyncAt: now,
                 lastPullAt: now,
@@ -40,7 +41,7 @@ export default class SyncService {
 
             return mergedState;
         } catch (error) {
-            await this.database.updateGoogleDriveSyncState({status: "error", lastError: error.message});
+            await this.database.updateGoogleDriveSyncState({status: navigator.onLine ? "error" : "offline", lastError: error.message});
             throw error;
         }
     }

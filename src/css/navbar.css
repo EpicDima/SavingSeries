@@ -177,7 +177,8 @@
 .navbar .sync-status[data-status="syncing"],
 .navbar .sync-status[data-status="signing-in"],
 .navbar .sync-status[data-status="reading"],
-.navbar .sync-status[data-status="writing"] {
+.navbar .sync-status[data-status="writing"],
+.navbar .sync-status[data-status="pending"] {
     color: #8fc7ff;
 }
 
@@ -190,4 +191,9 @@
 
 .navbar .sync-status[data-status="error"] {
     color: #ff9a9a;
+}
+
+.navbar .sync-status[data-status="offline"],
+.navbar .sync-status[data-status="sign-in-required"] {
+    color: #ffd28f;
 }
