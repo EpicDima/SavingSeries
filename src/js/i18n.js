@@ -2,6 +2,7 @@
     const I18N_KEY_ATTRIBUTE = "data-i18n-key";
     const I18N_TITLE_ATTRIBUTE = "data-i18n-title";
     const I18N_PLACEHOLDER_ATTRIBUTE = "data-i18n-placeholder";
+    const PREFERRED_LANGUAGE_KEY = "preferredLanguage";
     const DEFAULT_LANGUAGE = "en";
 
     const translations = {};
@@ -87,7 +88,7 @@
         applyTranslations(document.body);
         updatePageTitle();
 
-        localStorage.setItem("preferredLanguage", lang);
+        localStorage.setItem(PREFERRED_LANGUAGE_KEY, lang);
 
         document.dispatchEvent(new CustomEvent("languagechange"));
     }
@@ -114,7 +115,7 @@
 
 
     async function init() {
-        const preferredLanguage = localStorage.getItem("preferredLanguage");
+        const preferredLanguage = localStorage.getItem(PREFERRED_LANGUAGE_KEY);
         const browserLanguage = navigator.language;
         const initialLang = preferredLanguage || browserLanguage || DEFAULT_LANGUAGE;
         await setLanguage(initialLang);

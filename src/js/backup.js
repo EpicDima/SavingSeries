@@ -2,6 +2,7 @@ import Series from "./series";
 import {saveAs} from "file-saver";
 import AlertDialog from "./alertDialog";
 import Database from "./database";
+import SyncRepository from "./syncRepository";
 
 
 export default class Backup {
@@ -9,6 +10,7 @@ export default class Backup {
         this.database = database;
         this.clear = clear;
         this.initialize = initialize;
+        this.syncRepository = new SyncRepository(database);
     }
 
 
@@ -22,7 +24,14 @@ export default class Backup {
     }
 
 
-    createBackup() {
+    async createBackup() {
+        const syncState = await this.syncRepository.getLocalState();
+        const blob = new Blob([JSON.stringify(syncState)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "SavingSeries.sync.json");
+    }
+
+
+    createLegacyBackup() {
         const metaRequest = this.database.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).getAll();
         metaRequest.onsuccess = () => {
             const imagesRequest = this.database.getReadOnlyObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).getAll();
@@ -55,14 +64,16 @@ export default class Backup {
 
     onOpenFile(event) {
         let reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
             try {
                 let data = JSON.parse("" + reader.result);
-                this.clear();
-                let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
-                let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
 
-                if (Array.isArray(data)) { // V1
+                if (data?.schemaVersion === SyncRepository.SCHEMA_VERSION) {
+                    await this.syncRepository.applyMergedState(data);
+                } else if (Array.isArray(data)) { // V1
+                    this.clear();
+                    let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+                    let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
                     for (let series of data) {
                         let temp = Series.validate(series);
                         if (temp) {

@@ -2,6 +2,7 @@ export default class LocalStorage {
 
     static CONTAINERS_KEY = "containers";
     static NAVBAR_KEY = "navbar";
+    static PREFERRED_LANGUAGE_KEY = "preferredLanguage";
 
 
     clear() {

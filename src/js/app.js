@@ -7,6 +7,7 @@ import Backup from "./backup";
 import Series from "./series";
 import {Menu} from "./menu";
 import LocalStorage from "./localStorage";
+import SyncRepository from "./syncRepository";
 
 
 export default class App {
@@ -20,6 +21,7 @@ export default class App {
         this.containers = new Map();
 
         this.localStorage = new LocalStorage();
+        this.syncRepository = new SyncRepository(this.database, this.localStorage);
         this.backup = new Backup(this.database, () => this.clearAll(), () => this.initialize());
 
         Series.onItemClickListener = (id) => this.openFullitem(id);
@@ -56,6 +58,15 @@ export default class App {
 
 
     initialize() {
+        window.savingSeriesSync = {
+            exportState: () => this.syncRepository.getLocalState(),
+            importState: async (state) => {
+                this.clearRuntime();
+                await this.syncRepository.applyMergedState(state);
+                this.initialize();
+            }
+        };
+
         const fragment = new DocumentFragment();
         fragment.append(this.addingFullItem.getFragment());
         for (const k of Object.values(constants.LIST_TYPE)) {
