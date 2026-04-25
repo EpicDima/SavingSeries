@@ -159,3 +159,35 @@
     background-color: #3e3e3edf;
     color: white;
 }
+
+.navbar ul > li .submenu > div.disabled {
+    pointer-events: none;
+    color: #888;
+}
+
+.navbar .sync-status {
+    margin-top: 0.25rem;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    text-align: right;
+    color: #bdbdbd;
+}
+
+.navbar .sync-status[data-status="syncing"],
+.navbar .sync-status[data-status="signing-in"],
+.navbar .sync-status[data-status="reading"],
+.navbar .sync-status[data-status="writing"] {
+    color: #8fc7ff;
+}
+
+.navbar .sync-status[data-status="synced"],
+.navbar .sync-status[data-status="signed-in"],
+.navbar .sync-status[data-status="written"],
+.navbar .sync-status[data-status="read"] {
+    color: #9de28f;
+}
+
+.navbar .sync-status[data-status="error"] {
+    color: #ff9a9a;
+}

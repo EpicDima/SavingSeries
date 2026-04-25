@@ -10,6 +10,7 @@ import LocalStorage from "./localStorage";
 import SyncRepository from "./syncRepository";
 import GoogleAuthService from "./googleAuthService";
 import GoogleDriveClient from "./googleDriveClient";
+import SyncService from "./syncService";
 
 
 export default class App {
@@ -26,6 +27,7 @@ export default class App {
         this.syncRepository = new SyncRepository(this.database, this.localStorage);
         this.googleAuthService = new GoogleAuthService();
         this.googleDriveClient = new GoogleDriveClient(this.googleAuthService);
+        this.syncService = new SyncService(this.database, this.syncRepository, this.googleDriveClient);
         this.backup = new Backup(this.database, () => this.clearAll(), () => {
             this.clearRuntime();
             this.initialize();
@@ -55,6 +57,8 @@ export default class App {
         this.setDayTimer();
         document.addEventListener("languagechange", () => {
             this.updateContainerTitles();
+            this.database.getGoogleDriveSyncState()
+                .then(state => this.menu.updateSyncStatus(state));
             for (const container of this.containers.values()) {
                 for (const series of container.map.values()) {
                     series.retranslate();
@@ -77,6 +81,7 @@ export default class App {
             getGoogleDriveStatus: () => this.database.getGoogleDriveSyncState(),
             readRemoteState: () => this.readGoogleDriveState(),
             writeRemoteState: () => this.writeGoogleDriveState(),
+            syncNow: () => this.syncNow(),
             isGoogleDriveConfigured: () => this.googleAuthService.isConfigured()
         };
 
@@ -90,6 +95,8 @@ export default class App {
         this.main.append(fragment);
         this.database.foreach((series) => this.initialSplitSeries(series),
             (id) => this.onInitialSplitSeriesEnd(id));
+        this.database.getGoogleDriveSyncState()
+            .then(state => this.menu.updateSyncStatus(state));
         App.scrollToTop();
         window.i18n.applyTo(document.body);
     }
@@ -191,21 +198,24 @@ export default class App {
 
     async signInToGoogleDrive() {
         try {
-            await this.database.updateGoogleDriveSyncState({status: "signing-in", lastError: null});
+            this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "signing-in", lastError: null}));
             const response = await this.googleAuthService.signIn();
-            return this.database.updateGoogleDriveSyncState({
+            const state = await this.database.updateGoogleDriveSyncState({
                 signedIn: true,
                 status: "signed-in",
                 lastError: null,
                 tokenExpiresAt: this.googleAuthService.expiresAt,
                 scope: response.scope || GoogleAuthService.DRIVE_APPDATA_SCOPE
             });
+            this.menu.updateSyncStatus(state);
+            return state;
         } catch (error) {
-            await this.database.updateGoogleDriveSyncState({
+            const state = await this.database.updateGoogleDriveSyncState({
                 signedIn: false,
                 status: "error",
                 lastError: error.message
             });
+            this.menu.updateSyncStatus(state);
             throw error;
         }
     }
@@ -213,18 +223,37 @@ export default class App {
 
     async signOutFromGoogleDrive() {
         this.googleAuthService.signOut();
-        return this.database.updateGoogleDriveSyncState({
+        const state = await this.database.updateGoogleDriveSyncState({
             signedIn: false,
             status: "signed-out",
             lastError: null,
             tokenExpiresAt: null
         });
+        this.menu.updateSyncStatus(state);
+        return state;
+    }
+
+
+    async syncNow() {
+        try {
+            if (!this.googleAuthService.isSignedIn()) {
+                await this.signInToGoogleDrive();
+            }
+            this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "syncing", lastError: null}));
+            const state = await this.syncService.syncNow();
+            this.refresh();
+            this.menu.updateSyncStatus(await this.database.getGoogleDriveSyncState());
+            return state;
+        } catch (error) {
+            this.menu.updateSyncStatus(await this.database.getGoogleDriveSyncState());
+            throw error;
+        }
     }
 
 
     async readGoogleDriveState() {
         try {
-            await this.database.updateGoogleDriveSyncState({status: "reading", lastError: null});
+            this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "reading", lastError: null}));
             const state = await this.googleDriveClient.readJsonFileByName();
             const update = {
                 status: state ? "read" : "missing",
@@ -237,9 +266,11 @@ export default class App {
             await this.database.updateGoogleDriveSyncState({
                 ...update
             });
+            this.menu.updateSyncStatus(await this.database.getGoogleDriveSyncState());
             return state;
         } catch (error) {
             await this.database.updateGoogleDriveSyncState({status: "error", lastError: error.message});
+            this.menu.updateSyncStatus(await this.database.getGoogleDriveSyncState());
             throw error;
         }
     }
@@ -247,18 +278,21 @@ export default class App {
 
     async writeGoogleDriveState() {
         try {
-            await this.database.updateGoogleDriveSyncState({status: "writing", lastError: null});
+            this.menu.updateSyncStatus(await this.database.updateGoogleDriveSyncState({status: "writing", lastError: null}));
             const state = await this.syncRepository.getLocalState();
             const file = await this.googleDriveClient.createOrUpdateJsonFileByName(GoogleDriveClient.STATE_FILE_NAME, state);
-            return this.database.updateGoogleDriveSyncState({
+            const nextState = await this.database.updateGoogleDriveSyncState({
                 status: "written",
                 lastPushAt: Date.now(),
                 lastSyncAt: Date.now(),
                 lastError: null,
                 stateFileId: file.id
             });
+            this.menu.updateSyncStatus(nextState);
+            return nextState;
         } catch (error) {
             await this.database.updateGoogleDriveSyncState({status: "error", lastError: error.message});
+            this.menu.updateSyncStatus(await this.database.getGoogleDriveSyncState());
             throw error;
         }
     }

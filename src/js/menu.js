@@ -31,6 +31,8 @@ export class Menu {
         this.settingsSubMenu = this.fragment.getElementById("settingsSubMenu");
         this.settingsSubMenuTitle = this.fragment.getElementById("settingsSubMenuTitle");
         this.openAddingElementMenuItem = this.fragment.getElementById("openAddingElementMenuItem");
+        this.syncNowSubMenuItem = this.fragment.getElementById("syncNowSubMenuItem");
+        this.syncStatus = this.fragment.getElementById("syncStatus");
         this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
         this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
         this.changeLanguageSubMenuItem = this.fragment.getElementById("changeLanguageSubMenuItem");
@@ -56,6 +58,7 @@ export class Menu {
         document.addEventListener("click", this.boundHandleClick);
 
         this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
+        this.syncNowSubMenuItem.onclick = () => this.syncNow();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
@@ -76,6 +79,41 @@ export class Menu {
 
     clear() {
         this.search.clear();
+    }
+
+
+    async syncNow() {
+        this.hideSubMenu();
+        this.syncNowSubMenuItem.classList.add("disabled");
+        try {
+            await this.app.syncNow();
+        } catch (error) {
+            console.error("Google Drive sync failed:", error);
+        } finally {
+            this.syncNowSubMenuItem.classList.remove("disabled");
+        }
+    }
+
+
+    updateSyncStatus(state = {}) {
+        const status = state.status || "idle";
+        this.syncStatus.dataset.status = status;
+        this.syncStatus.textContent = this.#getSyncStatusText(state);
+        this.syncStatus.title = state.lastError || this.syncStatus.textContent;
+    }
+
+
+    #getSyncStatusText(state) {
+        if (state.lastError && state.status === "error") {
+            return window.i18n.t("sync_status_error");
+        }
+
+        const statusKey = `sync_status_${state.status || "idle"}`;
+        const translated = window.i18n.t(statusKey);
+        if (translated !== statusKey) {
+            return translated;
+        }
+        return window.i18n.t("sync_status_idle");
     }
 
 
