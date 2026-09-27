@@ -1,8 +1,10 @@
 import Series from "./series";
-import {saveAs} from "file-saver";
 import AlertDialog from "./alertDialog";
 import Database from "./database";
 
+// Когда скачивание прочитало blob, браузер не сообщает, а при «Спрашивать, куда сохранять» это бывает
+// после закрытия диалога. Отзываем URL с запасом, как file-saver: держать память лишние секунды дёшево.
+const REVOKE_BACKUP_URL_DELAY_MS = 40_000;
 
 export default class Backup {
     constructor(database, clear, initialize) {
@@ -35,7 +37,11 @@ export default class Backup {
                 });
 
                 const blob = new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
-                saveAs(blob, "SavingSeries.backup");
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "SavingSeries.backup";
+                link.click();
+                setTimeout(() => URL.revokeObjectURL(link.href), REVOKE_BACKUP_URL_DELAY_MS);
             };
         };
     }
