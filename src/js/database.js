@@ -88,6 +88,10 @@ export default class Database {
         this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(series.data.id);
     }
 
+    deleteSeriesImage(id) {
+        this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(id);
+    }
+
     getSeriesImage(id) {
         return new Promise((resolve, reject) => {
             const request = this.getReadOnlyObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).get(id);

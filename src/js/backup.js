@@ -1,6 +1,7 @@
 import Series from "./series";
 import AlertDialog from "./alertDialog";
 import Database from "./database";
+import {isImage} from "./common";
 
 // Когда скачивание прочитало blob, браузер не сообщает, а при «Спрашивать, куда сохранять» это бывает
 // после закрытия диалога. Отзываем URL с запасом, как file-saver: держать память лишние секунды дёшево.
@@ -33,7 +34,7 @@ export default class Backup {
                 const images = imagesRequest.result;
                 const backup = series.map(meta => {
                     const image = images.find(image => image.id === meta.id);
-                    return {...meta, ...(image && {image: image.image})};
+                    return {...meta, ...(isImage(image?.image) && {image: image.image})};
                 });
 
                 const blob = new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});

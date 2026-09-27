@@ -1,5 +1,5 @@
 import {STATUS} from "./constants";
-import {dateToLocaleString, hideElement, showElement} from "./common";
+import {dateToLocaleString, hideElement, imageToCssUrl, isImage, showElement} from "./common";
 import Database from "./database";
 
 export default class Series {
@@ -23,7 +23,7 @@ export default class Series {
                             episode: episode,
                             date: series.date ? (series.date.toDate ? series.date.toDate() : new Date(series.date)) : "",
                             site: series.site ? series.site : "",
-                            image: series.image || "",
+                            image: isImage(series.image) ? series.image : "",
                             note: series.note ? series.note : "",
                             status: series.status ? series.status : STATUS.RUN
                         };
@@ -164,9 +164,13 @@ export default class Series {
 
     async loadImageAsync() {
         if (!this.data.image) {
-            this.data.image = await Database.getInstance().getSeriesImage(this.data.id);
-            if (this.data.image) {
-                this.image.style.backgroundImage = `url("${this.data.image}")`;
+            const database = Database.getInstance();
+            const image = await database.getSeriesImage(this.data.id);
+            if (isImage(image)) {
+                this.data.image = image;
+                this.image.style.backgroundImage = imageToCssUrl(image);
+            } else if (image !== undefined) {
+                database.deleteSeriesImage(this.data.id);
             }
         }
     }
@@ -179,7 +183,7 @@ export default class Series {
                 console.error("Image compression failed:", error);
             }
         }
-        this.image.style.backgroundImage = this.data.image ? `url("${this.data.image}")` : '';
+        this.image.style.backgroundImage = imageToCssUrl(this.data.image);
     }
 
 
@@ -239,7 +243,6 @@ export default class Series {
         if (this.data.image !== image) {
             this.data.image = image;
             await this.updateImage();
-            this.image.style.backgroundImage = `url("${this.data.image}")`;
             changed = true;
         }
         if (this.data.status !== status) {

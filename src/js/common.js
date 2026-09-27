@@ -101,6 +101,18 @@ export function createLinkElement(site) {
 }
 
 
+// Картинка хранится как data URL. Остальное считается отсутствием картинки, в том числе строка "undefined",
+// которую старые версии сохраняли вместо картинки: иначе браузер запрашивает её как адрес /undefined.
+export function isImage(image) {
+    return typeof image === "string" && image.startsWith("data:");
+}
+
+
+export function imageToCssUrl(image) {
+    return isImage(image) ? `url("${image}")` : "";
+}
+
+
 export function getTodayDate() {
     let today = new Date();
     today.setHours(23, 59, 59, 999);

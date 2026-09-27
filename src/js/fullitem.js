@@ -8,6 +8,7 @@ import {
     getByQuery,
     getSeriesListType,
     hideElement,
+    imageToCssUrl,
     removeClass,
     showElement
 } from "./common";
@@ -312,7 +313,7 @@ export class BaseFullItem {
         this.fields.episode.value.innerText = series.data.episode;
         this.fields.date.value.innerText = dateToLocaleString(series);
         this.fields.site.value.innerHTML = createLinkElement(series.data.site).outerHTML;
-        this.fields.image.value.style.backgroundImage = `url("${series.data.image}")`;
+        this.fields.image.value.style.backgroundImage = imageToCssUrl(series.data.image);
         this.fields.note.value.innerText = series.data.note;
     }
 
@@ -595,7 +596,7 @@ export class FullItem extends BaseFullItem {
 
 
     cancel() {
-        this.fields.image.value.style.backgroundImage = `url("${this.series.data.image}")`;
+        this.fields.image.value.style.backgroundImage = imageToCssUrl(this.series.data.image);
         this.setInputValues(this.series);
         this.showAllFields();
         this.showEditFields(false);
