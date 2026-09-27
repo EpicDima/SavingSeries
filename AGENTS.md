@@ -29,8 +29,10 @@ yarn snapshot:diff <до> <после> [--max 40]                     # отли
 снимается production-сборка; `--dev` отличается от неё записью градиентов, поэтому «до» и «после» снимать в одном
 режиме.
 
-CI (`.github/workflows/deploy.yml`, Node 26) на push в `main` собирает и публикует `dist/` на GitHub Pages
-(ветка `gh-pages`, домен из `public/CNAME`); на pull request проверок нет.
+CI (`.github/workflows/deploy.yml`, Node 26, одна задача ради скорости): сборка и смоук-тесты на push в `main`
+и на pull request; на push в `main` затем публикует `dist/` на GitHub Pages (ветка `gh-pages`, домен из
+`public/CNAME`). В CI (`CI=true`) тесты идут в Chrome из образа раннера против собранного `dist/` (`vite preview`),
+без скачивания браузера; при падении трейсы — артефакт `playwright-traces`.
 
 ## Устройство
 
