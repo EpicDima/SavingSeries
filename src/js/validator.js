@@ -2,6 +2,11 @@ export function setValidator(input) {
     input.oninput = validate;
 }
 
+export function resetValidation(root) {
+    root.querySelectorAll(".fullitem-input-label.invalid").forEach(label => label.classList.remove("invalid"));
+    root.querySelectorAll(".invalid-tooltip > .error").forEach(error => error.innerText = "");
+}
+
 document.addEventListener("languagechange", function () {
     const errorElements = document.querySelectorAll(".error");
     errorElements.forEach(function (errorElement) {

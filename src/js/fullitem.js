@@ -13,7 +13,7 @@ import {
     showElement
 } from "./common";
 import Series from "./series";
-import {setValidator} from "./validator";
+import {resetValidation, setValidator} from "./validator";
 import AlertDialog from "./alertDialog";
 
 
@@ -332,11 +332,8 @@ export class BaseFullItem {
     resetInputValues() {
         this.form.reset();
         this.fields.image.value.style.backgroundImage = "";
-
-        removeClass(this.fields.season.input, "error");
-        removeClass(this.fields.episode.input, "error");
-        removeClass(this.fields.date.input, "error");
-        removeClass(this.fields.site.input, "error");
+        removeClass(this.fields.image.input, "error");
+        resetValidation(this.form);
     }
 
 
@@ -719,7 +716,6 @@ export class AddingFullItem extends BaseFullItem {
 
     resetInputValues() {
         this.fields.name.input.value = "";
-        removeClass(this.fields.name.input, "error");
         super.resetInputValues();
     }
 
