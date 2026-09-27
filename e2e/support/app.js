@@ -47,6 +47,21 @@ export async function openApp(page, {series = sampleSeries(), baseURL = ""} = {}
 }
 
 
+export function storedSeriesNames(page) {
+    return page.evaluate(() => new Promise((resolve, reject) => {
+        const request = indexedDB.open("SavingSeries");
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+            const getAll = request.result.transaction("series_meta").objectStore("series_meta").getAll();
+            getAll.onsuccess = () => {
+                request.result.close();
+                resolve(getAll.result.map(series => series.name));
+            };
+        };
+    }));
+}
+
+
 function putSeries(series) {
     const canvas = document.createElement("canvas");
     canvas.width = 320;

@@ -1,5 +1,5 @@
 import {expect, test} from "@playwright/test";
-import {collectProblems, openApp, sampleSeries} from "./support/app";
+import {collectProblems, openApp, sampleSeries, storedSeriesNames} from "./support/app";
 
 let problems;
 
@@ -31,6 +31,7 @@ test("добавленный сериал остаётся после перез
     await form.locator("input[name=name]").fill("Новый сериал");
     await form.locator(".add-button button").click();
     await expect(page.locator(".item .name", {hasText: "Новый сериал"})).toBeVisible();
+    await expect.poll(() => storedSeriesNames(page)).toEqual(["Новый сериал"]);
 
     await page.reload();
     await expect(page.locator(".item .name", {hasText: "Новый сериал"})).toBeVisible();
