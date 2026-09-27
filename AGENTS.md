@@ -44,9 +44,9 @@ yarn preview                     # просмотр собранного dist/
 ## Данные и совместимость
 
 - IndexedDB `SavingSeries`, версия 2 (`database.js`): `series_meta` (keyPath `id`, индекс `name_idx`) и
-  `series_images` (`{id, image}`). Миграции — в `onupgradeneeded` по `event.oldVersion` (0 — создание, 1 — разнос
-  старого хранилища `series` на мету и картинки). Новая версия — поднять `#DB_VERSION` и добавить шаг так, чтобы
-  база любой старой версии доходила до новой.
+  `series_images` (`{id, image}`). `onupgradeneeded` сейчас только создаёт базу с нуля: версия 1 (одно хранилище
+  `series`) не поддерживается. Новая версия — поднять `#DB_VERSION` и добавить в `onupgradeneeded` шаги
+  по `event.oldVersion` так, чтобы база версии 2 и новее доходила до новой.
 - Запись: `id` (число; новый = последний id из курсора + 1), `name`, `season` (1–50), `episode` (1–50000),
   `date` (`Date` или `""` — без даты), `site`, `note`, `status`, `image`. `STATUS` — строки `"0"`–`"3"`, лежат
   в базе и в backup — не перенумеровывать. Ограничения полей продублированы в `templates.html` (`min`/`max`/

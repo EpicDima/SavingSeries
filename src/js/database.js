@@ -1,7 +1,6 @@
 export default class Database {
     static DATABASE_NAME = "SavingSeries";
     static #DB_VERSION = 2;
-    static #SERIES_OBJECT_STORE_NAME = "series";
     static SERIES_META_OBJECT_STORE_NAME = "series_meta";
     static SERIES_IMAGES_OBJECT_STORE_NAME = "series_images";
 
@@ -32,33 +31,9 @@ export default class Database {
             : "database_error", {error: request.error.message});
         request.onupgradeneeded = (event) => {
             const database = event.target.result;
-            const transaction = event.target.transaction;
-            switch (event.oldVersion) {
-                case 0: {
-                    const seriesMetaStore = database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
-                    seriesMetaStore.createIndex("name_idx", "name");
-                    database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
-                    break;
-                }
-                case 1: {
-                    const objectStore = transaction.objectStore(Database.#SERIES_OBJECT_STORE_NAME);
-                    const seriesMetaStore = database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
-                    seriesMetaStore.createIndex("name_idx", "name");
-                    const seriesImagesStore = database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
-
-                    objectStore.openCursor().onsuccess = (event) => {
-                        const cursor = event.target.result;
-                        if (cursor) {
-                            const {image, ...meta} = cursor.value;
-                            seriesMetaStore.add(meta);
-                            seriesImagesStore.add({id: meta.id, image: image});
-                            cursor.continue();
-                        } else {
-                            database.deleteObjectStore(Database.#SERIES_OBJECT_STORE_NAME);
-                        }
-                    };
-                }
-            }
+            const seriesMetaStore = database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
+            seriesMetaStore.createIndex("name_idx", "name");
+            database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
         };
     }
 
