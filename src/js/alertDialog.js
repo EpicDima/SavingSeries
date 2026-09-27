@@ -18,18 +18,15 @@ export default class AlertDialog extends Dialog {
     open() {
         return new Promise(resolve => {
             if (this.dialog && typeof this.dialog.showModal === "function") {
-                const onClose = () => {
-                    this.dialog.removeEventListener("close", onClose);
+                this.dialog.addEventListener("close", () => {
+                    this.dialog.remove();
                     resolve(this.dialog.returnValue === "true");
-                };
-                this.dialog.addEventListener("close", onClose);
+                }, {once: true});
 
                 this.acceptButton.onclick = () => this.close("true");
                 this.cancelButton.onclick = () => this.close("false");
 
-                if (!this.dialog.parentElement) {
-                    getByQuery("body").append(this.dialog);
-                }
+                getByQuery("body").append(this.dialog);
                 this.dialog.showModal();
             } else {
                 resolve(confirm(this.text));
@@ -45,13 +42,5 @@ export default class AlertDialog extends Dialog {
         if (this.title) {
             this.title.innerText = this.text;
         }
-    }
-
-    setListeners() {
-        super.setListeners();
-        document.addEventListener("languagechange", () => {
-            this.generate();
-            window.i18n.applyTo(this.element);
-        });
     }
 }
