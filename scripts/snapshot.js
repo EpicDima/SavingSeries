@@ -82,8 +82,10 @@ async function captureStates(page, baseURL) {
     };
     const snap = async state => {
         await page.waitForTimeout(TRANSITION_WAIT_MS);
-        writeFileSync(`${outDir}/${state}.json`, JSON.stringify(await page.evaluate(collectStyles)));
+        // Скриншот раньше стилей: после fullPage Chromium до перезагрузки берёт свои шрифты по умолчанию
+        // (sans-serif — Arial, serif — Times New Roman вместо системных), стили должны сниматься в том же состоянии.
         await page.screenshot({path: `${outDir}/${state}.png`, fullPage: true});
+        writeFileSync(`${outDir}/${state}.json`, JSON.stringify(await page.evaluate(collectStyles)));
         console.log(`  ${state}`);
     };
 
