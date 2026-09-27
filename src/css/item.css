@@ -137,14 +137,6 @@
     white-space: nowrap;
 }
 
-.two {
-    --columns: 2;
-    --radius: 1rem;
-    --name-size: 1.4rem;
-    --info-size: 1.05rem;
-    --row-height: 1.6rem;
-}
-
 .three {
     --columns: 3;
     --radius: 0.875rem;
@@ -197,14 +189,4 @@
     --row-height: 1rem;
     --label-width: 2.5rem;
     --link-size: 1.5rem;
-}
-
-.nine {
-    --columns: 9;
-    --radius: 0.25rem;
-    --name-size: 0.9rem;
-    --info-size: 0.55rem;
-    --row-height: 0.95rem;
-    --label-width: 2.5rem;
-    --link-size: 1.4rem;
 }

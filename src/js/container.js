@@ -4,6 +4,13 @@ import {LIST_TYPE} from "./constants";
 
 
 export default class HorizontalContainer {
+
+    static COUNT_CLASSES = {3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight"};
+    static MIN_COUNT = 3;
+    static MAX_COUNT = 8;
+    static DEFAULT_COUNT = 4;
+
+
     constructor(id, title, app) {
         this.id = id;
         this.title = title;
@@ -54,10 +61,12 @@ export default class HorizontalContainer {
 
     getCountNumberFromLocalStorage() {
         const count = this.app.localStorage.getCountNumberOfContainer(this.id);
-        const countMap = {
-            two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9
-        };
-        return countMap[count] || 4;
+        // two и nine остались от старых версий
+        const countNumber = {two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9}[count];
+        if (!countNumber) {
+            return HorizontalContainer.DEFAULT_COUNT;
+        }
+        return Math.min(Math.max(countNumber, HorizontalContainer.MIN_COUNT), HorizontalContainer.MAX_COUNT);
     }
 
 
@@ -123,8 +132,8 @@ export default class HorizontalContainer {
 
         this.countButton.onclick = () => {
             this.countNumber--;
-            if (this.countNumber === 1) {
-                this.countNumber = 9;
+            if (this.countNumber < HorizontalContainer.MIN_COUNT) {
+                this.countNumber = HorizontalContainer.MAX_COUNT;
             }
             this.updateByCount();
         };
@@ -135,12 +144,8 @@ export default class HorizontalContainer {
 
 
     updateByCount() {
-        const countMap = {
-            2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine"
-        };
-        const count = countMap[this.countNumber] || "four";
-
-        let classList = ["two", "three", "four", "five", "six", "seven", "eight", "nine"];
+        const count = HorizontalContainer.COUNT_CLASSES[this.countNumber];
+        const classList = Object.values(HorizontalContainer.COUNT_CLASSES);
 
         this.countButton.classList.remove(...classList);
         this.countButton.classList.add(count);
