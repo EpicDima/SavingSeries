@@ -16,21 +16,11 @@
 
 
     function loadTranslations(lang) {
-        if (getLocale(lang)) {
-            translations[lang] = getLocale(lang);
-            return true;
+        const dictionary = getLocale(lang) || getLocale(lang.split("-")[0]);
+        if (dictionary) {
+            translations[lang] = dictionary;
         }
-        const baseLang = lang.split('-')[0];
-        if (baseLang !== lang && getLocale(baseLang)) {
-            translations[lang] = getLocale(baseLang);
-            translations[baseLang] = getLocale(baseLang);
-            return true;
-        }
-        console.error(`Translation file for "${lang}" not found, falling back to "${DEFAULT_LANGUAGE}".`);
-        if (lang !== DEFAULT_LANGUAGE) {
-            loadTranslations(DEFAULT_LANGUAGE);
-        }
-        return false;
+        return Boolean(dictionary);
     }
 
 
@@ -78,7 +68,9 @@
             return;
         }
 
-        if (!translations[lang]) {
+        if (!translations[lang] && !loadTranslations(lang)) {
+            console.error(`Translation file for "${lang}" not found, falling back to "${DEFAULT_LANGUAGE}".`);
+            lang = DEFAULT_LANGUAGE;
             loadTranslations(lang);
         }
 
