@@ -26,6 +26,9 @@ export default class Backup {
 
 
     createBackup() {
+        if (!this.database.checkAvailable()) {
+            return;
+        }
         const metaRequest = this.database.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).getAll();
         metaRequest.onsuccess = () => {
             const imagesRequest = this.database.getReadOnlyObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).getAll();
@@ -49,6 +52,9 @@ export default class Backup {
 
 
     async loadBackup() {
+        if (!this.database.checkAvailable()) {
+            return;
+        }
         let dialog = new AlertDialog(window.i18n.t("backup_load_confirm"));
         let result = await dialog.open();
         if (result) {

@@ -7,6 +7,8 @@ export default class Database {
 
     static #instance;
 
+    #unavailableReason = {key: "database_not_ready"};
+
     constructor() {
     }
 
@@ -24,21 +26,25 @@ export default class Database {
             this.database = request.result;
             func();
         };
+        request.onblocked = () => this.#reportUnavailable("database_blocked");
+        request.onerror = () => this.#reportUnavailable(request.error.name === "VersionError"
+            ? "database_newer_version"
+            : "database_error", {error: request.error.message});
         request.onupgradeneeded = (event) => {
-            this.database = event.target.result;
+            const database = event.target.result;
             const transaction = event.target.transaction;
             switch (event.oldVersion) {
                 case 0: {
-                    const seriesMetaStore = this.database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
+                    const seriesMetaStore = database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
                     seriesMetaStore.createIndex("name_idx", "name");
-                    this.database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
+                    database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
                     break;
                 }
                 case 1: {
                     const objectStore = transaction.objectStore(Database.#SERIES_OBJECT_STORE_NAME);
-                    const seriesMetaStore = this.database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
+                    const seriesMetaStore = database.createObjectStore(Database.SERIES_META_OBJECT_STORE_NAME, {keyPath: "id"});
                     seriesMetaStore.createIndex("name_idx", "name");
-                    const seriesImagesStore = this.database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
+                    const seriesImagesStore = database.createObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME, {keyPath: "id"});
 
                     objectStore.openCursor().onsuccess = (event) => {
                         const cursor = event.target.result;
@@ -48,12 +54,26 @@ export default class Database {
                             seriesImagesStore.add({id: meta.id, image: image});
                             cursor.continue();
                         } else {
-                            this.database.deleteObjectStore(Database.#SERIES_OBJECT_STORE_NAME);
+                            database.deleteObjectStore(Database.#SERIES_OBJECT_STORE_NAME);
                         }
                     };
                 }
             }
         };
+    }
+
+
+    #reportUnavailable(key, params) {
+        this.#unavailableReason = {key, params};
+        alert(window.i18n.t(key, params));
+    }
+
+
+    checkAvailable() {
+        if (!this.database) {
+            alert(window.i18n.t(this.#unavailableReason.key, this.#unavailableReason.params));
+        }
+        return !!this.database;
     }
 
 
