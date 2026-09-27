@@ -87,7 +87,7 @@
                         <div class="value not-on-edit"></div>
                         <div class="input on-edit">
                             <label class="fullitem-input-label">
-                                <textarea class="fullitem-input" name="note" rows="3" maxlength="200"></textarea>
+                                <textarea class="fullitem-input" name="note" rows="3" maxlength="512"></textarea>
                             </label>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
         <div class="label" data-i18n-key="name">Название</div>
         <div class="input">
             <label class="fullitem-input-label">
-                <input class="fullitem-input" name="name" type="text" maxlength="100" required/>
+                <input class="fullitem-input" name="name" type="text" maxlength="256" pattern=".*\S.*" required/>
             </label>
             <div class="invalid-tooltip">
                 <label class="error"></label>

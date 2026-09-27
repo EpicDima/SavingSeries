@@ -38,7 +38,7 @@ function validate(event) {
         return;
     }
     inputLabel.classList.add("invalid")
-    if (validState.valueMissing) {
+    if (validState.valueMissing || validState.patternMismatch && !input.value.trim()) {
         error.innerText = window.i18n.t("validation_field_required");
     } else if (validState.typeMismatch) {
         if (input.type === "number") {
