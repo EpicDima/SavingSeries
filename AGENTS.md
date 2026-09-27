@@ -1,0 +1,73 @@
+# AGENTS.md
+
+Веб-приложение — блокнот сериалов: что смотрю, какая серия следующая и когда она выйдет. Vanilla JS (ES-модули) +
+Vite 8, без фреймворка, без своего сервера и без runtime-зависимостей. Данные — в IndexedDB браузера, перенос —
+через файл backup. Интерфейс — ru/en, только тёмная тема. Только десктоп: мобильная вёрстка не поддерживается
+вообще (медиазапросов нет), адаптивность не добавлять без просьбы.
+
+## Команды
+
+```sh
+yarn install --frozen-lockfile   # Yarn 1 (classic), yarn.lock v1; npm/pnpm не использовать
+yarn dev                         # dev-сервер Vite на порту по умолчанию (5173), сам открывает браузер
+yarn build                       # сборка в dist/
+yarn preview                     # просмотр собранного dist/
+```
+
+Тестов и линтера нет. Единственная автоматическая проверка — `yarn -s build` (без ошибок и новых предупреждений);
+поведение проверять вручную в браузере через `yarn dev`. CI (`.github/workflows/deploy.yml`, Node 26) на push
+в `main` собирает и публикует `dist/` на GitHub Pages (ветка `gh-pages`, домен из `public/CNAME`);
+на pull request проверок нет.
+
+## Устройство
+
+- `index.html` грузит два модуля: `src/js/i18n.js` (раньше приложения, вешает `window.i18n`) и `src/js/main.js`.
+  `main.js` вставляет `<template>` из `src/html/templates.html` (`templates.js`, fetch по
+  `new URL(..., import.meta.url)`) и создаёт `App` (синглтон, `app.js`).
+- `app.js` строит по `HorizontalContainer` (`container.js`) на каждый `LIST_TYPE` (`constants.js`). Список записи
+  вычисляет `getSeriesListType` (`common.js`) по статусу и дате; `setDayTimer` в полночь пересобирает списки.
+- `series.js` — модель и карточка (`Series.validate` — единая нормализация записи, в т. ч. из backup);
+  `fullitem.js` — просмотр/редактирование (`FullItem`, по одному на контейнер) и добавление (`AddingFullItem`).
+- `menu.js` — шапка и настройки; `searchContainer.js` — поиск; `dialog.js`/`alertDialog.js`/`languageDialog.js` —
+  нативный `<dialog>`; `validator.js` — сообщения ошибок полей формы.
+- Картинка — data URL строкой; при добавлении/смене сжимается в JPEG в `compression.worker.js`
+  (`new Worker(new URL("./compression.worker.js", import.meta.url))` — именно такой вид нужен Vite, чтобы
+  собрать воркер).
+- `localStorage.js` — вид списков (`containers`: число карточек и сетка по id `LIST_TYPE`) и положение шапки
+  (`navbar`); язык — ключ `preferredLanguage` (в `i18n.js`).
+- Стили — обычный CSS по компонентам в `src/css/`, подключаются через `@import` в `style.css`;
+  элементы скрываются классом `.hide` (`hideElement`/`showElement` в `common.js`), не через `style.display`.
+- `vite.config.js`: входы — все `./*.html` в корне; в production HTML (и `templates.html`) минифицируется плагином.
+
+## Данные и совместимость
+
+- IndexedDB `SavingSeries`, версия 2 (`database.js`): `series_meta` (keyPath `id`, индекс `name_idx`) и
+  `series_images` (`{id, image}`). Миграции — в `onupgradeneeded` по `event.oldVersion` (0 — создание, 1 — разнос
+  старого хранилища `series` на мету и картинки). Новая версия — поднять `#DB_VERSION` и добавить шаг так, чтобы
+  база любой старой версии доходила до новой.
+- Запись: `id` (число; новый = последний id из курсора + 1), `name`, `season` (1–50), `episode` (1–50000),
+  `date` (`Date` или `""` — без даты), `site`, `note`, `status`, `image`. `STATUS` — строки `"0"`–`"3"`, лежат
+  в базе и в backup — не перенумеровывать. Ограничения полей продублированы в `templates.html` (`min`/`max`/
+  `maxlength`) и в `Series.validate` — менять вместе.
+- Backup (`backup.js`) — файл `SavingSeries.backup`: JSON-массив записей с картинкой внутри (формат V1).
+  Загрузка полностью заменяет данные: чистит обе таблицы и весь localStorage (вид списков, язык); невалидные
+  записи молча отбрасываются. Старые backup должны читаться всегда; новый формат — отличимым от массива
+  (объект с версией), с сохранением ветки V1.
+
+## Тексты интерфейса
+
+- Новые тексты — ключами в обоих `src/locales/{ru,en}.json` (наборы ключей сейчас совпадают). В разметке —
+  атрибуты `data-i18n-key` / `data-i18n-title` / `data-i18n-placeholder`, в коде — `window.i18n.t(key, {name})`
+  (подстановки `{name}`). Русский текст в `templates.html` — только запасной.
+- Язык меняется без перезагрузки: всё, что формируется в JS, должно перерисовываться по событию документа
+  `languagechange` (так сделано в `app.js`, `fullitem.js`, `validator.js`, диалогах).
+- Словари находятся через `import.meta.glob`; новый язык — файл `src/locales/<код>.json` и ключ `lang_<код>`
+  во всех словарях.
+
+## Соглашения
+
+- Стиль как в коде: ES-классы, 4 пробела, двойные кавычки, `;`, импорты без расширения `.js`.
+- Комментарии — по-русски, коротко, только неочевидное (почему, инвариант).
+- Коммиты — атомарные, сообщения по-английски, без трейлера `Co-Authored-By`.
+- Не добавлять зависимостей без необходимости: сейчас `dependencies` пуст, в `devDependencies` — только сборка.
+- `dist/` — артефакт сборки (в `.gitignore`), не коммитить.
