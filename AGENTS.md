@@ -13,12 +13,22 @@ yarn dev                         # dev-сервер Vite на порту 5391 (s
 yarn build                       # сборка в dist/
 yarn preview                     # просмотр собранного dist/
 yarn test:e2e                    # смоук-тесты Playwright в Chromium, свой dev-сервер на порту 5392
+yarn snapshot <имя> [--width 1400] [--font-size 20] [--dev]   # снимок состояний интерфейса в .snapshots/<имя>
+yarn snapshot:diff <до> <после> [--max 40]                     # отличия стилей и скриншотов двух снимков
 ```
 
 Линтера нет. Автоматические проверки — `yarn -s build` (без ошибок и новых предупреждений) и смоук-тесты
 `yarn test:e2e` (`e2e/*.spec.js`; браузер один раз ставится `yarn playwright install chromium`). Общие помощники —
 `e2e/support/app.js`: фиксированный «сегодня», тестовые сериалы во все списки, `openApp` — приложение с заполненной
 базой. Смоук-тесты — только основные сценарии; остальное поведение проверять в браузере через `yarn dev`.
+
+Правки вёрстки и рефакторинг CSS проверять снимками: `yarn snapshot before` до правки, `yarn snapshot after` после,
+`yarn snapshot:diff before after` — какие computed-стили у каких элементов изменились и отличаются ли скриншоты
+(карта отличий — в `.snapshots/diff-before-after/`). Состояния (списки, наведение, число карточек, сетка, полная
+карточка, редактирование, ошибка поля, добавление, меню, диалоги, поиск) — в `scripts/snapshot.js`. По умолчанию
+снимается production-сборка; `--dev` отличается от неё записью градиентов, поэтому «до» и «после» снимать в одном
+режиме.
+
 CI (`.github/workflows/deploy.yml`, Node 26) на push в `main` собирает и публикует `dist/` на GitHub Pages
 (ветка `gh-pages`, домен из `public/CNAME`); на pull request проверок нет.
 

@@ -8,7 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "snapshot": "node scripts/snapshot.js",
+    "snapshot:diff": "node scripts/snapshot-diff.js"
   },
   "author": "EpicDima",
   "license": "Apache-2.0",

@@ -262,5 +262,8 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
+# Снимки интерфейса (yarn snapshot)
+.snapshots/
+
 # Claude Code local files
 .claude/
