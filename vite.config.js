@@ -55,6 +55,9 @@ export default defineConfig(({mode}) => {
         base: "/",
         server: {
             open: true,
+            port: 5391,
+            // другой порт — другой origin и пустая IndexedDB
+            strictPort: true,
         },
         build: {
             modulePreload: {polyfill: false},

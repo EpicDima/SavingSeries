@@ -9,7 +9,7 @@ Vite 8, без фреймворка, без своего сервера и бе�
 
 ```sh
 yarn install --frozen-lockfile   # Yarn 1 (classic), yarn.lock v1; npm/pnpm не использовать
-yarn dev                         # dev-сервер Vite на порту по умолчанию (5173), сам открывает браузер
+yarn dev                         # dev-сервер Vite на порту 5391 (strictPort), сам открывает браузер
 yarn build                       # сборка в dist/
 yarn preview                     # просмотр собранного dist/
 ```
