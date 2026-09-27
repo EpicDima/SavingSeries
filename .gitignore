@@ -256,5 +256,11 @@ fabric.properties
 # and uncomment the following lines
 # .pnp.*
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # Claude Code local files
 .claude/

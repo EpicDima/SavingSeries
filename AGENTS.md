@@ -12,12 +12,15 @@ yarn install --frozen-lockfile   # Yarn 1 (classic), yarn.lock v1; npm/pnpm не
 yarn dev                         # dev-сервер Vite на порту 5391 (strictPort), сам открывает браузер
 yarn build                       # сборка в dist/
 yarn preview                     # просмотр собранного dist/
+yarn test:e2e                    # смоук-тесты Playwright в Chromium, свой dev-сервер на порту 5392
 ```
 
-Тестов и линтера нет. Единственная автоматическая проверка — `yarn -s build` (без ошибок и новых предупреждений);
-поведение проверять вручную в браузере через `yarn dev`. CI (`.github/workflows/deploy.yml`, Node 26) на push
-в `main` собирает и публикует `dist/` на GitHub Pages (ветка `gh-pages`, домен из `public/CNAME`);
-на pull request проверок нет.
+Линтера нет. Автоматические проверки — `yarn -s build` (без ошибок и новых предупреждений) и смоук-тесты
+`yarn test:e2e` (`e2e/*.spec.js`; браузер один раз ставится `yarn playwright install chromium`). Общие помощники —
+`e2e/support/app.js`: фиксированный «сегодня», тестовые сериалы во все списки, `openApp` — приложение с заполненной
+базой. Смоук-тесты — только основные сценарии; остальное поведение проверять в браузере через `yarn dev`.
+CI (`.github/workflows/deploy.yml`, Node 26) на push в `main` собирает и публикует `dist/` на GitHub Pages
+(ветка `gh-pages`, домен из `public/CNAME`); на pull request проверок нет.
 
 ## Устройство
 
