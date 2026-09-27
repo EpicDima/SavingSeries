@@ -247,13 +247,9 @@ export class BaseFullItem {
     }
 
 
-    setErrorToImageInput(text) {
-        if (text) {
-            this.fields.image.error.innerText = text;
-            addClass(this.fields.image.input, "error");
-        } else {
-            removeClass(this.fields.image.input, "error");
-        }
+    setErrorToImageInput(text = "") {
+        this.fields.image.error.innerText = text;
+        this.fields.image.input.closest(".fullitem-input-label").classList.toggle("invalid", text !== "");
     }
 
 
@@ -332,7 +328,6 @@ export class BaseFullItem {
     resetInputValues() {
         this.form.reset();
         this.fields.image.value.style.backgroundImage = "";
-        removeClass(this.fields.image.input, "error");
         resetValidation(this.form);
     }
 

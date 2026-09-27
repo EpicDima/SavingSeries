@@ -141,8 +141,7 @@
         border-radius: 0.2rem;
     }
 
-    .fullitem-input-label.invalid > .fullitem-input,
-    .fullitem-input.error {
+    .fullitem-input-label.invalid > .fullitem-input {
         border-color: var(--color-error);
         color: var(--color-error);
     }
