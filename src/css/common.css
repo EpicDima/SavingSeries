@@ -74,7 +74,6 @@ button {
 
 button:hover {
     background-color: #fff3;
-    color: white;
     border-color: #fff9;
 }
 
@@ -82,4 +81,22 @@ button:active {
     background-color: white;
     color: black;
     border-color: white;
+}
+
+.outer-close {
+    position: absolute;
+    top: 0;
+    right: 0.4rem;
+    z-index: 5;
+    color: #555;
+}
+
+.outer-close:hover {
+    color: #900f;
+}
+
+.outer-close > .close {
+    cursor: pointer;
+    font-size: 2rem;
+    user-select: none;
 }

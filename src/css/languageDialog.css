@@ -16,10 +16,10 @@
 }
 
 #languageList > div:hover {
-    background-color: #ffffff1a;
+    background-color: #fff1;
 }
 
 #languageList > div.active {
-    background-color: #ffffff33;
+    background-color: #fff3;
     font-weight: bold;
 }

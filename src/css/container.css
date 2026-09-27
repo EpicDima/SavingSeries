@@ -13,7 +13,6 @@
 
 .hlist-container > .top > .title {
     width: max-content;
-    height: auto;
     position: relative;
     font-size: 1.4rem;
     color: white;
@@ -115,8 +114,7 @@
 .hlist-container > .outer-container-list > .outer-list {
     position: relative;
     display: flex;
-    overflow: auto;
-    overflow-y: hidden;
+    overflow: auto hidden;
     scrollbar-width: none;
 }
 
@@ -130,7 +128,6 @@
 
 .hlist-container > .outer-container-list > .outer-list > .list.grid {
     width: 100%;
-    height: auto;
     flex-wrap: wrap;
 }
 
