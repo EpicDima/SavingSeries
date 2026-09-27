@@ -1,8 +1,10 @@
 html {
     font-size: 16px;
+    line-height: 1.15;
 }
 
 body {
+    margin: 0;
     background-color: #141414;
     font-family: Roboto, "Segoe UI", sans-serif;
     overflow-y: scroll;
@@ -29,6 +31,19 @@ a:hover {
 
 textarea {
     resize: none;
+}
+
+/* Иначе браузеры дают полям свой системный шрифт около 13px */
+button, input, select, textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+}
+
+::file-selector-button {
+    appearance: button;
+    font: inherit;
 }
 
 input, textarea, select {
