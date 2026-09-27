@@ -255,3 +255,6 @@ fabric.properties
 
 # and uncomment the following lines
 # .pnp.*
+
+# Claude Code local files
+.claude/
