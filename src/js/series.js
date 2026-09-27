@@ -4,6 +4,10 @@ import Database from "./database";
 
 export default class Series {
 
+    static #NAME_MAX_LENGTH = 256;
+    static #SITE_MAX_LENGTH = 512;
+    static #NOTE_MAX_LENGTH = 512;
+
     static onItemClickListener = () => {
         return false;
     };
@@ -18,13 +22,13 @@ export default class Series {
                     if (season >= 1 && season <= 50 && episode >= 1 && episode <= 50000) {
                         return {
                             id: series.id,
-                            name: series.name,
+                            name: String(series.name).slice(0, Series.#NAME_MAX_LENGTH),
                             season: season,
                             episode: episode,
                             date: series.date ? (series.date.toDate ? series.date.toDate() : new Date(series.date)) : "",
-                            site: series.site ? series.site : "",
+                            site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
                             image: isImage(series.image) ? series.image : "",
-                            note: series.note ? series.note : "",
+                            note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
                             status: series.status ? series.status : STATUS.RUN
                         };
                     }
