@@ -31,7 +31,7 @@
     cursor: pointer;
     mask: var(--icon);
     mask-size: 1.85rem;
-    background-color: #fffd;
+    background-color: var(--color-white-dim);
 }
 
 .hlist-container > .top > .options > :is(.count-icon, .grid-icon):hover {
@@ -120,7 +120,7 @@
 }
 
 .hlist-container > .outer-container-list > :is(.left-control, .right-control):hover > :is(.left-icon, .right-icon) {
-    background-color: #fffd;
+    background-color: var(--color-white-dim);
 }
 
 .hlist-container > .outer-container-list > .left-control {

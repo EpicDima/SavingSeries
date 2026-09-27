@@ -10,7 +10,7 @@
     padding-inline: 1rem;
     font-family: "Segoe UI", Roboto, sans-serif;
     user-select: none;
-    background-color: #282828fd;
+    background-color: var(--color-surface);
     color: white;
 }
 
@@ -38,8 +38,8 @@
     margin: 0.2rem;
     font-size: 1.25rem;
     cursor: pointer;
-    background-color: #141414;
-    color: #555;
+    background-color: var(--color-background);
+    color: var(--color-muted);
 }
 
 .navbar > .nav-item.search-container > .close:hover {
@@ -47,9 +47,9 @@
 }
 
 .navbar > .nav-item.search-container > .search {
-    background-color: #141414;
+    background-color: var(--color-background);
     color: white;
-    border: 1px solid #393939;
+    border: 1px solid var(--color-border);
     border-radius: 0.3rem;
     line-height: 1.4rem;
     padding: 0.2rem 1.85rem 0.2rem 0.5rem;
@@ -81,7 +81,7 @@
     max-height: 25rem;
     box-sizing: border-box;
     overflow-y: auto;
-    background-color: #282828fd;
+    background-color: var(--color-surface);
 }
 
 .navbar > .nav-item.search-container > .search-list > .search-item {
@@ -91,7 +91,7 @@
 }
 
 .navbar > .nav-item.search-container > .search-list > .search-item.active {
-    background-color: #3e3e3edf;
+    background-color: var(--color-highlight);
 }
 
 .navbar ul {
@@ -109,7 +109,7 @@
 }
 
 .navbar ul > li > div:hover {
-    color: #fffd;
+    color: var(--color-white-dim);
 }
 
 .navbar ul > li > .submenu-title::after {
@@ -125,12 +125,12 @@
 .navbar ul > li .submenu {
     position: absolute;
     z-index: 15;
-    background-color: #282828fd;
+    background-color: var(--color-surface);
     top: 1.8rem;
     right: 0;
     min-width: 10rem;
     border-radius: 0.3rem;
-    border: 1px solid #393939;
+    border: 1px solid var(--color-border);
     padding: 0.5rem 0;
 }
 
@@ -141,5 +141,5 @@
 }
 
 .navbar ul > li .submenu > div:hover {
-    background-color: #3e3e3edf;
+    background-color: var(--color-highlight);
 }

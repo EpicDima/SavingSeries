@@ -1,3 +1,14 @@
+:root {
+    --color-background: #141414;
+    --color-surface: #282828;
+    --color-border: #393939;
+    --color-highlight: #3e3e3edf;
+    --color-muted: #555;
+    --color-white-dim: #fffd;
+    --color-error: red;
+    --transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+}
+
 html {
     font-size: 16px;
     line-height: 1.15;
@@ -5,7 +16,7 @@ html {
 
 body {
     margin: 0;
-    background-color: #141414;
+    background-color: var(--color-background);
     font-family: Roboto, "Segoe UI", sans-serif;
     overflow-y: scroll;
     padding-top: 3rem;
@@ -88,7 +99,7 @@ button:active {
     top: 0;
     right: 0.4rem;
     z-index: 5;
-    color: #555;
+    color: var(--color-muted);
 }
 
 .outer-close:hover {

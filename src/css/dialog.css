@@ -2,7 +2,7 @@ dialog {
     position: fixed;
     top: 6rem;
     color: white;
-    background-color: #141414;
+    background-color: var(--color-background);
     border: 2px solid black;
     border-radius: 0.4rem;
 }

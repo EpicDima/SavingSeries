@@ -4,7 +4,7 @@
     margin: 0.5rem;
     box-sizing: border-box;
     box-shadow: 0 0 0.4rem 0.01rem black;
-    transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+    transition: var(--transition);
     transition-property: transform, box-shadow;
     cursor: pointer;
     border-radius: var(--radius);
@@ -68,7 +68,7 @@
     border-radius: inherit;
     background-size: 100%;
     background-repeat: no-repeat;
-    transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+    transition: var(--transition);
     transition-property: filter;
 }
 
@@ -77,7 +77,7 @@
     inset: 0;
     border-radius: inherit;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 15%, transparent 20%);
-    transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+    transition: var(--transition);
     transition-property: filter;
 }
 
@@ -92,7 +92,7 @@
     mask: var(--icon) no-repeat 50% 50%;
     mask-size: 1.85rem;
     background-color: #fffa;
-    transition: 150ms cubic-bezier(0.46, 0.03, 0.52, 0.96);
+    transition: var(--transition);
     transition-property: background-color;
     z-index: 2;
 }

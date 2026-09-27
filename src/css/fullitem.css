@@ -103,7 +103,7 @@ main > .fullitem {
 }
 
 .fullitem > .content > .general > .input-container > .row > .input > label > select > option {
-    background-color: #282828fd;
+    background-color: var(--color-surface);
     color: white;
 }
 
@@ -144,8 +144,8 @@ main > .fullitem {
 
 .fullitem .fullitem-input-label.invalid > .fullitem-input,
 .fullitem .fullitem-input.error {
-    border-color: red;
-    color: red;
+    border-color: var(--color-error);
+    color: var(--color-error);
 }
 
 .fullitem .fullitem-input-label.invalid ~ .invalid-tooltip {
