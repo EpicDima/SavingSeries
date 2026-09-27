@@ -22,8 +22,9 @@ yarn preview                     # просмотр собранного dist/
 ## Устройство
 
 - `index.html` грузит два модуля: `src/js/i18n.js` (раньше приложения, вешает `window.i18n`) и `src/js/main.js`.
-  `main.js` вставляет `<template>` из `src/html/templates.html` (`templates.js`, fetch по
-  `new URL(..., import.meta.url)`) и создаёт `App` (синглтон, `app.js`).
+  `main.js` вставляет `<template>` из `src/html/templates.html` (`templates.js`, строкой через `?raw`) и создаёт
+  `App` (синглтон, `app.js`). Шаблоны и словари вшиты в основной чанк, чтобы интерфейс не ждал второй волны
+  запросов после загрузки JS.
 - `app.js` строит по `HorizontalContainer` (`container.js`) на каждый `LIST_TYPE` (`constants.js`). Список записи
   вычисляет `getSeriesListType` (`common.js`) по статусу и дате; `setDayTimer` в полночь пересобирает списки.
 - `series.js` — модель и карточка (`Series.validate` — единая нормализация записи, в т. ч. из backup);
@@ -37,7 +38,8 @@ yarn preview                     # просмотр собранного dist/
   (`navbar`); язык — ключ `preferredLanguage` (в `i18n.js`).
 - Стили — обычный CSS по компонентам в `src/css/`, подключаются через `@import` в `style.css`;
   элементы скрываются классом `.hide` (`hideElement`/`showElement` в `common.js`), не через `style.display`.
-- `vite.config.js`: входы — все `./*.html` в корне; в production HTML (и `templates.html`) минифицируется плагином.
+- `vite.config.js`: входы — все `./*.html` в корне; в production HTML минифицируется плагинами
+  (`templates.html` — при загрузке через `?raw`).
 
 ## Данные и совместимость
 
@@ -61,8 +63,8 @@ yarn preview                     # просмотр собранного dist/
   (подстановки `{name}`). Русский текст в `templates.html` — только запасной.
 - Язык меняется без перезагрузки: всё, что формируется в JS, должно перерисовываться по событию документа
   `languagechange` (так сделано в `app.js`, `fullitem.js`, `validator.js`, диалогах).
-- Словари находятся через `import.meta.glob`; новый язык — файл `src/locales/<код>.json` и ключ `lang_<код>`
-  во всех словарях.
+- Словари находятся через `import.meta.glob` (`eager`); новый язык — файл `src/locales/<код>.json` и ключ
+  `lang_<код>` во всех словарях.
 
 ## Соглашения
 

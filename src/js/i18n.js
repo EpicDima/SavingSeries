@@ -4,33 +4,33 @@
     const I18N_PLACEHOLDER_ATTRIBUTE = "data-i18n-placeholder";
     const DEFAULT_LANGUAGE = "en";
 
+    const LOCALES = import.meta.glob("../locales/*.json", {eager: true, import: "default"});
+
     const translations = {};
     let currentLanguage = DEFAULT_LANGUAGE;
 
 
-    async function loadTranslations(lang) {
-        try {
-            const module = await import(`../locales/${lang}.json`);
-            translations[lang] = module.default;
+    function getLocale(lang) {
+        return LOCALES[`../locales/${lang}.json`];
+    }
+
+
+    function loadTranslations(lang) {
+        if (getLocale(lang)) {
+            translations[lang] = getLocale(lang);
             return true;
-        } catch (error) {
-            const baseLang = lang.split('-')[0];
-            if (baseLang !== lang) {
-                try {
-                    const module = await import(`../locales/${baseLang}.json`);
-                    translations[lang] = module.default;
-                    translations[baseLang] = module.default;
-                    return true;
-                } catch (e) {
-                    // ignore
-                }
-            }
-            console.error(`Translation file for "${lang}" not found, falling back to "${DEFAULT_LANGUAGE}".`, error);
-            if (lang !== DEFAULT_LANGUAGE) {
-                await loadTranslations(DEFAULT_LANGUAGE);
-            }
-            return false;
         }
+        const baseLang = lang.split('-')[0];
+        if (baseLang !== lang && getLocale(baseLang)) {
+            translations[lang] = getLocale(baseLang);
+            translations[baseLang] = getLocale(baseLang);
+            return true;
+        }
+        console.error(`Translation file for "${lang}" not found, falling back to "${DEFAULT_LANGUAGE}".`);
+        if (lang !== DEFAULT_LANGUAGE) {
+            loadTranslations(DEFAULT_LANGUAGE);
+        }
+        return false;
     }
 
 
@@ -79,7 +79,7 @@
         }
 
         if (!translations[lang]) {
-            await loadTranslations(lang);
+            loadTranslations(lang);
         }
 
         currentLanguage = lang;
@@ -108,8 +108,7 @@
 
 
     function getAvailableLanguages() {
-        const locales = import.meta.glob('../locales/*.json');
-        return Object.keys(locales).map(path => path.match(/([a-zA-Z-]+)\.json$/)[1]);
+        return Object.keys(LOCALES).map(path => path.match(/([a-zA-Z-]+)\.json$/)[1]);
     }
 
 
