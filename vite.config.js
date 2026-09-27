@@ -57,6 +57,7 @@ export default defineConfig(({mode}) => {
             open: true,
         },
         build: {
+            modulePreload: {polyfill: false},
             rollupOptions: {
                 input: htmlFiles,
             }
