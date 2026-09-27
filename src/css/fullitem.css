@@ -6,7 +6,7 @@
     overflow: hidden;
 }
 
-.fullitem:first-of-type {
+main > .fullitem {
     box-shadow: 0 0 1rem black;
 }
 
