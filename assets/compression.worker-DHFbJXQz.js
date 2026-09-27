@@ -1,0 +1,1 @@
+(function(){self.onmessage=async e=>{let{imageBitmap:t}=e.data,n=new OffscreenCanvas(t.width,t.height);n.getContext(`2d`).drawImage(t,0,0);let r=await n.convertToBlob({type:`image/jpeg`,quality:.5});self.postMessage({compressedBlob:r})}})();

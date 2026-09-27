@@ -1,1 +1,0 @@
-(function(){"use strict";self.onmessage=async s=>{const{imageBitmap:e}=s.data,t=new OffscreenCanvas(e.width,e.height);t.getContext("2d").drawImage(e,0,0);const a=await t.convertToBlob({type:"image/jpeg",quality:.5});self.postMessage({compressedBlob:a})}})();
