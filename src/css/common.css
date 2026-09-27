@@ -16,7 +16,8 @@ html {
 body {
     margin: 0;
     background-color: var(--color-background);
-    font-family: Roboto, "Segoe UI", sans-serif;
+    /* Arial раньше sans-serif: с Helvetica (sans-serif на macOS) Firefox поднимает текст в полях ввода */
+    font-family: Roboto, "Segoe UI", Arial, sans-serif;
     overflow-y: scroll;
     padding-top: 3rem;
 }
