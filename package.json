@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "It's a web application to track new episodes of series, instead of default notepad",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

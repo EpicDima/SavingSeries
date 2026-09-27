@@ -5,7 +5,7 @@ import {minify} from "html-minifier-terser";
 
 const htmlFiles = globSync(["./*.html"]).reduce((acc, file) => {
     const name = file.split("/").pop().split(".").shift();
-    acc[name] = resolve(__dirname, file);
+    acc[name] = resolve(import.meta.dirname, file);
     return acc;
 }, {});
 
