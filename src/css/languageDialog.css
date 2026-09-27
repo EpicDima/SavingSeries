@@ -7,19 +7,19 @@
     flex-direction: column;
     gap: 0.5rem;
     padding-bottom: 0.5rem;
-}
 
-#languageList > div {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 0.3rem;
-}
+    > div {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-radius: 0.3rem;
 
-#languageList > div:hover {
-    background-color: #fff1;
-}
+        &:hover {
+            background-color: #fff1;
+        }
 
-#languageList > div.active {
-    background-color: #fff3;
-    font-weight: bold;
+        &.active {
+            background-color: #fff3;
+            font-weight: bold;
+        }
+    }
 }

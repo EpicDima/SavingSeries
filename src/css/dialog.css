@@ -5,28 +5,28 @@ dialog {
     background-color: var(--color-background);
     border: 2px solid black;
     border-radius: 0.4rem;
-}
 
-dialog::backdrop {
-    background-color: #000b;
-}
+    &::backdrop {
+        background-color: #000b;
+    }
 
-dialog .title {
-    margin: 0;
-    padding: 0.5rem 0.5rem 1.5rem 0.5rem;
-    font-size: 1.15rem;
-    font-weight: normal;
-    user-select: none;
-}
+    .title {
+        margin: 0;
+        padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+        font-size: 1.15rem;
+        font-weight: normal;
+        user-select: none;
+    }
 
-dialog > .button-container {
-    display: flex;
-    justify-content: flex-end;
-}
+    > .button-container {
+        display: flex;
+        justify-content: flex-end;
 
-dialog > .button-container > button {
-    min-width: 6rem;
-    margin-left: 1rem;
-    padding: 0.3rem 0.7rem;
-    font-size: 1rem;
+        > button {
+            min-width: 6rem;
+            margin-left: 1rem;
+            padding: 0.3rem 0.7rem;
+            font-size: 1rem;
+        }
+    }
 }
