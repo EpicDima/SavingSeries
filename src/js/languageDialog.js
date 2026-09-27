@@ -4,9 +4,7 @@ export default class LanguageDialog extends Dialog {
     constructor() {
         super("languageDialogTemplate", {closeOnBackdropClick: true});
 
-        this.languageList = document.createElement("div");
-        this.languageList.id = "languageList";
-        this.element.appendChild(this.languageList);
+        this.languageList = this.element.querySelector("#languageList");
 
         this.populateLanguages();
         this.setListeners();
