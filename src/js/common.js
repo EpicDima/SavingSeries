@@ -101,8 +101,7 @@ export function createLinkElement(site) {
 }
 
 
-// Картинка хранится как data URL. Остальное считается отсутствием картинки, в том числе строка "undefined",
-// которую старые версии сохраняли вместо картинки: иначе браузер запрашивает её как адрес /undefined.
+// Отсеивает строку "undefined" от старых версий: иначе браузер запрашивает /undefined
 export function isImage(image) {
     return typeof image === "string" && image.startsWith("data:");
 }
