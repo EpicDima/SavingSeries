@@ -54,8 +54,10 @@ export default class Dialog {
         if (this.listenersSet) {
             return;
         }
+        let pressedOnBackdrop = false;
+        this.dialog.addEventListener("pointerdown", (e) => pressedOnBackdrop = this.isOnBackdrop(e));
         this.dialog.addEventListener("click", (e) => {
-            if (e.target === this.dialog && this.options.closeOnBackdropClick) {
+            if (this.options.closeOnBackdropClick && pressedOnBackdrop && this.isOnBackdrop(e)) {
                 this.close();
             }
         });
@@ -65,6 +67,14 @@ export default class Dialog {
             closeButton.onclick = () => this.close();
         }
         this.listenersSet = true;
+    }
+
+
+    // Клик по собственному отступу окна тоже приходит с target === dialog
+    isOnBackdrop(event) {
+        const rect = this.dialog.getBoundingClientRect();
+        return event.target === this.dialog && (event.clientX < rect.left || event.clientX > rect.right
+            || event.clientY < rect.top || event.clientY > rect.bottom);
     }
 
     get element() {
