@@ -727,6 +727,15 @@ export class AddingFullItem extends BaseFullItem {
     }
 
 
+    toggle() {
+        if (this.fullitem.classList.contains("hide")) {
+            this.open();
+        } else {
+            this.close();
+        }
+    }
+
+
     checkInputs() {
         if (this.fields.name.input.validity.valid) {
             return super.checkInputs();

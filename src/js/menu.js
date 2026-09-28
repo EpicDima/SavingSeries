@@ -55,7 +55,7 @@ export class Menu {
         this.settingsSubMenuTitle.onclick = (e) => this.toggleSubMenu(e);
         document.addEventListener("click", this.boundHandleClick);
 
-        this.openAddingElementMenuItem.onclick = () => this.app.openAddingElement();
+        this.openAddingElementMenuItem.onclick = () => this.app.toggleAddingElement();
         this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
         this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();

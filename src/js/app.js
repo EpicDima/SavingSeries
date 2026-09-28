@@ -116,8 +116,8 @@ export default class App {
     }
 
 
-    openAddingElement() {
-        this.addingFullItem.open();
+    toggleAddingElement() {
+        this.addingFullItem.toggle();
     }
 
 
