@@ -23,6 +23,23 @@ test("раскладывает сериалы по спискам", async ({page
 });
 
 
+test("стрелки листают длинный список", async ({page}) => {
+    await openApp(page);
+
+    const released = page.locator(".hlist-container:not(.hide)").first();
+    const list = released.locator(".outer-list");
+    const left = released.locator(".left-control");
+    const right = released.locator(".right-control");
+    await expect(left).toBeHidden();
+    await list.hover();
+    await right.click();
+    await expect.poll(() => list.evaluate(element => element.scrollLeft === element.clientWidth)).toBe(true);
+    await expect(left).toBeVisible();
+    await list.evaluate(element => element.scrollLeft = element.scrollWidth);
+    await expect(right).toBeHidden();
+});
+
+
 test("добавленный сериал остаётся после перезагрузки", async ({page}) => {
     await openApp(page, {series: []});
 

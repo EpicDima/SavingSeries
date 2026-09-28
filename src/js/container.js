@@ -86,18 +86,6 @@ export default class HorizontalContainer {
     }
 
 
-    onScrollStopped(elem, callback, timeout = 300) {
-        callback.timeout = 0;
-        elem.onscroll = () => {
-            let now = Date.now();
-            if (now - callback.timeout >= timeout) {
-                callback.timeout = now;
-                setTimeout(callback, timeout);
-            }
-        };
-    }
-
-
     scrollList(draw) {
         let start = this.scrollableList.scrollLeft;
         let width = this.scrollableList.offsetWidth;
@@ -119,7 +107,11 @@ export default class HorizontalContainer {
 
 
     setButtonListeners() {
-        this.onScrollStopped(this.scrollableList, () => this.checkLeftRightButtons());
+        this.scrollableList.addEventListener("scroll", () => this.checkLeftRightButtons(), {passive: true});
+        // Ширина карточек с content-visibility: auto известна только после их отрисовки
+        this.resizeObserver = new ResizeObserver(() => this.checkLeftRightButtons());
+        this.resizeObserver.observe(this.scrollableList);
+        this.resizeObserver.observe(this.hlcList);
 
         this.leftButton.onclick = (event) => {
             event.preventDefault();
@@ -153,7 +145,6 @@ export default class HorizontalContainer {
         this.hlcList.classList.remove(...classList);
         this.hlcList.classList.add(count);
 
-        this.checkLeftRightButtons();
         this.fullitem.moveByGridState();
         this.setCountToLocalStorage(count);
     }
@@ -203,29 +194,15 @@ export default class HorizontalContainer {
         if (this.grid) {
             return;
         }
-        let scrollLeft = this.scrollableList.scrollLeft;
-        let scrollLeftMax = this.scrollableList.scrollWidth - this.scrollableList.clientWidth;
-        if (scrollLeft === 0) {
-            this.leftButton.classList.add("hide");
-            if (scrollLeftMax === 0) {
-                this.rightButton.classList.add("hide");
-            } else {
-                this.rightButton.classList.remove("hide");
-            }
-        } else {
-            this.leftButton.classList.remove("hide");
-            if (scrollLeftMax === scrollLeft) {
-                this.rightButton.classList.add("hide");
-            } else {
-                this.rightButton.classList.remove("hide");
-            }
-        }
+        // Допуск в пиксель: при масштабе страницы scrollLeft дробный
+        const {scrollLeft, scrollWidth, clientWidth} = this.scrollableList;
+        this.leftButton.classList.toggle("hide", scrollLeft < 1);
+        this.rightButton.classList.toggle("hide", scrollLeft > scrollWidth - clientWidth - 1);
     }
 
 
     show() {
         showElement(this.container);
-        this.checkLeftRightButtons();
     }
 
 
@@ -235,6 +212,7 @@ export default class HorizontalContainer {
 
 
     remove() {
+        this.resizeObserver.disconnect();
         this.container.remove();
     }
 
@@ -264,7 +242,6 @@ export default class HorizontalContainer {
             this.sortByDate();
         }
         this.showItems();
-        this.checkLeftRightButtons();
         this.scrollFromAnother(series);
         series.updateImage();
     }
@@ -339,7 +316,6 @@ export default class HorizontalContainer {
                 if (this.sortByDate()) {
                     this.showItems();
                     this.scrollInThis(series);
-                    this.checkLeftRightButtons();
                 }
             }
         }
@@ -374,8 +350,6 @@ export default class HorizontalContainer {
         }
         if (this.map.size === 0) {
             this.hide();
-        } else {
-            this.checkLeftRightButtons();
         }
     }
 
