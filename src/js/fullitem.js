@@ -196,16 +196,27 @@ export class BaseFullItem {
 
 
     setKeyboardListener() {
-        document.onkeyup = (e) => this.keyboardListen(e.key);
+        document.onkeydown = (e) => {
+            if (this.isOwnKey(e)) {
+                this.keyboardListen(e);
+            }
+        };
     }
 
 
     removeKeyboardListener() {
-        document.onkeyup = null;
+        document.onkeydown = null;
     }
 
 
-    keyboardListen(key) {
+    // Нажатия в диалоге поверх карточки — его, Enter на кнопке нажимает саму кнопку
+    isOwnKey(event) {
+        return !event.repeat && !event.target.closest("dialog")
+            && !(event.key === BaseFullItem.ENTER_KEY && event.target instanceof HTMLButtonElement);
+    }
+
+
+    keyboardListen(event) {
     }
 
 
@@ -432,12 +443,13 @@ export class FullItem extends BaseFullItem {
         }
     }
 
-    keyboardListen(key) {
-        if (key === BaseFullItem.ENTER_KEY) {
+    keyboardListen(event) {
+        if (event.key === BaseFullItem.ENTER_KEY) {
             if (this.changeMode) {
+                event.preventDefault();
                 this.accept();
             }
-        } else if (key === BaseFullItem.ESCAPE_KEY) {
+        } else if (event.key === BaseFullItem.ESCAPE_KEY) {
             if (this.changeMode) {
                 this.cancel();
             } else {
@@ -700,10 +712,11 @@ export class AddingFullItem extends BaseFullItem {
     }
 
 
-    keyboardListen(key) {
-        if (key === BaseFullItem.ENTER_KEY) {
+    keyboardListen(event) {
+        if (event.key === BaseFullItem.ENTER_KEY) {
+            event.preventDefault();
             this.add();
-        } else if (key === BaseFullItem.ESCAPE_KEY) {
+        } else if (event.key === BaseFullItem.ESCAPE_KEY) {
             this.close();
         }
     }
