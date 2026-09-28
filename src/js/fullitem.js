@@ -600,6 +600,7 @@ export class FullItem extends BaseFullItem {
 
 
     cancel() {
+        this.changeMode = false;
         this.fields.image.value.style.backgroundImage = imageToCssUrl(this.series.data.image);
         this.setInputValues(this.series);
         this.showAllFields();
