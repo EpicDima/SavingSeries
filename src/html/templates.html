@@ -216,10 +216,10 @@
 <template id="alertDialogTemplate">
     <dialog>
         <div class="title"></div>
-        <div class="button-container">
-            <button class="accept" data-i18n-key="ok">ОК</button>
-            <button class="cancel" data-i18n-key="cancel">Отмена</button>
-        </div>
+        <form class="button-container" method="dialog">
+            <button class="accept" value="true" data-i18n-key="ok">ОК</button>
+            <button class="cancel" value="false" data-i18n-key="cancel">Отмена</button>
+        </form>
     </dialog>
 </template>
 <template id="languageDialogTemplate">
