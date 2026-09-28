@@ -214,8 +214,8 @@
     </div>
 </template>
 <template id="alertDialogTemplate">
-    <dialog>
-        <div class="title"></div>
+    <dialog role="alertdialog" aria-labelledby="alertDialogTitle">
+        <div class="title" id="alertDialogTitle"></div>
         <form class="button-container" method="dialog">
             <button class="accept" value="true" data-i18n-key="ok">ОК</button>
             <button class="cancel" value="false" data-i18n-key="cancel">Отмена</button>
