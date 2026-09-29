@@ -68,14 +68,9 @@ export default class Backup {
     onOpenFile(event) {
         let reader = new FileReader();
         reader.onload = async () => {
-            let records = [];
+            let records;
             try {
-                let data = JSON.parse("" + reader.result);
-                if (Array.isArray(data)) { // V1
-                    // id из файла могут повторяться или быть не числами, а новый id — последний + 1
-                    records = data.map(series => Series.validate(series)).filter(Boolean)
-                        .map((record, index) => ({...record, id: index + 1}));
-                }
+                records = Backup.readRecords(JSON.parse("" + reader.result));
             } catch (e) {
                 alert(window.i18n.t("backup_file_corrupted"));
                 return;
@@ -89,5 +84,19 @@ export default class Backup {
             this.onLoad();
         };
         reader.readAsText(event.target.files[0]);
+    }
+
+
+    // Невалидные записи отбрасываются, но файл совсем без годных записей — не backup
+    static readRecords(data) {
+        if (!Array.isArray(data)) { // V1
+            throw new TypeError("Not a backup");
+        }
+        const records = data.map(series => Series.validate(series)).filter(Boolean);
+        if (data.length > 0 && records.length === 0) {
+            throw new TypeError("No valid series");
+        }
+        // id из файла могут повторяться или быть не числами, а новый id — последний + 1
+        return records.map((record, index) => ({...record, id: index + 1}));
     }
 }
