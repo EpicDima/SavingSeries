@@ -651,8 +651,6 @@ export class FullItem extends BaseFullItem {
 
 export class AddingFullItem extends BaseFullItem {
 
-    static seriesId = 0;
-
     constructor(showSeries, database) {
         super("add", false);
         this.showSeries = showSeries;
@@ -669,11 +667,6 @@ export class AddingFullItem extends BaseFullItem {
     getButtonContainerInnerHtml() {
         const template = document.getElementById("addingFullitemButtonsTemplate");
         return template.innerHTML;
-    }
-
-
-    setSeriesId(seriesId) {
-        AddingFullItem.seriesId = seriesId;
     }
 
 
@@ -758,7 +751,7 @@ export class AddingFullItem extends BaseFullItem {
     }
 
 
-    add() {
+    async add() {
         let data = this.getValuesFromInputs();
         if (!data) {
             this.validateInputs();
@@ -766,10 +759,10 @@ export class AddingFullItem extends BaseFullItem {
         }
         let name = this.fields.name.input.value;
         let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : "";
-        let series = new Series(AddingFullItem.seriesId++, name, data.season, data.episode, data.date,
+        let series = new Series(null, name, data.season, data.episode, data.date,
             data.site, image, data.status, data.note);
-        this.database.putSeriesInDb(series);
         this.close();
+        series.data.id = await this.database.addSeries(series);
         this.showSeries(series);
     }
 }

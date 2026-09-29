@@ -80,7 +80,6 @@ export default class Series {
         this.fragment = template.content.cloneNode(true);
 
         this.item = this.fragment.querySelector(".item-outer");
-        this.item.id = `item${this.data.id}`;
 
         this.image = this.fragment.querySelector(".image");
 

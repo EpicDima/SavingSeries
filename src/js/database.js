@@ -78,6 +78,26 @@ export default class Database {
     }
 
 
+    // id берётся в той же транзакции, что и запись: другая вкладка не выдаст такой же
+    addSeries(series) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(
+                [Database.SERIES_META_OBJECT_STORE_NAME, Database.SERIES_IMAGES_OBJECT_STORE_NAME], "readwrite");
+            const metaStore = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+            const {image, ...meta} = series.data;
+            metaStore.openCursor(null, "prev").onsuccess = (event) => {
+                meta.id = (event.target.result?.key ?? 0) + 1;
+                metaStore.add(meta);
+                if (image) {
+                    transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).add({id: meta.id, image: image});
+                }
+            };
+            transaction.oncomplete = () => resolve(meta.id);
+            transaction.onerror = () => reject(transaction.error);
+        });
+    }
+
+
     deleteSeriesFromDb(series) {
         this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).delete(series.data.id);
         this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(series.data.id);
@@ -101,15 +121,13 @@ export default class Database {
 
     foreach(func, funcOnEnd = null) {
         let request = this.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).openCursor();
-        let id = 0;
         request.onsuccess = () => {
             let cursor = request.result;
             if (cursor) {
                 func(cursor.value);
-                id = cursor.value.id;
                 cursor.continue();
             } else if (funcOnEnd) {
-                funcOnEnd(id);
+                funcOnEnd();
             }
         }
     }

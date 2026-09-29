@@ -65,7 +65,7 @@ export default class App {
         }
         this.main.append(fragment);
         this.database.foreach((series) => this.initialSplitSeries(series),
-            (id) => this.onInitialSplitSeriesEnd(id));
+            () => this.onInitialSplitSeriesEnd());
         App.scrollToTop();
         window.i18n.applyTo(document.body);
     }
@@ -78,7 +78,7 @@ export default class App {
         }
         this.addingFullItem.close();
         this.database.foreach((series) => this.initialSplitSeries(series),
-            (id) => this.onInitialSplitSeriesEnd(id));
+            () => this.onInitialSplitSeriesEnd());
         App.scrollToTop();
     }
 
@@ -136,8 +136,7 @@ export default class App {
     }
 
 
-    onInitialSplitSeriesEnd(id) {
-        this.addingFullItem.setSeriesId(id + 1);
+    onInitialSplitSeriesEnd() {
         for (let container of this.containers.values()) {
             container.initialAdditionFinish();
         }
