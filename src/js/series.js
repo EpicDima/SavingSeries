@@ -1,5 +1,5 @@
 import {STATUS} from "./constants";
-import {dateToLocaleString, hideElement, imageToCssUrl, isImage, showElement} from "./common";
+import {dateToLocaleString, hideElement, imageToCssUrl, isImage, roundToUtcDay, showElement} from "./common";
 import Database from "./database";
 
 export default class Series {
@@ -25,7 +25,7 @@ export default class Series {
                             name: String(series.name).slice(0, Series.#NAME_MAX_LENGTH),
                             season: season,
                             episode: episode,
-                            date: series.date ? new Date(series.date) : "",
+                            date: series.date ? roundToUtcDay(new Date(series.date)) : "",
                             site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
                             image: isImage(series.image) ? series.image : "",
                             note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",

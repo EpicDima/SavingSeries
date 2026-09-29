@@ -63,6 +63,12 @@ export function dateToLocaleString(date) {
 }
 
 
+// Раньше «Далее» шагал по местному времени, и переход на летнее время сдвигал полночь на час
+export function roundToUtcDay(date) {
+    return new Date(Math.round(date / DAY_MS) * DAY_MS);
+}
+
+
 export function dateObjectToInputString(date) {
     return date ? date.toISOString().split("T")[0] : "";
 }
