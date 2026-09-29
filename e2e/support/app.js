@@ -1,11 +1,10 @@
 // Фиксированный «сегодня»: раскладка по спискам и снимки не зависят от дня запуска.
 export const TODAY = new Date("2026-06-15T12:00:00Z");
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 // Сериалы во все списки; у нечётных id есть картинка.
 export function sampleSeries() {
-    const day = offset => new Date(TODAY.getTime() + offset * DAY_MS);
+    // Полночь UTC, как дату хранит поле ввода
+    const day = offset => new Date(Date.UTC(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), TODAY.getUTCDate() + offset));
     const rows = [
         ...Array.from({length: 12}, (_, i) => ({date: day(-3 - i), status: "0"})),
         ...Array.from({length: 3}, (_, i) => ({date: day(2 + i), status: "0"})),
