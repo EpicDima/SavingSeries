@@ -11,8 +11,6 @@ import LocalStorage from "./localStorage";
 
 export default class App {
 
-    database;
-
     static #instance;
 
     constructor() {
@@ -64,9 +62,10 @@ export default class App {
     initialize() {
         const fragment = new DocumentFragment();
         fragment.append(this.addingFullItem.getFragment());
-        for (const k of Object.values(constants.LIST_TYPE)) {
-            const container = new HorizontalContainer(k, constants.getListNames().get(k), this);
-            this.containers.set(k, container);
+        const listNames = constants.getListNames();
+        for (const listType of Object.values(constants.LIST_TYPE)) {
+            const container = new HorizontalContainer(listType, listNames.get(listType), this);
+            this.containers.set(listType, container);
             fragment.append(container.getFragment());
         }
         this.main.append(fragment);
@@ -80,7 +79,7 @@ export default class App {
             return;
         }
         this.menu.clear();
-        for (let container of this.containers.values()) {
+        for (const container of this.containers.values()) {
             container.clear();
         }
         this.addingFullItem.close();
@@ -118,7 +117,7 @@ export default class App {
 
 
     clearRuntime() {
-        for (let container of this.containers.values()) {
+        for (const container of this.containers.values()) {
             container.remove();
         }
         this.containers.clear();
@@ -126,7 +125,7 @@ export default class App {
 
 
     setDayTimer() {
-        let tomorrow = new Date();
+        const tomorrow = new Date();
         tomorrow.setHours(0, 0, 1);
         tomorrow.setDate(tomorrow.getDate() + 1);
         setTimeout(() => {
@@ -155,7 +154,7 @@ export default class App {
 
 
     openFullitem(id) {
-        for (let container of this.containers.values()) {
+        for (const container of this.containers.values()) {
             if (container.showFullItemIfExists(id)) {
                 return;
             }
@@ -163,8 +162,8 @@ export default class App {
     }
 
 
-    initialSplitSeries(series) {
-        series = Series.create(series);
+    initialSplitSeries(record) {
+        const series = Series.create(record);
         if (series) {
             this.containers.get(getSeriesListType(series)).simplyAddSeries(series);
         }
@@ -172,16 +171,13 @@ export default class App {
 
 
     onInitialSplitSeriesEnd() {
-        for (let container of this.containers.values()) {
+        for (const container of this.containers.values()) {
             container.initialAdditionFinish();
         }
     }
 
 
-    relocateSeries(series, listType = null) {
-        if (!listType) {
-            listType = getSeriesListType(series);
-        }
+    relocateSeries(series, listType = getSeriesListType(series)) {
         this.containers.get(listType).addSeries(series);
     }
 
@@ -190,6 +186,7 @@ export default class App {
         document.activeElement.blur();
         this.openFullitem(id);
     }
+
 
     updateContainerTitles() {
         const listNames = constants.getListNames();
