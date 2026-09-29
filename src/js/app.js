@@ -18,7 +18,7 @@ export default class App {
         this.containers = new Map();
 
         this.localStorage = new LocalStorage();
-        this.backup = new Backup(this.database, () => this.clearAll(), () => this.initialize());
+        this.backup = new Backup(this.database, () => this.onBackupLoad());
 
         Series.onItemClickListener = (id) => this.openFullitem(id);
 
@@ -109,10 +109,10 @@ export default class App {
     }
 
 
-    clearAll() {
+    onBackupLoad() {
         this.clearRuntime();
         this.localStorage.clear();
-        this.database.clear();
+        this.initialize();
     }
 
 

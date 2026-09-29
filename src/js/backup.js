@@ -8,10 +8,9 @@ import {isImage} from "./common";
 const REVOKE_BACKUP_URL_DELAY_MS = 40_000;
 
 export default class Backup {
-    constructor(database, clear, initialize) {
+    constructor(database, onLoad) {
         this.database = database;
-        this.clear = clear;
-        this.initialize = initialize;
+        this.onLoad = onLoad;
     }
 
 
@@ -68,30 +67,24 @@ export default class Backup {
 
     onOpenFile(event) {
         let reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
+            let records = [];
             try {
                 let data = JSON.parse("" + reader.result);
-                this.clear();
-                let metaObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME);
-                let imagesObjectStore = this.database.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
-
                 if (Array.isArray(data)) { // V1
-                    for (let series of data) {
-                        let temp = Series.validate(series);
-                        if (temp) {
-                            const {image, ...meta} = temp;
-                            metaObjectStore.add(meta);
-                            if (image) {
-                                imagesObjectStore.add({id: meta.id, image: image});
-                            }
-                        }
-                    }
+                    records = data.map(series => Series.validate(series)).filter(Boolean);
                 }
-                this.initialize();
-                return;
             } catch (e) {
+                alert(window.i18n.t("backup_file_corrupted"));
+                return;
             }
-            alert(window.i18n.t("backup_file_corrupted"));
+            try {
+                await this.database.replaceAllSeries(records);
+            } catch (error) {
+                alert(window.i18n.t("backup_load_failed", {error: error.message}));
+                return;
+            }
+            this.onLoad();
         };
         reader.readAsText(event.target.files[0]);
     }

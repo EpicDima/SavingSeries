@@ -98,6 +98,32 @@ export default class Database {
     }
 
 
+    // Очистка и запись в одной транзакции: при любой ошибке остаются прежние данные
+    replaceAllSeries(records) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(
+                [Database.SERIES_META_OBJECT_STORE_NAME, Database.SERIES_IMAGES_OBJECT_STORE_NAME], "readwrite");
+            transaction.oncomplete = () => resolve();
+            transaction.onabort = () => reject(transaction.error);
+            try {
+                const metaStore = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME);
+                const imagesStore = transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME);
+                metaStore.clear();
+                imagesStore.clear();
+                for (const {image, ...meta} of records) {
+                    metaStore.add(meta);
+                    if (image) {
+                        imagesStore.add({id: meta.id, image: image});
+                    }
+                }
+            } catch (error) {
+                reject(error);
+                transaction.abort();
+            }
+        });
+    }
+
+
     deleteSeriesFromDb(series) {
         this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).delete(series.data.id);
         this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(series.data.id);
@@ -130,11 +156,5 @@ export default class Database {
                 funcOnEnd();
             }
         }
-    }
-
-
-    clear() {
-        this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).clear();
-        this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).clear();
     }
 }

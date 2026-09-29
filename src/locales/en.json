@@ -47,6 +47,7 @@
   "confirm_delete": "Are you sure you want to delete \"{name}\"?",
   "backup_load_confirm": "All existing data will be cleared and replaced with new data",
   "backup_file_corrupted": "The file content is corrupted!",
+  "backup_load_failed": "Could not load the backup, the previous data is kept: {error}",
   "database_not_ready": "The data storage has not opened yet, try again in a couple of seconds",
   "database_blocked": "The data storage is in use by another SavingSeries tab: close it and the app will continue loading",
   "database_newer_version": "The data in this browser was saved by a newer version of SavingSeries, and this version cannot open it",
