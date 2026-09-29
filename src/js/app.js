@@ -70,9 +70,7 @@ export default class App {
             fragment.append(container.getFragment());
         }
         this.main.append(fragment);
-        this.database.foreach((series) => this.initialSplitSeries(series),
-            () => this.onInitialSplitSeriesEnd());
-        App.scrollToTop();
+        this.loadSeries();
         window.i18n.applyTo(document.body);
     }
 
@@ -83,6 +81,11 @@ export default class App {
             container.clear();
         }
         this.addingFullItem.close();
+        this.loadSeries();
+    }
+
+
+    loadSeries() {
         this.database.foreach((series) => this.initialSplitSeries(series),
             () => this.onInitialSplitSeriesEnd());
         App.scrollToTop();
