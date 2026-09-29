@@ -589,7 +589,7 @@ export class FullItem extends BaseFullItem {
         let date = this.series.data.date;
         if (date !== "") {
             date = new Date(this.series.data.date);
-            date.setDate(date.getDate() + 7);
+            date.setUTCDate(date.getUTCDate() + 7);
         }
         let changed = await this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
             this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
