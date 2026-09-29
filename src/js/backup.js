@@ -72,7 +72,9 @@ export default class Backup {
             try {
                 let data = JSON.parse("" + reader.result);
                 if (Array.isArray(data)) { // V1
-                    records = data.map(series => Series.validate(series)).filter(Boolean);
+                    // id из файла могут повторяться или быть не числами, а новый id — последний + 1
+                    records = data.map(series => Series.validate(series)).filter(Boolean)
+                        .map((record, index) => ({...record, id: index + 1}));
                 }
             } catch (e) {
                 alert(window.i18n.t("backup_file_corrupted"));
