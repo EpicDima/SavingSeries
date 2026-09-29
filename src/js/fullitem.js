@@ -326,7 +326,7 @@ export class BaseFullItem {
         this.fields.name.value.innerText = series.data.name;
         this.fields.season.value.innerText = series.data.season;
         this.fields.episode.value.innerText = series.data.episode;
-        this.fields.date.value.innerText = dateToLocaleString(series);
+        this.fields.date.value.innerText = dateToLocaleString(series.data.date);
         this.fields.site.value.innerHTML = createLinkElement(series.data.site).outerHTML;
         this.fields.image.value.style.backgroundImage = imageToCssUrl(series.data.image);
         this.fields.note.value.innerText = series.data.note;
@@ -336,7 +336,7 @@ export class BaseFullItem {
     setInputValues(series) {
         this.fields.season.input.value = series.data.season;
         this.fields.episode.input.value = series.data.episode;
-        this.fields.date.input.value = dateObjectToInputString(series);
+        this.fields.date.input.value = dateObjectToInputString(series.data.date);
         this.fields.site.input.value = series.data.site;
         this.fields.image.input.value = "";
         this.fields.status.input.value = series.data.status;

@@ -25,7 +25,7 @@ export default class Series {
                             name: String(series.name).slice(0, Series.#NAME_MAX_LENGTH),
                             season: season,
                             episode: episode,
-                            date: series.date ? (series.date.toDate ? series.date.toDate() : new Date(series.date)) : "",
+                            date: series.date ? new Date(series.date) : "",
                             site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
                             image: isImage(series.image) ? series.image : "",
                             note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
@@ -123,7 +123,7 @@ export default class Series {
         if (this.data.status === STATUS.JUST_WATCH) {
             hideElement(this.infoDate);
         } else {
-            let date = dateToLocaleString(this);
+            let date = dateToLocaleString(this.data.date);
             if (date === "") {
                 hideElement(this.infoDate);
             } else {
