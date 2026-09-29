@@ -86,23 +86,27 @@ export default class HorizontalContainer {
     }
 
 
-    scrollList(draw) {
-        let start = this.scrollableList.scrollLeft;
-        let width = this.scrollableList.offsetWidth;
+    // Прокрутка на целое число карточек: ширина списка им не кратна, и с каждым кликом край уезжал на пару пикселей
+    scrollList(direction) {
+        const start = this.scrollableList.scrollLeft;
+        const width = this.scrollableList.clientWidth;
+        const pitch = this.getItemPitch() || width;
+        const cards = Math.max(Math.round(width / pitch), 1);
+        const target = (Math.round(start / pitch) + direction * cards) * pitch;
         animate({
             duration: 250,
-            draw: (progress) => draw(start, width, progress)
+            draw: (progress) => this.scrollableList.scrollLeft = start + (target - start) * progress
         });
     }
 
 
-    scrollListToLeft() {
-        this.scrollList((start, width, progress) => this.scrollableList.scrollLeft = start - width * progress);
-    }
-
-
-    scrollListToRight() {
-        this.scrollList((start, width, progress) => this.scrollableList.scrollLeft = start + width * progress);
+    // Дробное расстояние между соседними карточками: округлённое накапливало бы ошибку
+    getItemPitch() {
+        const [first, second] = this.hlcList.children;
+        if (!second) {
+            return 0;
+        }
+        return second.getBoundingClientRect().left - first.getBoundingClientRect().left;
     }
 
 
@@ -115,11 +119,11 @@ export default class HorizontalContainer {
 
         this.leftButton.onclick = (event) => {
             event.preventDefault();
-            this.scrollListToLeft();
+            this.scrollList(-1);
         };
         this.rightButton.onclick = (event) => {
             event.preventDefault();
-            this.scrollListToRight();
+            this.scrollList(1);
         };
 
         this.countButton.onclick = () => {

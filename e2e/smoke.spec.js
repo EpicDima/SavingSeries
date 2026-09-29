@@ -30,10 +30,14 @@ test("стрелки листают длинный список", async ({page})
     const list = released.locator(".outer-list");
     const left = released.locator(".left-control");
     const right = released.locator(".right-control");
+    const cardOffset = index => list.evaluate((element, i) => element.querySelectorAll(".item-outer")[i]
+        .getBoundingClientRect().left - element.getBoundingClientRect().left, index);
+    const alignedOffset = await cardOffset(0);
     await expect(left).toBeHidden();
     await list.hover();
     await right.click();
-    await expect.poll(() => list.evaluate(element => element.scrollLeft === element.clientWidth)).toBe(true);
+    // По умолчанию четыре карточки в строке: после клика у края ровно пятая
+    await expect.poll(async () => Math.abs(await cardOffset(4) - alignedOffset)).toBeLessThan(1);
     await expect(left).toBeVisible();
     await list.evaluate(element => element.scrollLeft = element.scrollWidth);
     await expect(right).toBeHidden();
