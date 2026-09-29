@@ -85,9 +85,19 @@ export default class App {
     }
 
 
+    // Новая загрузка (двойной клик по логотипу) отменяет ещё идущую, иначе карточки задвоятся
     loadSeries() {
-        this.database.foreach((series) => this.initialSplitSeries(series),
-            () => this.onInitialSplitSeriesEnd());
+        const load = Symbol();
+        this.currentLoad = load;
+        this.database.foreach((series) => {
+            if (load === this.currentLoad) {
+                this.initialSplitSeries(series);
+            }
+        }, () => {
+            if (load === this.currentLoad) {
+                this.onInitialSplitSeriesEnd();
+            }
+        });
         App.scrollToTop();
     }
 
