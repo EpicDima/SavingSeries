@@ -1,5 +1,7 @@
 import * as constants from "./constants";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 
 export function getByQuery(query) {
     return document.querySelector(query);
@@ -97,10 +99,10 @@ export function imageToCssUrl(image) {
 }
 
 
-export function getTodayDate() {
-    let today = new Date();
-    today.setHours(23, 59, 59, 999);
-    return today;
+// Сегодняшний местный день в том же виде, что и даты сериалов
+function getTodayUtcDay() {
+    const now = new Date();
+    return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 
@@ -115,16 +117,13 @@ export function getSeriesListType(series) {
     } else if (series.data.date === "") {
         listType = constants.LIST_TYPE.WITHOUT_DATE;
     } else {
-        let today = getTodayDate();
-        if (series.data.date < today) {
+        const today = getTodayUtcDay();
+        if (series.data.date < today + DAY_MS) {
             listType = constants.LIST_TYPE.RELEASED;
+        } else if (series.data.date < today + 8 * DAY_MS) {
+            listType = constants.LIST_TYPE.RELEASED_NEXT_7_DAYS;
         } else {
-            today.setDate(today.getDate() + 7);
-            if (series.data.date < today) {
-                listType = constants.LIST_TYPE.RELEASED_NEXT_7_DAYS;
-            } else {
-                listType = constants.LIST_TYPE.WITH_DATE_OTHERS;
-            }
+            listType = constants.LIST_TYPE.WITH_DATE_OTHERS;
         }
     }
     return listType;
