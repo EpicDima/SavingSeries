@@ -1,6 +1,5 @@
 import Series from "./series";
 import AlertDialog from "./alertDialog";
-import Database from "./database";
 import {isImage} from "./common";
 
 // Когда скачивание прочитало blob, браузер не сообщает, а при «Спрашивать, куда сохранять» это бывает
@@ -24,29 +23,25 @@ export default class Backup {
     }
 
 
-    createBackup() {
+    async createBackup() {
         if (!this.database.checkAvailable()) {
             return;
         }
-        const metaRequest = this.database.getReadOnlyObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).getAll();
-        metaRequest.onsuccess = () => {
-            const imagesRequest = this.database.getReadOnlyObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).getAll();
-            imagesRequest.onsuccess = () => {
-                const series = metaRequest.result;
-                const images = imagesRequest.result;
-                const backup = series.map(meta => {
-                    const image = images.find(image => image.id === meta.id);
-                    return {...meta, ...(isImage(image?.image) && {image: image.image})};
-                });
+        let series;
+        try {
+            series = await this.database.getAllSeries();
+        } catch (error) {
+            alert(window.i18n.t("backup_create_failed", {error: error.message}));
+            return;
+        }
+        const backup = series.map(({image, ...meta}) => ({...meta, ...(isImage(image) && {image})}));
 
-                const blob = new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "SavingSeries.backup";
-                link.click();
-                setTimeout(() => URL.revokeObjectURL(link.href), REVOKE_BACKUP_URL_DELAY_MS);
-            };
-        };
+        const blob = new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "SavingSeries.backup";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), REVOKE_BACKUP_URL_DELAY_MS);
     }
 
 

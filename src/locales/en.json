@@ -46,6 +46,7 @@
   "next_episode_in_a_week": "Go to the next episode in a week",
   "confirm_delete": "Are you sure you want to delete \"{name}\"?",
   "backup_load_confirm": "All existing data will be cleared and replaced with new data",
+  "backup_create_failed": "Could not create the backup: {error}",
   "backup_file_corrupted": "The file content is corrupted!",
   "backup_load_failed": "Could not load the backup, the previous data is kept: {error}",
   "database_not_ready": "The data storage has not opened yet, try again in a couple of seconds",

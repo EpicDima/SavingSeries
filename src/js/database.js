@@ -98,6 +98,22 @@ export default class Database {
     }
 
 
+    // Записи и картинки читаются в одной транзакции: другая вкладка не вклинится между ними
+    getAllSeries() {
+        return new Promise((resolve, reject) => {
+            const transaction = this.database.transaction(
+                [Database.SERIES_META_OBJECT_STORE_NAME, Database.SERIES_IMAGES_OBJECT_STORE_NAME], "readonly");
+            const metaRequest = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME).getAll();
+            const imagesRequest = transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).getAll();
+            transaction.oncomplete = () => {
+                const images = new Map(imagesRequest.result.map(({id, image}) => [id, image]));
+                resolve(metaRequest.result.map(meta => ({...meta, image: images.get(meta.id)})));
+            };
+            transaction.onabort = () => reject(transaction.error);
+        });
+    }
+
+
     // Очистка и запись в одной транзакции: при любой ошибке остаются прежние данные
     replaceAllSeries(records) {
         return new Promise((resolve, reject) => {
