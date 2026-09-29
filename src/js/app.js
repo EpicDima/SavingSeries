@@ -76,6 +76,9 @@ export default class App {
 
 
     refresh() {
+        if (!this.database.checkAvailable()) {
+            return;
+        }
         this.menu.clear();
         for (let container of this.containers.values()) {
             container.clear();
