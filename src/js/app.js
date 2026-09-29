@@ -44,6 +44,12 @@ export default class App {
     onCreate() {
         this.database.connect(() => this.initialize());
         this.setDayTimer();
+        // Во сне компьютера таймер стоит, и полночь могла пройти без него
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                this.relocateOutdatedSeries();
+            }
+        });
         document.addEventListener("languagechange", () => {
             this.updateContainerTitles();
             for (const container of this.containers.values()) {
