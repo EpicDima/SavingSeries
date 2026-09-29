@@ -96,7 +96,6 @@ export default class App {
 
 
     clearRuntime() {
-        this.addingFullItem.remove();
         for (let container of this.containers.values()) {
             container.remove();
         }

@@ -213,6 +213,7 @@ export default class HorizontalContainer {
 
     remove() {
         this.resizeObserver.disconnect();
+        this.fullitem.remove();
         this.container.remove();
     }
 
@@ -223,7 +224,7 @@ export default class HorizontalContainer {
             series.remove();
         }
         this.map.clear();
-        this.fullitem.hide();
+        this.fullitem.close();
     }
 
 

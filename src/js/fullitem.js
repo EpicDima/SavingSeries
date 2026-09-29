@@ -25,6 +25,7 @@ export class BaseFullItem {
     constructor(id, needTop = true) {
         this.id = id;
         this.needTop = needTop;
+        this.documentListeners = new AbortController();
 
         this.generate();
     }
@@ -165,7 +166,8 @@ export class BaseFullItem {
 
         this.setValidators();
 
-        document.addEventListener("languagechange", () => this.repopulateStatusOptions());
+        document.addEventListener("languagechange", () => this.repopulateStatusOptions(),
+            {signal: this.documentListeners.signal});
     }
 
 
@@ -196,16 +198,20 @@ export class BaseFullItem {
 
 
     setKeyboardListener() {
-        document.onkeydown = (e) => {
+        this.keydownListener = (e) => {
             if (this.isOwnKey(e)) {
                 this.keyboardListen(e);
             }
         };
+        document.onkeydown = this.keydownListener;
     }
 
 
+    // Клавиатура могла уже перейти к другой открытой карточке
     removeKeyboardListener() {
-        document.onkeydown = null;
+        if (document.onkeydown === this.keydownListener) {
+            document.onkeydown = null;
+        }
     }
 
 
@@ -237,6 +243,8 @@ export class BaseFullItem {
 
 
     remove() {
+        this.documentListeners.abort();
+        this.removeKeyboardListener();
         this.fullitem.remove();
     }
 
@@ -434,7 +442,8 @@ export class FullItem extends BaseFullItem {
         this.buttons.accept.button.onclick = () => this.accept();
         this.buttons.delete.button.onclick = () => this.delete();
 
-        document.addEventListener("languagechange", () => this.repopulateDisplayValues());
+        document.addEventListener("languagechange", () => this.repopulateDisplayValues(),
+            {signal: this.documentListeners.signal});
     }
 
     repopulateDisplayValues() {
