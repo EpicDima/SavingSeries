@@ -132,7 +132,9 @@ export default class App {
 
     initialSplitSeries(series) {
         series = Series.create(series);
-        this.containers.get(getSeriesListType(series)).simplyAddSeries(series);
+        if (series) {
+            this.containers.get(getSeriesListType(series)).simplyAddSeries(series);
+        }
     }
 
 
