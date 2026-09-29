@@ -235,6 +235,13 @@ export default class HorizontalContainer {
 
 
     addSeries(series) {
+        this.insertSeries(series);
+        this.scrollFromAnother(series);
+        series.updateImage();
+    }
+
+
+    insertSeries(series) {
         if (this.map.size === 0) {
             this.show();
         }
@@ -243,8 +250,15 @@ export default class HorizontalContainer {
             this.sortByDate();
         }
         this.showItems();
-        this.scrollFromAnother(series);
-        series.updateImage();
+    }
+
+
+    // Открытую на правке карточку не закрываем, чтобы не потерять правку
+    releaseSeries(series) {
+        if (this.fullitem.series === series && !this.fullitem.changeMode) {
+            this.fullitem.close();
+        }
+        this.deleteSeries(series, true);
     }
 
 

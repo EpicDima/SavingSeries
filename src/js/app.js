@@ -108,10 +108,22 @@ export default class App {
         tomorrow.setHours(0, 0, 1);
         tomorrow.setDate(tomorrow.getDate() + 1);
         setTimeout(() => {
-            this.clearRuntime();
-            this.initialize();
+            this.relocateOutdatedSeries();
             this.setDayTimer();
         }, tomorrow - new Date());
+    }
+
+
+    relocateOutdatedSeries() {
+        for (const container of this.containers.values()) {
+            for (const series of [...container.map.values()]) {
+                const listType = getSeriesListType(series);
+                if (listType !== container.id) {
+                    container.releaseSeries(series);
+                    this.containers.get(listType).insertSeries(series);
+                }
+            }
+        }
     }
 
 
