@@ -13,16 +13,6 @@ export default class Backup {
     }
 
 
-    getCreateBackupFunction() {
-        return () => setTimeout(() => this.createBackup(), 0);
-    }
-
-
-    getLoadBackupFunction() {
-        return () => setTimeout(() => this.loadBackup(), 0);
-    }
-
-
     async createBackup() {
         if (!this.database.checkAvailable()) {
             return;

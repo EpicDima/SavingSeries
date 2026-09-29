@@ -56,8 +56,8 @@ export class Menu {
         document.addEventListener("click", this.boundHandleClick);
 
         this.openAddingElementMenuItem.onclick = () => this.app.toggleAddingElement();
-        this.createBackupSubMenuItem.onclick = this.app.backup.getCreateBackupFunction();
-        this.loadBackupSubMenuItem.onclick = this.app.backup.getLoadBackupFunction();
+        this.createBackupSubMenuItem.onclick = () => this.app.backup.createBackup();
+        this.loadBackupSubMenuItem.onclick = () => this.app.backup.loadBackup();
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
 
         this.navbar.addEventListener("dblclick", () => {
