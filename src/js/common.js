@@ -47,6 +47,7 @@ export function animate({duration, draw, timing = (timeFraction) => timeFraction
 }
 
 
+// Дата сериала — календарный день, хранится полночью UTC: так её отдаёт поле ввода
 export function dateToLocaleString(date) {
     if (!date) {
         return "";
@@ -54,7 +55,8 @@ export function dateToLocaleString(date) {
     return date.toLocaleDateString(window.i18n.getCurrentLanguage(), {
         year: "numeric",
         month: "long",
-        day: "numeric"
+        day: "numeric",
+        timeZone: "UTC"
     });
 }
 
