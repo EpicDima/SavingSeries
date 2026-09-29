@@ -49,36 +49,31 @@ export default class Backup {
         if (!this.database.checkAvailable()) {
             return;
         }
-        let dialog = new AlertDialog(window.i18n.t("backup_load_confirm"));
-        let result = await dialog.open();
-        if (result) {
-            let element = document.createElement("input");
-            element.type = "file";
-            element.onchange = (e) => this.onOpenFile(e);
-            element.click();
+        const dialog = new AlertDialog(window.i18n.t("backup_load_confirm"));
+        if (await dialog.open()) {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.onchange = () => this.loadBackupFile(input.files[0]);
+            input.click();
         }
     }
 
 
-    onOpenFile(event) {
-        let reader = new FileReader();
-        reader.onload = async () => {
-            let records;
-            try {
-                records = Backup.readRecords(JSON.parse("" + reader.result));
-            } catch (e) {
-                alert(window.i18n.t("backup_file_corrupted"));
-                return;
-            }
-            try {
-                await this.database.replaceAllSeries(records);
-            } catch (error) {
-                alert(window.i18n.t("backup_load_failed", {error: error.message}));
-                return;
-            }
-            this.onLoad();
-        };
-        reader.readAsText(event.target.files[0]);
+    async loadBackupFile(file) {
+        let records;
+        try {
+            records = Backup.readRecords(JSON.parse(await file.text()));
+        } catch (e) {
+            alert(window.i18n.t("backup_file_corrupted"));
+            return;
+        }
+        try {
+            await this.database.replaceAllSeries(records);
+        } catch (error) {
+            alert(window.i18n.t("backup_load_failed", {error: error.message}));
+            return;
+        }
+        this.onLoad();
     }
 
 
