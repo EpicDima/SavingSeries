@@ -34,16 +34,17 @@ export function showElement(elem) {
 
 export function animate({duration, draw, timing = (timeFraction) => timeFraction, complete = null}) {
     let start = performance.now();
-    requestAnimationFrame(function animate(time) {
+    let frame = requestAnimationFrame(function animate(time) {
         // Время кадра бывает чуть раньше start, и первый кадр уходил в обратную сторону
         const timeFraction = Math.min(Math.max((time - start) / duration, 0), 1);
         draw(timing(timeFraction));
         if (timeFraction < 1) {
-            requestAnimationFrame(animate);
+            frame = requestAnimationFrame(animate);
         } else if (complete) {
             complete();
         }
     });
+    return () => cancelAnimationFrame(frame);
 }
 
 

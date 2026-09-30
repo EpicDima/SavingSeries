@@ -88,14 +88,18 @@ export default class HorizontalContainer {
 
     // Прокрутка на целое число карточек: ширина списка им не кратна, и с каждым кликом край уезжал на пару пикселей
     scrollList(direction) {
-        const start = this.scrollableList.scrollLeft;
-        const width = this.scrollableList.clientWidth;
+        this.stopScroll?.();
+        const {scrollLeft: start, clientWidth: width, scrollWidth} = this.scrollableList;
         const pitch = this.getItemPitch() || width;
         const cards = Math.max(Math.round(width / pitch), 1);
-        const target = (Math.round(start / pitch) + direction * cards) * pitch;
-        animate({
+        // Клик посреди прокрутки считается от её цели, а не от промежуточного положения
+        const from = this.scrollTarget ?? start;
+        const target = Math.min(Math.max((Math.round(from / pitch) + direction * cards) * pitch, 0), scrollWidth - width);
+        this.scrollTarget = target;
+        this.stopScroll = animate({
             duration: 250,
-            draw: (progress) => this.scrollableList.scrollLeft = start + (target - start) * progress
+            draw: (progress) => this.scrollableList.scrollLeft = start + (target - start) * progress,
+            complete: () => this.scrollTarget = null
         });
     }
 
