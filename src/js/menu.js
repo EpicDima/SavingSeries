@@ -61,12 +61,7 @@ export class Menu {
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
 
         this.navbar.addEventListener("dblclick", () => {
-            let position = this.app.localStorage.getNavBarPosition();
-            if (position === "absolute") {
-                position = "fixed";
-            } else {
-                position = "absolute";
-            }
+            const position = this.navbar.style.position === "absolute" ? "fixed" : "absolute";
             this.navbar.style.position = position;
             this.search.searchList.style.position = position;
             this.app.localStorage.setNavBarPosition(position);
