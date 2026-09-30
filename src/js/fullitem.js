@@ -371,8 +371,8 @@ export class BaseFullItem {
     getValuesFromInputs() {
         if (this.checkInputs()) {
             return {
-                season: this.fields.season.input.value,
-                episode: this.fields.episode.input.value,
+                season: this.getNumberValue("season"),
+                episode: this.getNumberValue("episode"),
                 date: dateInputStringToObject(this.fields.date.input.value),
                 site: this.fields.site.input.value,
                 backgroundImage: this.fields.image.value.style.backgroundImage,
@@ -381,6 +381,18 @@ export class BaseFullItem {
             }
         }
         return null;
+    }
+
+
+    // Скрытое статусом поле не проверяется, и неверное значение из него не должно попасть в базу
+    getNumberValue(name) {
+        const input = this.fields[name].input;
+        return input.validity.valid ? Number(input.value) : this.getPreviousNumber(name);
+    }
+
+
+    getPreviousNumber(name) {
+        return Number(this.fields[name].input.defaultValue);
     }
 
 
@@ -505,6 +517,11 @@ export class FullItem extends BaseFullItem {
     }
 
 
+    getPreviousNumber(name) {
+        return this.series.data[name];
+    }
+
+
     turnOnActiveItem() {
         this.clearActiveItem();
         addClass(this.series.getFragment(), "active");
@@ -598,7 +615,7 @@ export class FullItem extends BaseFullItem {
             date = new Date(this.series.data.date);
             date.setUTCDate(date.getUTCDate() + 7);
         }
-        let changed = this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
+        let changed = this.series.update(this.series.data.season, this.series.data.episode + 1, date,
             this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
         this.database.putSeriesInDb(this.series);
 
