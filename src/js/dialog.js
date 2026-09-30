@@ -11,49 +11,26 @@ export default class Dialog {
 
 
     open() {
-        return new Promise(resolve => {
-            if (this.dialog && typeof this.dialog.showModal === "function") {
-                if (!this.dialog.parentElement) {
-                    getByQuery("body").append(this.dialog);
-                }
-                this.setListeners();
-                this.dialog.showModal();
-            }
-            resolve();
-        });
+        if (!this.dialog.isConnected) {
+            getByQuery("body").append(this.dialog);
+        }
+        this.dialog.showModal();
     }
 
 
     close(result) {
-        if (this.dialog && typeof this.dialog.close === "function") {
-            this.dialog.close(result);
-        }
+        this.dialog.close(result);
     }
 
 
     generate() {
         const template = document.getElementById(this.templateId);
-        if (!template) {
-            console.error(`Template with id "${this.templateId}" not found.`);
-            return;
-        }
-        const fragment = template.content.cloneNode(true);
-        this.dialog = fragment.querySelector("dialog") || fragment.firstElementChild;
-
-        if (!this.dialog) {
-            console.error(`No dialog element found in template with id "${this.templateId}".`);
-            return;
-        }
-
-        this.dialog.addEventListener("close", () => {
-        });
+        this.dialog = template.content.querySelector("dialog").cloneNode(true);
     }
 
 
+    // Наследники вызывают один раз из конструктора
     setListeners() {
-        if (this.listenersSet) {
-            return;
-        }
         let pressedOnBackdrop = false;
         this.dialog.addEventListener("pointerdown", (e) => pressedOnBackdrop = this.isOnBackdrop(e));
         this.dialog.addEventListener("click", (e) => {
@@ -66,7 +43,6 @@ export default class Dialog {
         if (closeButton) {
             closeButton.onclick = () => this.close();
         }
-        this.listenersSet = true;
     }
 
 
