@@ -48,8 +48,9 @@ export class Menu {
         this.logo.onclick = () => this.app.refresh();
 
         this.settingsSubMenuTitle.onclick = (e) => this.toggleSubMenu(e);
+        this.settingsSubMenu.addEventListener("click", () => this.hideSubMenu());
         document.addEventListener("click", (e) => {
-            if (!this.settingsSubMenu.contains(e.target) && !this.settingsSubMenuTitle.contains(e.target)) {
+            if (!this.settingsSubMenuTitle.contains(e.target)) {
                 this.hideSubMenu();
             }
         });
