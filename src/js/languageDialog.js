@@ -42,10 +42,6 @@ export default class LanguageDialog extends Dialog {
 
         document.addEventListener("languagechange", () => {
             this.populateLanguages();
-            const currentLanguage = window.i18n.getCurrentLanguage();
-            this.languageList.querySelectorAll("[data-lang]").forEach(el => {
-                el.classList.toggle("active", el.dataset.lang === currentLanguage);
-            });
             window.i18n.applyTo(this.element);
         });
     }
