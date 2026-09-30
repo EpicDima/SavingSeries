@@ -1,77 +1,57 @@
 export default class LocalStorage {
 
-    static CONTAINERS_KEY = "containers";
-    static NAVBAR_KEY = "navbar";
-
-
-    createOrUpdateContainersParams(id) {
-        let containersParams;
-        try {
-            containersParams = JSON.parse(localStorage.getItem(LocalStorage.CONTAINERS_KEY));
-        } catch (e) {
-        }
-        if (!containersParams) {
-            containersParams = {};
-        }
-        if (!containersParams[id]) {
-            containersParams[id] = {};
-        }
-        return containersParams;
-    }
-
-
-    getByKey(key) {
-        try {
-            return JSON.parse(localStorage.getItem(key));
-        } catch (e) {
-            return null;
-        }
-    }
-
-
-    setByKey(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
-    }
+    static #CONTAINERS_KEY = "containers";
+    static #NAVBAR_KEY = "navbar";
 
 
     getCountNumberOfContainer(id) {
-        try {
-            let containersParams = this.getByKey(LocalStorage.CONTAINERS_KEY);
-            return containersParams[id].count;
-        } catch (e) {
-            return null;
-        }
+        return this.#getContainersParams()[id]?.count ?? null;
     }
 
 
     setCountNumberOfContainer(id, count) {
-        let containersParams = this.createOrUpdateContainersParams(id);
-        containersParams[id].count = count;
-        this.setByKey(LocalStorage.CONTAINERS_KEY, containersParams);
+        this.#setContainerParam(id, "count", count);
     }
 
 
     getGridStateOfContainer(id) {
-        try {
-            let containersParams = this.getByKey(LocalStorage.CONTAINERS_KEY);
-            return containersParams[id].grid;
-        } catch (e) {
-            return null;
-        }
+        return this.#getContainersParams()[id]?.grid ?? null;
     }
 
 
     setGridStateOfContainer(id, grid) {
-        let containersParams = this.createOrUpdateContainersParams(id);
-        containersParams[id].grid = grid;
-        this.setByKey(LocalStorage.CONTAINERS_KEY, containersParams);
+        this.#setContainerParam(id, "grid", grid);
     }
+
 
     getNavBarPosition() {
-        return localStorage.getItem(LocalStorage.NAVBAR_KEY);
+        return localStorage.getItem(LocalStorage.#NAVBAR_KEY);
     }
 
+
     setNavBarPosition(position) {
-        localStorage.setItem(LocalStorage.NAVBAR_KEY, position);
+        localStorage.setItem(LocalStorage.#NAVBAR_KEY, position);
     }
+
+
+    #getContainersParams() {
+        try {
+            const params = JSON.parse(localStorage.getItem(LocalStorage.#CONTAINERS_KEY));
+            return isObject(params) ? params : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+
+    #setContainerParam(id, name, value) {
+        const params = this.#getContainersParams();
+        params[id] = {...(isObject(params[id]) ? params[id] : {}), [name]: value};
+        localStorage.setItem(LocalStorage.#CONTAINERS_KEY, JSON.stringify(params));
+    }
+}
+
+
+function isObject(value) {
+    return typeof value === "object" && value !== null;
 }
