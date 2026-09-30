@@ -35,8 +35,7 @@ export default class LanguageDialog extends Dialog {
         this.languageList.addEventListener("click", (event) => {
             const lang = event.target.dataset.lang;
             if (lang) {
-                window.i18n.setLanguage(lang).then(_ => {
-                });
+                window.i18n.setLanguage(lang);
                 this.close();
             }
         });
