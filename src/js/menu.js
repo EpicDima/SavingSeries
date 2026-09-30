@@ -60,7 +60,10 @@ export class Menu {
         this.loadBackupSubMenuItem.onclick = () => this.app.backup.loadBackup();
         this.changeLanguageSubMenuItem.onclick = () => this.languageDialog.open();
 
-        this.navbar.addEventListener("dblclick", () => {
+        this.navbar.addEventListener("dblclick", (e) => {
+            if (e.target.closest(".logo, .search-container, li")) {
+                return;
+            }
             const position = this.navbar.style.position === "absolute" ? "fixed" : "absolute";
             this.navbar.style.position = position;
             this.search.searchList.style.position = position;
