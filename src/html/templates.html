@@ -164,17 +164,22 @@
             </div>
             <div class="nav-item">
                 <ul>
+                    <!-- tabindex: иначе Safari пропускает кнопки по Tab -->
                     <li>
-                        <div id="openAddingElementMenuItem" data-i18n-key="add_new">Добавление</div>
+                        <button type="button" tabindex="0" id="openAddingElementMenuItem" data-i18n-key="add_new">
+                            Добавление
+                        </button>
                     </li>
                     <li>
-                        <div id="settingsSubMenuTitle" class="submenu-title" data-i18n-key="settings">Настройки</div>
+                        <button type="button" tabindex="0" id="settingsSubMenuTitle" class="submenu-title"
+                                data-i18n-key="settings">Настройки</button>
                         <div id="settingsSubMenu" class="submenu hide">
-                            <div id="createBackupSubMenuItem" data-i18n-key="create_backup">Создать Backup</div>
-                            <div id="loadBackupSubMenuItem" data-i18n-key="load_backup">Загрузить Backup</div>
-                            <div id="changeLanguageSubMenuItem" data-i18n-key="change_language">
-                                Сменить язык
-                            </div>
+                            <button type="button" tabindex="0" id="createBackupSubMenuItem"
+                                    data-i18n-key="create_backup">Создать Backup</button>
+                            <button type="button" tabindex="0" id="loadBackupSubMenuItem"
+                                    data-i18n-key="load_backup">Загрузить Backup</button>
+                            <button type="button" tabindex="0" id="changeLanguageSubMenuItem"
+                                    data-i18n-key="change_language">Сменить язык</button>
                         </div>
                     </li>
                 </ul>

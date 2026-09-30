@@ -100,11 +100,13 @@
         > li {
             position: relative;
 
-            > div {
+            > button {
+                all: unset;
+                display: block;
                 cursor: pointer;
                 padding: 0 0.5rem;
 
-                &:hover {
+                &:hover, &:focus-visible {
                     color: var(--color-white-dim);
                 }
             }
@@ -130,12 +132,17 @@
                 border: 1px solid var(--color-border);
                 padding: 0.5rem 0;
 
-                > div {
+                > button {
+                    all: unset;
+                    display: block;
+                    box-sizing: border-box;
+                    width: 100%;
+                    cursor: pointer;
                     padding: 0.4rem 1rem;
                     white-space: nowrap;
                     color: white;
 
-                    &:hover {
+                    &:hover, &:focus-visible {
                         background-color: var(--color-highlight);
                     }
                 }

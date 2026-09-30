@@ -48,7 +48,19 @@ export class Menu {
         this.logo.onclick = () => this.app.refresh();
 
         this.settingsSubMenuTitle.onclick = (e) => this.toggleSubMenu(e);
-        this.settingsSubMenu.addEventListener("click", () => this.hideSubMenu());
+        // До действия пункта: иначе диалог вернёт фокус на уже скрытый пункт
+        this.settingsSubMenu.addEventListener("click", () => this.hideSubMenu(), {capture: true});
+        const settingsMenu = this.settingsSubMenu.parentElement;
+        settingsMenu.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                this.hideSubMenu();
+            }
+        });
+        settingsMenu.addEventListener("focusout", (e) => {
+            if (!settingsMenu.contains(e.relatedTarget)) {
+                this.hideSubMenu();
+            }
+        });
         document.addEventListener("click", (e) => {
             if (!this.settingsSubMenuTitle.contains(e.target)) {
                 this.hideSubMenu();
@@ -84,6 +96,9 @@ export class Menu {
 
 
     hideSubMenu() {
+        if (this.settingsSubMenu.contains(document.activeElement)) {
+            this.settingsSubMenuTitle.focus();
+        }
         hideElement(this.settingsSubMenu);
     }
 }
