@@ -53,6 +53,7 @@
   "database_blocked": "The data storage is in use by another SavingSeries tab: close it and the app will continue loading",
   "database_newer_version": "The data in this browser was saved by a newer version of SavingSeries, and this version cannot open it",
   "database_error": "Could not open the data storage: {error}",
+  "save_failed": "Could not save the changes, reload the page and try again: {error}",
   "validation_field_required": "This field is required.",
   "validation_enter_number": "Please enter a number.",
   "validation_enter_valid_date": "Please enter a valid date.",

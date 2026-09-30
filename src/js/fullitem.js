@@ -660,9 +660,8 @@ export class FullItem extends BaseFullItem {
     async delete() {
         let dialog = new AlertDialog(window.i18n.t("confirm_delete", {name: this.series.data.name}));
         let result = await dialog.open();
-        if (result) {
+        if (result && await this.database.deleteSeriesFromDb(this.series)) {
             this.series.delete();
-            this.database.deleteSeriesFromDb(this.series);
             this.close();
         }
     }
@@ -772,17 +771,30 @@ export class AddingFullItem extends BaseFullItem {
 
 
     async add() {
+        // Повторный Enter во время сжатия и записи добавил бы сериал дважды
+        if (this.adding) {
+            return;
+        }
         let data = this.getValuesFromInputs();
         if (!data) {
             this.validateInputs();
             return;
         }
         let name = this.fields.name.input.value;
-        this.close();
-        const image = await this.getChosenImage(data, "");
-        let series = new Series(null, name, data.season, data.episode, data.date,
-            data.site, image, data.status, data.note);
-        series.data.id = await this.database.addSeries(series);
-        this.showSeries(series);
+        this.adding = true;
+        try {
+            const image = await this.getChosenImage(data, "");
+            let series = new Series(null, name, data.season, data.episode, data.date,
+                data.site, image, data.status, data.note);
+            const id = await this.database.addSeries(series);
+            if (id === null) {
+                return;
+            }
+            series.data.id = id;
+            this.close();
+            this.showSeries(series);
+        } finally {
+            this.adding = false;
+        }
     }
 }

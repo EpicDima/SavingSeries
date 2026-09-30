@@ -69,31 +69,66 @@ export default class Database {
     }
 
 
-    async putSeriesInDb(series) {
-        const {image, ...meta} = series.data;
-        this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).put(meta);
-        if (image) {
-            this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).put({id: meta.id, image: image});
-        }
+    putSeriesInDb(series) {
+        return this.#write((metaStore, imagesStore) => {
+            const {image, ...meta} = series.data;
+            metaStore.put(meta);
+            if (image) {
+                imagesStore.put({id: meta.id, image: image});
+            }
+        });
     }
 
 
     // id берётся в той же транзакции, что и запись: другая вкладка не выдаст такой же
-    addSeries(series) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.database.transaction(
-                [Database.SERIES_META_OBJECT_STORE_NAME, Database.SERIES_IMAGES_OBJECT_STORE_NAME], "readwrite");
-            const metaStore = transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME);
-            const {image, ...meta} = series.data;
+    async addSeries(series) {
+        const {image, ...meta} = series.data;
+        const saved = await this.#write((metaStore, imagesStore) => {
             metaStore.openCursor(null, "prev").onsuccess = (event) => {
                 meta.id = (event.target.result?.key ?? 0) + 1;
                 metaStore.add(meta);
                 if (image) {
-                    transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).add({id: meta.id, image: image});
+                    imagesStore.add({id: meta.id, image: image});
                 }
             };
-            transaction.oncomplete = () => resolve(meta.id);
-            transaction.onerror = () => reject(transaction.error);
+        });
+        return saved ? meta.id : null;
+    }
+
+
+    deleteSeriesFromDb(series) {
+        return this.#write((metaStore, imagesStore) => {
+            metaStore.delete(series.data.id);
+            imagesStore.delete(series.data.id);
+        });
+    }
+
+
+    // Запись не прошла — сообщаем сразу: иначе правка видна, но после перезагрузки пропадёт
+    #write(work) {
+        if (!this.checkAvailable()) {
+            return Promise.resolve(false);
+        }
+        return new Promise((resolve) => {
+            const fail = (error) => {
+                alert(window.i18n.t("save_failed", {error: error?.message ?? error}));
+                resolve(false);
+            };
+            let transaction;
+            try {
+                transaction = this.database.transaction(
+                    [Database.SERIES_META_OBJECT_STORE_NAME, Database.SERIES_IMAGES_OBJECT_STORE_NAME], "readwrite");
+                transaction.oncomplete = () => resolve(true);
+                transaction.onabort = () => fail(transaction.error);
+                work(transaction.objectStore(Database.SERIES_META_OBJECT_STORE_NAME),
+                    transaction.objectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME));
+            } catch (error) {
+                if (transaction) {
+                    transaction.onabort = null;
+                    transaction.abort();
+                }
+                fail(error);
+            }
         });
     }
 
@@ -139,11 +174,6 @@ export default class Database {
         });
     }
 
-
-    deleteSeriesFromDb(series) {
-        this.getReadWriteObjectStore(Database.SERIES_META_OBJECT_STORE_NAME).delete(series.data.id);
-        this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(series.data.id);
-    }
 
     deleteSeriesImage(id) {
         this.getReadWriteObjectStore(Database.SERIES_IMAGES_OBJECT_STORE_NAME).delete(id);
