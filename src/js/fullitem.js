@@ -633,9 +633,10 @@ export class FullItem extends BaseFullItem {
         }
         const series = this.series;
         const image = await this.getChosenImage(data, series.data.image);
+        const imageChanged = image !== series.data.image;
         let changed = series.update(data.season, data.episode, data.date,
             data.site, image, data.status, data.note);
-        this.database.putSeriesInDb(series);
+        this.database.putSeriesInDb(series, imageChanged);
         if (this.series !== series) {
             return;
         }

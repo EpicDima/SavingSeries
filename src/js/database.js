@@ -69,11 +69,12 @@ export default class Database {
     }
 
 
-    putSeriesInDb(series) {
+    // Картинка тяжёлая, поэтому пишется, только когда сменилась
+    putSeriesInDb(series, imageChanged = false) {
         return this.#write((metaStore, imagesStore) => {
             const {image, ...meta} = series.data;
             metaStore.put(meta);
-            if (image) {
+            if (imageChanged && image) {
                 imagesStore.put({id: meta.id, image: image});
             }
         });
