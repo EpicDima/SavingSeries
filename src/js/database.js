@@ -23,6 +23,12 @@ export default class Database {
         let request = indexedDB.open(Database.DATABASE_NAME, Database.#DB_VERSION);
         request.onsuccess = () => {
             this.database = request.result;
+            // Иначе вкладка с новой версией приложения не сможет обновить базу, пока открыта эта
+            this.database.onversionchange = () => {
+                this.database.close();
+                this.database = null;
+                this.#reportUnavailable("database_outdated");
+            };
             func();
         };
         request.onblocked = () => this.#reportUnavailable("database_blocked");
