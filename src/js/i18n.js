@@ -100,9 +100,8 @@ function getAvailableLanguages() {
 
 
 function init() {
-    const lang = findLanguage(localStorage.getItem("preferredLanguage") || navigator.language) ?? DEFAULT_LANGUAGE;
-    localStorage.setItem("preferredLanguage", lang);
-    applyLanguage(lang);
+    applyLanguage(findLanguage(localStorage.getItem("preferredLanguage"))
+        ?? findLanguage(navigator.language) ?? DEFAULT_LANGUAGE);
 }
 
 window.i18n = {
