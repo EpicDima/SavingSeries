@@ -19,11 +19,15 @@ export default class LanguageDialog extends Dialog {
 
         this.languageList.innerHTML = "";
         availableLanguages.forEach(lang => {
-            const langElement = document.createElement("div");
+            const langElement = document.createElement("button");
+            langElement.type = "button";
+            // Иначе Safari пропускает кнопки по Tab
+            langElement.tabIndex = 0;
             langElement.textContent = window.i18n.t(`lang_${lang}`);
             langElement.dataset.lang = lang;
             if (lang === currentLanguage) {
                 langElement.classList.add("active");
+                langElement.autofocus = true;
             }
             this.languageList.appendChild(langElement);
         });

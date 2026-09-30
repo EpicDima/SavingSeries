@@ -8,12 +8,13 @@
     gap: 0.5rem;
     padding-block: 0.5rem;
 
-    > div {
+    > button {
+        all: unset;
         padding: 0.5rem 1rem;
         cursor: pointer;
         border-radius: 0.3rem;
 
-        &:hover {
+        &:hover, &:focus-visible {
             background-color: #fff1;
         }
 
