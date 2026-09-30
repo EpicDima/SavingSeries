@@ -5,21 +5,22 @@ const DEFAULT_LANGUAGE = "en";
 
 const LOCALES = import.meta.glob("../locales/*.json", {eager: true, import: "default"});
 
-const translations = {};
 let currentLanguage = DEFAULT_LANGUAGE;
+let locale = DEFAULT_LANGUAGE;
+let dictionary = {};
 
 
-function getLocale(lang) {
+function getDictionary(lang) {
     return LOCALES[`../locales/${lang}.json`];
 }
 
 
-function loadTranslations(lang) {
-    const dictionary = getLocale(lang) || getLocale(lang.split("-")[0]);
-    if (dictionary) {
-        translations[lang] = dictionary;
+// «en-US» без своего словаря сводится к «en»
+function findLanguage(languageTag) {
+    if (!languageTag) {
+        return null;
     }
-    return Boolean(dictionary);
+    return [languageTag, languageTag.split("-")[0]].find(lang => getDictionary(lang)) ?? null;
 }
 
 
@@ -27,15 +28,9 @@ function loadTranslations(lang) {
  * @param {Document|HTMLElement} rootElement
  */
 function applyTranslations(rootElement = document) {
-    if (!translations[currentLanguage]) {
-        return;
-    }
-
-    const lang = currentLanguage;
-
     const translate = (element, attribute, property) => {
         if (element.hasAttribute(attribute)) {
-            const text = translations[lang][element.getAttribute(attribute)];
+            const text = dictionary[element.getAttribute(attribute)];
             if (text) {
                 element[property] = text;
             }
@@ -53,37 +48,35 @@ function applyTranslations(rootElement = document) {
 
 function updatePageTitle() {
     const titleElement = document.querySelector(`title[${I18N_KEY_ATTRIBUTE}]`);
-    const title = titleElement && translations[currentLanguage][titleElement.getAttribute(I18N_KEY_ATTRIBUTE)];
+    const title = titleElement && dictionary[titleElement.getAttribute(I18N_KEY_ATTRIBUTE)];
     if (title) {
         document.title = title;
     }
 }
 
 
-function setLanguage(lang) {
-    if (lang === currentLanguage && translations[lang]) {
-        return;
-    }
-
-    if (!translations[lang] && !loadTranslations(lang)) {
-        console.error(`Translation file for "${lang}" not found, falling back to "${DEFAULT_LANGUAGE}".`);
-        lang = DEFAULT_LANGUAGE;
-        loadTranslations(lang);
-    }
-
+// Регион браузера сохраняется для формата дат, если язык тот же
+function applyLanguage(lang) {
     currentLanguage = lang;
-    document.documentElement.lang = lang;
+    dictionary = getDictionary(lang);
+    locale = findLanguage(navigator.language) === lang ? navigator.language : lang;
+    document.documentElement.lang = locale;
     applyTranslations(document.body);
     updatePageTitle();
-
-    localStorage.setItem("preferredLanguage", lang);
-
     document.dispatchEvent(new CustomEvent("languagechange"));
 }
 
 
+function setLanguage(lang) {
+    localStorage.setItem("preferredLanguage", lang);
+    if (lang !== currentLanguage) {
+        applyLanguage(lang);
+    }
+}
+
+
 function t(key, replacements = {}) {
-    let translation = translations[currentLanguage]?.[key] || key;
+    let translation = dictionary[key] || key;
     for (const [name, value] of Object.entries(replacements)) {
         translation = translation.replaceAll(`{${name}}`, () => value);
     }
@@ -96,16 +89,20 @@ function getCurrentLanguage() {
 }
 
 
+function getLocale() {
+    return locale;
+}
+
+
 function getAvailableLanguages() {
     return Object.keys(LOCALES).map(path => path.match(/([a-zA-Z-]+)\.json$/)[1]);
 }
 
 
 function init() {
-    const preferredLanguage = localStorage.getItem("preferredLanguage");
-    const browserLanguage = navigator.language;
-    const initialLang = preferredLanguage || browserLanguage || DEFAULT_LANGUAGE;
-    setLanguage(initialLang);
+    const lang = findLanguage(localStorage.getItem("preferredLanguage") || navigator.language) ?? DEFAULT_LANGUAGE;
+    localStorage.setItem("preferredLanguage", lang);
+    applyLanguage(lang);
 }
 
 window.i18n = {
@@ -113,6 +110,7 @@ window.i18n = {
     applyTo: applyTranslations,
     t,
     getCurrentLanguage,
+    getLocale,
     getAvailableLanguages,
 };
 

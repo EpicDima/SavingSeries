@@ -53,7 +53,7 @@ export function dateToLocaleString(date) {
     if (!date) {
         return "";
     }
-    return date.toLocaleDateString(window.i18n.getCurrentLanguage(), {
+    return date.toLocaleDateString(window.i18n.getLocale(), {
         year: "numeric",
         month: "long",
         day: "numeric",
