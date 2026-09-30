@@ -293,6 +293,8 @@ export default class HorizontalContainer {
             fragment.append(series.getFragment());
         }
         this.hlcList.append(fragment);
+        // В сетке полная карточка стоит среди карточек, а они только что переехали в конец списка
+        this.fullitem.moveByGridState();
     }
 
 
