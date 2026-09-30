@@ -96,46 +96,21 @@ export class BaseFullItem {
 
     getFields() {
         this.fields = {
-            season: {
-                div: this.fragment.querySelector("input[name='season']").closest(".row"),
-                value: this.fragment.querySelector("input[name='season']").closest(".row").querySelector(".value"),
-                input: this.fragment.querySelector("input[name='season']"),
-                error: this.fragment.querySelector("input[name='season']").closest(".row").querySelector(".error")
-            },
-            episode: {
-                div: this.fragment.querySelector("input[name='episode']").closest(".row"),
-                value: this.fragment.querySelector("input[name='episode']").closest(".row").querySelector(".value"),
-                input: this.fragment.querySelector("input[name='episode']"),
-                error: this.fragment.querySelector("input[name='episode']").closest(".row").querySelector(".error")
-            },
-            date: {
-                div: this.fragment.querySelector("input[name='date']").closest(".row"),
-                value: this.fragment.querySelector("input[name='date']").closest(".row").querySelector(".value"),
-                input: this.fragment.querySelector("input[name='date']"),
-                error: this.fragment.querySelector("input[name='date']").closest(".row").querySelector(".error")
-            },
-            site: {
-                div: this.fragment.querySelector("input[name='site']").closest(".row"),
-                value: this.fragment.querySelector("input[name='site']").closest(".row").querySelector(".value"),
-                input: this.fragment.querySelector("input[name='site']"),
-                error: this.fragment.querySelector("input[name='site']").closest(".row").querySelector(".error")
-            },
-            image: {
-                div: this.fragment.querySelector("input[name='image']").closest(".row"),
-                value: this.fragment.querySelector(".image"),
-                input: this.fragment.querySelector("input[name='image']"),
-                error: this.fragment.querySelector("input[name='image']").closest(".row").querySelector(".error")
-            },
-            status: {
-                div: this.fragment.querySelector("select[name='status']").closest(".row"),
-                input: this.fragment.querySelector("select[name='status']")
-            },
-            note: {
-                div: this.fragment.querySelector("textarea[name='note']").closest(".row"),
-                value: this.fragment.querySelector("textarea[name='note']").closest(".row").querySelector(".value"),
-                input: this.fragment.querySelector("textarea[name='note']")
-            }
+            season: this.getField("input[name='season']"),
+            episode: this.getField("input[name='episode']"),
+            date: this.getField("input[name='date']"),
+            site: this.getField("input[name='site']"),
+            image: {...this.getField("input[name='image']"), value: this.fragment.querySelector(".image")},
+            status: this.getField("select[name='status']"),
+            note: this.getField("textarea[name='note']")
         };
+    }
+
+
+    getField(selector) {
+        const input = this.fragment.querySelector(selector);
+        const row = input.closest(".row");
+        return {div: row, value: row.querySelector(".value"), input, error: row.querySelector(".error")};
     }
 
 
@@ -364,8 +339,7 @@ export class BaseFullItem {
             return false;
         }
         return this.fields.site.input.validity.valid && this.fields.image.input.validity.valid
-            && this.fields.image.input.validity.valid && this.fields.status.input.validity.valid
-            && this.fields.note.input.validity.valid;
+            && this.fields.status.input.validity.valid && this.fields.note.input.validity.valid;
     }
 
 
@@ -710,10 +684,7 @@ export class AddingFullItem extends BaseFullItem {
 
     getFields() {
         super.getFields();
-        this.fields.name = {
-            input: this.fragment.querySelector("input[name='name']"),
-            error: this.fragment.querySelector("input[name='name']").closest(".row").querySelector(".error")
-        };
+        this.fields.name = this.getField("input[name='name']");
     }
 
 
@@ -764,7 +735,6 @@ export class AddingFullItem extends BaseFullItem {
         if (this.fullitem.classList.contains("hide")) {
             super.open();
             window.i18n.applyTo(this.fullitem);
-            this.resetInputValues();
             this.showEditFields(true);
             this.onChangeStatus();
             this.clearActiveItem();
