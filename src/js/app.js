@@ -112,7 +112,6 @@ export default class App {
     onBackupLoad() {
         this.menu.clear();
         this.clearRuntime();
-        this.localStorage.clear();
         this.initialize();
     }
 

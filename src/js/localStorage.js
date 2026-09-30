@@ -4,11 +4,6 @@ export default class LocalStorage {
     static NAVBAR_KEY = "navbar";
 
 
-    clear() {
-        localStorage.clear();
-    }
-
-
     createOrUpdateContainersParams(id) {
         let containersParams;
         try {
