@@ -87,8 +87,8 @@
 
     function t(key, replacements = {}) {
         let translation = translations[currentLanguage]?.[key] || key;
-        for (const placeholder in replacements) {
-            translation = translation.replace(`{${placeholder}}`, replacements[placeholder]);
+        for (const [name, value] of Object.entries(replacements)) {
+            translation = translation.replaceAll(`{${name}}`, () => value);
         }
         return translation;
     }
