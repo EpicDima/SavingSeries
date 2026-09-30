@@ -215,10 +215,11 @@ export class BaseFullItem {
     }
 
 
-    // Нажатия в диалоге поверх карточки — его, Enter на кнопке нажимает саму кнопку
+    // Нажатия в диалоге поверх карточки — его, Enter на кнопке нажимает саму кнопку, а в заметке переносит строку
     isOwnKey(event) {
         return !event.repeat && !event.target.closest("dialog")
-            && !(event.key === BaseFullItem.ENTER_KEY && event.target instanceof HTMLButtonElement);
+            && !(event.key === BaseFullItem.ENTER_KEY
+                && (event.target instanceof HTMLButtonElement || event.target instanceof HTMLTextAreaElement));
     }
 
 
