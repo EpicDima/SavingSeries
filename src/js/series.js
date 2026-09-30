@@ -102,6 +102,7 @@ export default class Series {
         this.item.onclick = () => Series.onItemClickListener(this.data.id);
         this.link.onclick = (e) => e.stopPropagation();
 
+        this.showImage();
         this.updateInfo();
         window.i18n.applyTo(this.item);
     }
@@ -171,21 +172,14 @@ export default class Series {
             const image = await database.getSeriesImage(this.data.id);
             if (isImage(image)) {
                 this.data.image = image;
-                this.image.style.backgroundImage = imageToCssUrl(image);
+                this.showImage();
             } else if (image !== undefined) {
                 database.deleteSeriesImage(this.data.id);
             }
         }
     }
 
-    async updateImage() {
-        if (this.data.image && this.data.image.length > 0) {
-            try {
-                this.data.image = await Series.compressImage(this.data.image);
-            } catch (error) {
-                console.error("Image compression failed:", error);
-            }
-        }
+    showImage() {
         this.image.style.backgroundImage = imageToCssUrl(this.data.image);
     }
 
@@ -223,7 +217,7 @@ export default class Series {
     }
 
 
-    async update(season, episode, date, site, image, status, note) {
+    update(season, episode, date, site, image, status, note) {
         let changed = false;
         let changedInfo = false;
         if (this.data.season !== season) {
@@ -245,7 +239,7 @@ export default class Series {
         }
         if (this.data.image !== image) {
             this.data.image = image;
-            await this.updateImage();
+            this.showImage();
             changed = true;
         }
         if (this.data.status !== status) {

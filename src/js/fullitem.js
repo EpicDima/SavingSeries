@@ -382,6 +382,13 @@ export class BaseFullItem {
         }
         return null;
     }
+
+
+    // Новую картинку сжимаем один раз и до сохранения
+    async getChosenImage(data, currentImage) {
+        const image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : currentImage;
+        return image && image !== currentImage ? Series.compressImage(image) : image;
+    }
 }
 
 
@@ -585,13 +592,13 @@ export class FullItem extends BaseFullItem {
     }
 
 
-    async update() {
+    update() {
         let date = this.series.data.date;
         if (date !== "") {
             date = new Date(this.series.data.date);
             date.setUTCDate(date.getUTCDate() + 7);
         }
-        let changed = await this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
+        let changed = this.series.update(this.series.data.season, parseInt(this.series.data.episode) + 1, date,
             this.series.data.site, this.series.data.image, this.series.data.status, this.series.data.note);
         this.database.putSeriesInDb(this.series);
 
@@ -624,10 +631,14 @@ export class FullItem extends BaseFullItem {
         if (!data) {
             return;
         }
-        let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : this.series.data.image;
-        let changed = await this.series.update(data.season, data.episode, data.date,
+        const series = this.series;
+        const image = await this.getChosenImage(data, series.data.image);
+        let changed = series.update(data.season, data.episode, data.date,
             data.site, image, data.status, data.note);
-        this.database.putSeriesInDb(this.series);
+        this.database.putSeriesInDb(series);
+        if (this.series !== series) {
+            return;
+        }
 
         if (changed) {
             if (getSeriesListType(this.series) !== this.id) {
@@ -767,10 +778,10 @@ export class AddingFullItem extends BaseFullItem {
             return;
         }
         let name = this.fields.name.input.value;
-        let image = data.backgroundImage.length > 7 ? data.backgroundImage.slice(5, -2) : "";
+        this.close();
+        const image = await this.getChosenImage(data, "");
         let series = new Series(null, name, data.season, data.episode, data.date,
             data.site, image, data.status, data.note);
-        this.close();
         series.data.id = await this.database.addSeries(series);
         this.showSeries(series);
     }

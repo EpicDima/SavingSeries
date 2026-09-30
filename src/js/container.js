@@ -241,7 +241,6 @@ export default class HorizontalContainer {
     addSeries(series) {
         this.insertSeries(series);
         this.scrollFromAnother(series);
-        series.updateImage();
     }
 
 
