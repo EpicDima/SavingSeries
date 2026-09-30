@@ -135,35 +135,16 @@ export default class Series {
     }
 
 
-    static async compressImage(image) {
-        return new Promise(async (resolve, reject) => {
-            const worker = new Worker(new URL('./compression.worker.js', import.meta.url));
-
-            worker.onmessage = (event) => {
-                const {compressedBlob} = event.data;
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    resolve(reader.result);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(compressedBlob);
-                worker.terminate();
-            };
-
+    static compressImage(image) {
+        const worker = new Worker(new URL("./compression.worker.js", import.meta.url));
+        return new Promise((resolve) => {
+            worker.onmessage = (event) => resolve(event.data ?? image);
             worker.onerror = (error) => {
-                reject(error);
-                worker.terminate();
+                console.error("Image compression failed:", error);
+                resolve(image);
             };
-
-            try {
-                const response = await fetch(image);
-                const blob = await response.blob();
-                const imageBitmap = await createImageBitmap(blob);
-                worker.postMessage({imageBitmap}, [imageBitmap]);
-            } catch (error) {
-                reject(error);
-            }
-        });
+            worker.postMessage(image);
+        }).finally(() => worker.terminate());
     }
 
     async loadImageAsync() {
