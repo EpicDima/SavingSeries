@@ -2,6 +2,7 @@ const I18N_KEY_ATTRIBUTE = "data-i18n-key";
 const I18N_TITLE_ATTRIBUTE = "data-i18n-title";
 const I18N_PLACEHOLDER_ATTRIBUTE = "data-i18n-placeholder";
 const DEFAULT_LANGUAGE = "en";
+const PREFERRED_LANGUAGE_KEY = "preferredLanguage";
 
 const LOCALES = import.meta.glob("../locales/*.json", {eager: true, import: "default"});
 
@@ -67,8 +68,26 @@ function applyLanguage(lang) {
 }
 
 
+// Браузер может запретить сайту хранилище: тогда выбор просто не запоминается
+function readPreferredLanguage() {
+    try {
+        return localStorage.getItem(PREFERRED_LANGUAGE_KEY);
+    } catch (e) {
+        return null;
+    }
+}
+
+
+function savePreferredLanguage(lang) {
+    try {
+        localStorage.setItem(PREFERRED_LANGUAGE_KEY, lang);
+    } catch (e) {
+    }
+}
+
+
 function setLanguage(lang) {
-    localStorage.setItem("preferredLanguage", lang);
+    savePreferredLanguage(lang);
     if (lang !== currentLanguage) {
         applyLanguage(lang);
     }
@@ -100,7 +119,7 @@ function getAvailableLanguages() {
 
 
 function init() {
-    applyLanguage(findLanguage(localStorage.getItem("preferredLanguage"))
+    applyLanguage(findLanguage(readPreferredLanguage())
         ?? findLanguage(navigator.language) ?? DEFAULT_LANGUAGE);
 }
 

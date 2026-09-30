@@ -25,18 +25,18 @@ export default class LocalStorage {
 
 
     getNavBarPosition() {
-        return localStorage.getItem(LocalStorage.#NAVBAR_KEY);
+        return LocalStorage.#read(LocalStorage.#NAVBAR_KEY);
     }
 
 
     setNavBarPosition(position) {
-        localStorage.setItem(LocalStorage.#NAVBAR_KEY, position);
+        LocalStorage.#write(LocalStorage.#NAVBAR_KEY, position);
     }
 
 
     #getContainersParams() {
         try {
-            const params = JSON.parse(localStorage.getItem(LocalStorage.#CONTAINERS_KEY));
+            const params = JSON.parse(LocalStorage.#read(LocalStorage.#CONTAINERS_KEY));
             return isObject(params) ? params : {};
         } catch (e) {
             return {};
@@ -47,7 +47,25 @@ export default class LocalStorage {
     #setContainerParam(id, name, value) {
         const params = this.#getContainersParams();
         params[id] = {...(isObject(params[id]) ? params[id] : {}), [name]: value};
-        localStorage.setItem(LocalStorage.#CONTAINERS_KEY, JSON.stringify(params));
+        LocalStorage.#write(LocalStorage.#CONTAINERS_KEY, JSON.stringify(params));
+    }
+
+
+    // Браузер может запретить сайту хранилище: тогда настройки просто не запоминаются
+    static #read(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+
+    static #write(key, value) {
+        try {
+            localStorage.setItem(key, value);
+        } catch (e) {
+        }
     }
 }
 
