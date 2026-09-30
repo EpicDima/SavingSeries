@@ -10,8 +10,6 @@ export class Menu {
         this.search = new SearchContainer(app);
         this.languageDialog = new LanguageDialog();
 
-        this.boundHandleClick = this.handleDocumentClick.bind(this);
-
         this.generate();
     }
 
@@ -23,17 +21,17 @@ export class Menu {
 
     generate() {
         const template = document.getElementById("menuTemplate");
-        this.fragment = template.content.cloneNode(true);
+        const fragment = template.content.cloneNode(true);
 
-        this.header = this.fragment.querySelector("header");
-        this.navbar = this.fragment.querySelector(".navbar");
-        this.logo = this.fragment.querySelector(".logo");
-        this.settingsSubMenu = this.fragment.getElementById("settingsSubMenu");
-        this.settingsSubMenuTitle = this.fragment.getElementById("settingsSubMenuTitle");
-        this.openAddingElementMenuItem = this.fragment.getElementById("openAddingElementMenuItem");
-        this.createBackupSubMenuItem = this.fragment.getElementById("createBackupSubMenuItem");
-        this.loadBackupSubMenuItem = this.fragment.getElementById("loadBackupSubMenuItem");
-        this.changeLanguageSubMenuItem = this.fragment.getElementById("changeLanguageSubMenuItem");
+        this.header = fragment.querySelector("header");
+        this.navbar = fragment.querySelector(".navbar");
+        this.logo = fragment.querySelector(".logo");
+        this.settingsSubMenu = fragment.getElementById("settingsSubMenu");
+        this.settingsSubMenuTitle = fragment.getElementById("settingsSubMenuTitle");
+        this.openAddingElementMenuItem = fragment.getElementById("openAddingElementMenuItem");
+        this.createBackupSubMenuItem = fragment.getElementById("createBackupSubMenuItem");
+        this.loadBackupSubMenuItem = fragment.getElementById("loadBackupSubMenuItem");
+        this.changeLanguageSubMenuItem = fragment.getElementById("changeLanguageSubMenuItem");
 
         this.navbar.firstElementChild.insertAdjacentElement("afterend", this.search.getFragment());
         let position = this.app.localStorage.getNavBarPosition();
@@ -47,13 +45,14 @@ export class Menu {
 
 
     setListeners() {
-        this.logo.onclick = (e) => {
-            e.preventDefault();
-            this.app.refresh();
-        };
+        this.logo.onclick = () => this.app.refresh();
 
         this.settingsSubMenuTitle.onclick = (e) => this.toggleSubMenu(e);
-        document.addEventListener("click", this.boundHandleClick);
+        document.addEventListener("click", (e) => {
+            if (!this.settingsSubMenu.contains(e.target) && !this.settingsSubMenuTitle.contains(e.target)) {
+                this.hideSubMenu();
+            }
+        });
 
         this.openAddingElementMenuItem.onclick = () => this.app.toggleAddingElement();
         this.createBackupSubMenuItem.onclick = () => this.app.backup.createBackup();
@@ -82,12 +81,5 @@ export class Menu {
 
     hideSubMenu() {
         hideElement(this.settingsSubMenu);
-    }
-
-
-    handleDocumentClick(e) {
-        if (!this.settingsSubMenu.contains(e.target) && !this.settingsSubMenuTitle.contains(e.target)) {
-            this.hideSubMenu();
-        }
     }
 }
