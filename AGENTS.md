@@ -63,7 +63,7 @@ CI (`.github/workflows/deploy.yml`, Node 26, одна задача ради ск
   `series_images` (`{id, image}`). `onupgradeneeded` сейчас только создаёт базу с нуля: версия 1 (одно хранилище
   `series`) не поддерживается. Новая версия — поднять `#DB_VERSION` и добавить в `onupgradeneeded` шаги
   по `event.oldVersion` так, чтобы база версии 2 и новее доходила до новой.
-- Запись: `id` (число; новый = последний id из курсора + 1), `name`, `season` (1–50), `episode` (1–50000),
+- Запись: `id` (число; новый = последний id из курсора + 1), `name`, `season` (1–50), `episode` (1–1000000),
   `date` (`Date` или `""` — без даты), `site`, `note`, `status`, `image`. `STATUS` — строки `"0"`–`"3"`, лежат
   в базе и в backup — не перенумеровывать. Ограничения полей продублированы в `templates.html` (`min`/`max`/
   `maxlength`) и в `Series.validate` (длинные строки там обрезаются) — менять вместе.

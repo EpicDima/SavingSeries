@@ -19,7 +19,7 @@ export default class Series {
                 if (series.name !== "") {
                     let season = parseInt(series.season);
                     let episode = parseInt(series.episode);
-                    if (season >= 1 && season <= 50 && episode >= 1 && episode <= 50000) {
+                    if (season >= 1 && season <= 50 && episode >= 1 && episode <= 1_000_000) {
                         return {
                             id: series.id,
                             name: String(series.name).slice(0, Series.#NAME_MAX_LENGTH),
