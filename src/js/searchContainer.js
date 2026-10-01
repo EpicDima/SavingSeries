@@ -124,7 +124,7 @@ export default class SearchContainer {
             let indexes = new Map();
             for (let container of this.app.containers.values()) {
                 for (let series of container.map.values()) {
-                    let index = series.data.name.toLowerCase().search(substr);
+                    let index = series.data.name.toLowerCase().indexOf(substr);
                     if (index !== -1) {
                         if (!indexes.has(index)) {
                             indexes.set(index, []);
