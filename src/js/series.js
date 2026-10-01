@@ -80,10 +80,6 @@ export default class Series {
         this.image = this.fragment.querySelector(".image");
 
         this.link = this.fragment.querySelector(".link");
-        if (this.data.site) {
-            this.link.href = this.data.site;
-            showElement(this.link);
-        }
 
         this.info = this.fragment.querySelector(".info");
         this.infoSeasonValue = this.info.querySelector(".season > .value");
@@ -98,6 +94,7 @@ export default class Series {
         this.item.onclick = () => Series.onItemClickListener(this.data.id);
         this.link.onclick = (e) => e.stopPropagation();
 
+        this.updateLink();
         this.showImage();
         this.updateInfo();
         window.i18n.applyTo(this.item);
@@ -115,8 +112,8 @@ export default class Series {
         } else {
             showElement(this.info);
         }
-        this.infoSeasonValue.innerText = this.data.season;
-        this.infoEpisodeValue.innerText = this.data.episode;
+        this.infoSeasonValue.textContent = this.data.season;
+        this.infoEpisodeValue.textContent = this.data.episode;
         if (this.data.status === STATUS.JUST_WATCH) {
             hideElement(this.infoDate);
         } else {
@@ -124,7 +121,7 @@ export default class Series {
             if (date === "") {
                 hideElement(this.infoDate);
             } else {
-                this.infoDateValue.innerText = date;
+                this.infoDateValue.textContent = date;
                 showElement(this.infoDate);
             }
         }
@@ -183,17 +180,6 @@ export default class Series {
     }
 
 
-    compareDates(date1, date2) {
-        if (date1 === "" && date2 === "") {
-            return true;
-        } else if (date1 === "" || date2 === "") {
-            return false;
-        } else {
-            return date1.getTime() === date2.getTime();
-        }
-    }
-
-
     update(season, episode, date, site, image, status, note) {
         let changed = false;
         let changedInfo = false;
@@ -205,7 +191,7 @@ export default class Series {
             this.data.episode = episode;
             changedInfo = true;
         }
-        if (!this.compareDates(this.data.date, date)) {
+        if (!areDatesEqual(this.data.date, date)) {
             this.data.date = date;
             changed = true;
             changedInfo = true;
@@ -217,7 +203,6 @@ export default class Series {
         if (this.data.image !== image) {
             this.data.image = image;
             this.showImage();
-            changed = true;
         }
         if (this.data.status !== status) {
             this.data.status = status;
@@ -258,4 +243,12 @@ function parseSite(value) {
     }
     // Двоеточие с цифрами после — порт, а не схема: "example.com:8080"
     return /^[a-z][a-z\d+.-]*:(?!\d)/i.test(site) ? "" : `https://${site}`;
+}
+
+
+function areDatesEqual(date1, date2) {
+    if (date1 === "" || date2 === "") {
+        return date1 === date2;
+    }
+    return date1.getTime() === date2.getTime();
 }
