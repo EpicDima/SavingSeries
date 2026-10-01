@@ -93,9 +93,9 @@ export function createLinkElement(site) {
 }
 
 
-// Отсеивает строку "undefined" от старых версий: иначе браузер запрашивает /undefined
+// Отсеивает строку "undefined" от старых версий и кавычки, что вышли бы из url("...") в CSS
 export function isImage(image) {
-    return typeof image === "string" && image.startsWith("data:");
+    return typeof image === "string" && /^data:image\/[\w.+-]+;base64,[A-Za-z\d+/]*={0,2}$/.test(image);
 }
 
 
