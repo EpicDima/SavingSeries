@@ -14,29 +14,25 @@ export default class Series {
 
 
     static validate(series) {
-        if (series) {
-            try {
-                if (series.name !== "") {
-                    let season = parseInt(series.season);
-                    let episode = parseInt(series.episode);
-                    if (season >= 1 && season <= 50 && episode >= 1 && episode <= 1_000_000) {
-                        return {
-                            id: series.id,
-                            name: String(series.name).slice(0, Series.#NAME_MAX_LENGTH),
-                            season: season,
-                            episode: episode,
-                            date: parseDate(series.date),
-                            site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
-                            image: isImage(series.image) ? series.image : "",
-                            note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
-                            status: parseStatus(series.status)
-                        };
-                    }
-                }
-            } catch (e) {
-            }
+        if (typeof series?.name !== "string" || series.name.trim() === "") {
+            return null;
         }
-        return null;
+        const season = parseInt(series.season);
+        const episode = parseInt(series.episode);
+        if (!(season >= 1 && season <= 50 && episode >= 1 && episode <= 1_000_000)) {
+            return null;
+        }
+        return {
+            id: series.id,
+            name: series.name.slice(0, Series.#NAME_MAX_LENGTH),
+            season: season,
+            episode: episode,
+            date: parseDate(series.date),
+            site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
+            image: isImage(series.image) ? series.image : "",
+            note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
+            status: parseStatus(series.status)
+        };
     }
 
 
