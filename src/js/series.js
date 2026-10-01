@@ -29,7 +29,7 @@ export default class Series {
                             site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
                             image: isImage(series.image) ? series.image : "",
                             note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
-                            status: series.status ? series.status : STATUS.RUN
+                            status: parseStatus(series.status)
                         };
                     }
                 }
@@ -246,4 +246,10 @@ export default class Series {
 function parseDate(value) {
     const date = value ? new Date(value) : null;
     return date && !isNaN(date) ? roundToUtcDay(date) : "";
+}
+
+
+function parseStatus(value) {
+    const status = String(value);
+    return Object.values(STATUS).includes(status) ? status : STATUS.RUN;
 }
