@@ -42,8 +42,7 @@ export default class SearchContainer {
         this.search.oninput = () => this.searchSeries();
         // Сериалы могли измениться, пока поиск был закрыт
         this.search.onfocus = () => this.searchSeries();
-        this.search.onkeydown = (e) => this.cancelDefaultAction(e);
-        this.search.onkeyup = (e) => this.moveByKeyboard(e.key);
+        this.search.onkeydown = (e) => this.onKeyDown(e);
         this.searchList.onmousedown = (e) => this.onMouseDown(e);
         this.closeButton.onmousedown = (e) => e.preventDefault();
         this.closeButton.onclick = () => {
@@ -60,48 +59,38 @@ export default class SearchContainer {
     }
 
 
-    cancelDefaultAction(e) {
+    onKeyDown(e) {
+        if (e.isComposing) {
+            return;
+        }
         if (e.key === SearchContainer.ARROW_DOWN_KEY || e.key === SearchContainer.ARROW_UP_KEY) {
             e.preventDefault();
+            this.moveActiveItem(e.key === SearchContainer.ARROW_DOWN_KEY);
+        } else if (e.key === SearchContainer.ENTER_KEY) {
+            this.activeItem?.click();
+        } else if (e.key === SearchContainer.ESCAPE_KEY) {
+            this.search.blur();
+        } else {
+            return;
         }
+        // Открытая карточка слушает документ: Enter сохранил бы её, а Esc закрыл
+        e.stopPropagation();
     }
 
 
-    moveByKeyboard(key) {
-        if (key === SearchContainer.ARROW_DOWN_KEY || key === SearchContainer.ARROW_UP_KEY) {
-            if (this.activeItem) {
-                removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-                if (key === SearchContainer.ARROW_DOWN_KEY) {
-                    if (this.activeItem.nextElementSibling) {
-                        this.activeItem = this.activeItem.nextElementSibling;
-                    } else {
-                        this.activeItem = this.searchList.firstElementChild;
-                    }
-                } else if (key === SearchContainer.ARROW_UP_KEY) {
-                    if (this.activeItem.previousElementSibling) {
-                        this.activeItem = this.activeItem.previousElementSibling;
-                    } else {
-                        this.activeItem = this.searchList.lastElementChild;
-                    }
-                }
-            } else {
-                if (key === SearchContainer.ARROW_DOWN_KEY) {
-                    this.activeItem = this.searchList.firstElementChild;
-                } else if (key === SearchContainer.ARROW_UP_KEY) {
-                    this.activeItem = this.searchList.lastElementChild;
-                }
-            }
-            addClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-        } else if (key === SearchContainer.ENTER_KEY) {
-            if (this.activeItem) {
-                this.activeItem.click();
-            }
-        } else if (key === SearchContainer.ESCAPE_KEY) {
-            if (this.isFocused()) {
-                this.search.blur();
-            }
-        }
+    moveActiveItem(forward) {
+        this.setActiveItem(forward
+            ? this.activeItem?.nextElementSibling ?? this.searchList.firstElementChild
+            : this.activeItem?.previousElementSibling ?? this.searchList.lastElementChild);
     }
+
+
+    setActiveItem(item) {
+        removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
+        addClass(item, SearchContainer.ACTIVE_CLASS);
+        this.activeItem = item;
+    }
+
 
     isFocused() {
         return document.activeElement === this.search;
