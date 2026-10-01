@@ -117,34 +117,23 @@ export default class SearchContainer {
 
 
     searchSeries() {
-        let substr = this.search.value.trim().toLowerCase();
         this.searchList.innerHTML = "";
         this.activeItem = null;
-        if (substr.length > 0) {
-            let indexes = new Map();
-            for (let container of this.app.containers.values()) {
-                for (let series of container.map.values()) {
-                    let index = series.data.name.toLowerCase().indexOf(substr);
-                    if (index !== -1) {
-                        if (!indexes.has(index)) {
-                            indexes.set(index, []);
-                        }
-                        indexes.get(index).push(series);
-                    }
+        const query = this.search.value.trim().toLowerCase();
+        if (query === "") {
+            return;
+        }
+        const found = [];
+        for (const container of this.app.containers.values()) {
+            for (const series of container.map.values()) {
+                const position = series.data.name.toLowerCase().indexOf(query);
+                if (position !== -1) {
+                    found.push({series, position});
                 }
             }
-            indexes = new Map([...indexes.entries()].sort());
-            let seriesList = [];
-            for (let array of indexes.values()) {
-                array.forEach(series => seriesList.push(series));
-            }
-            let size = Math.min(seriesList.length, SearchContainer.RESULT_COUNT);
-            let inner = [];
-            for (let i = 0; i < size; i++) {
-                inner.push(this.createItem(seriesList[i]));
-            }
-            this.searchList.append(...inner);
         }
+        found.sort((a, b) => a.position - b.position);
+        this.searchList.append(...found.slice(0, SearchContainer.RESULT_COUNT).map(({series}) => this.createItem(series)));
     }
 
 
