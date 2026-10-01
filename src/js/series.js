@@ -25,7 +25,7 @@ export default class Series {
                             name: String(series.name).slice(0, Series.#NAME_MAX_LENGTH),
                             season: season,
                             episode: episode,
-                            date: series.date ? roundToUtcDay(new Date(series.date)) : "",
+                            date: parseDate(series.date),
                             site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
                             image: isImage(series.image) ? series.image : "",
                             note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
@@ -240,4 +240,10 @@ export default class Series {
         }
         return changed;
     }
+}
+
+
+function parseDate(value) {
+    const date = value ? new Date(value) : null;
+    return date && !isNaN(date) ? roundToUtcDay(date) : "";
 }
