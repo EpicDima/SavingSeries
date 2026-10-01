@@ -40,7 +40,7 @@ function validate(event) {
     inputLabel.classList.add("invalid")
     if (validState.valueMissing || validState.patternMismatch && !input.value.trim()) {
         error.innerText = window.i18n.t("validation_field_required");
-    } else if (validState.typeMismatch) {
+    } else if (validState.typeMismatch || validState.patternMismatch) {
         if (input.type === "number") {
             error.innerText = window.i18n.t("validation_enter_number");
         } else if (input.type === "date") {

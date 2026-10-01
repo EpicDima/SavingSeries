@@ -28,7 +28,7 @@ export default class Series {
             season: season,
             episode: episode,
             date: parseDate(series.date),
-            site: series.site ? String(series.site).slice(0, Series.#SITE_MAX_LENGTH) : "",
+            site: parseSite(series.site).slice(0, Series.#SITE_MAX_LENGTH),
             image: isImage(series.image) ? series.image : "",
             note: series.note ? String(series.note).slice(0, Series.#NOTE_MAX_LENGTH) : "",
             status: parseStatus(series.status)
@@ -248,4 +248,14 @@ function parseDate(value) {
 function parseStatus(value) {
     const status = String(value);
     return Object.values(STATUS).includes(status) ? status : STATUS.RUN;
+}
+
+
+function parseSite(value) {
+    const site = value ? String(value).trim() : "";
+    if (site === "" || /^https?:\/\//i.test(site)) {
+        return site;
+    }
+    // Двоеточие с цифрами после — порт, а не схема: "example.com:8080"
+    return /^[a-z][a-z\d+.-]*:(?!\d)/i.test(site) ? "" : `https://${site}`;
 }
