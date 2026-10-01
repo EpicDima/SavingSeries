@@ -3,14 +3,14 @@ import {addClass, removeClass} from "./common";
 
 export default class SearchContainer {
 
-    static ACTIVE_CLASS = "active";
+    static #ACTIVE_CLASS = "active";
 
-    static ARROW_DOWN_KEY = "ArrowDown";
-    static ARROW_UP_KEY = "ArrowUp";
-    static ENTER_KEY = "Enter";
-    static ESCAPE_KEY = "Escape";
+    static #ARROW_DOWN_KEY = "ArrowDown";
+    static #ARROW_UP_KEY = "ArrowUp";
+    static #ENTER_KEY = "Enter";
+    static #ESCAPE_KEY = "Escape";
 
-    static RESULT_COUNT = 10;
+    static #RESULT_COUNT = 10;
 
 
     constructor(app) {
@@ -26,12 +26,12 @@ export default class SearchContainer {
 
     generate() {
         const template = document.getElementById("searchContainerTemplate");
-        this.fragment = template.content.cloneNode(true);
+        const fragment = template.content.cloneNode(true);
 
-        this.container = this.fragment.querySelector(".search-container");
-        this.search = this.fragment.querySelector(".search");
-        this.searchList = this.fragment.querySelector(".search-list");
-        this.closeButton = this.fragment.querySelector(".close");
+        this.container = fragment.querySelector(".search-container");
+        this.search = fragment.querySelector(".search");
+        this.searchList = fragment.querySelector(".search-list");
+        this.closeButton = fragment.querySelector(".close");
 
         this.setListeners();
         this.clear();
@@ -63,12 +63,12 @@ export default class SearchContainer {
         if (e.isComposing) {
             return;
         }
-        if (e.key === SearchContainer.ARROW_DOWN_KEY || e.key === SearchContainer.ARROW_UP_KEY) {
+        if (e.key === SearchContainer.#ARROW_DOWN_KEY || e.key === SearchContainer.#ARROW_UP_KEY) {
             e.preventDefault();
-            this.moveActiveItem(e.key === SearchContainer.ARROW_DOWN_KEY);
-        } else if (e.key === SearchContainer.ENTER_KEY) {
+            this.moveActiveItem(e.key === SearchContainer.#ARROW_DOWN_KEY);
+        } else if (e.key === SearchContainer.#ENTER_KEY) {
             this.activeItem?.click();
-        } else if (e.key === SearchContainer.ESCAPE_KEY) {
+        } else if (e.key === SearchContainer.#ESCAPE_KEY) {
             this.search.blur();
         } else {
             return;
@@ -86,8 +86,8 @@ export default class SearchContainer {
 
 
     setActiveItem(item) {
-        removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-        addClass(item, SearchContainer.ACTIVE_CLASS);
+        removeClass(this.activeItem, SearchContainer.#ACTIVE_CLASS);
+        addClass(item, SearchContainer.#ACTIVE_CLASS);
         this.activeItem = item;
     }
 
@@ -124,38 +124,23 @@ export default class SearchContainer {
             }
         }
         found.sort((a, b) => a.position - b.position);
-        this.searchList.append(...found.slice(0, SearchContainer.RESULT_COUNT).map(({series}) => this.createItem(series)));
-    }
-
-
-    setMouseOverAndOutListener(elem) {
-        elem.addEventListener("mouseover", () => {
-            removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-            addClass(elem, SearchContainer.ACTIVE_CLASS);
-            this.activeItem = elem;
-        });
-        elem.addEventListener("mouseout", () => {
-            removeClass(elem, SearchContainer.ACTIVE_CLASS);
-            removeClass(this.activeItem, SearchContainer.ACTIVE_CLASS);
-            this.activeItem = null;
-        });
+        this.searchList.append(...found.slice(0, SearchContainer.#RESULT_COUNT).map(({series}) => this.createItem(series)));
     }
 
 
     createItem(series) {
-        let item = document.createElement("div");
+        const item = document.createElement("div");
         item.className = "search-item";
-        item.onclick = () => this.onSearchItemClick(series.data.id);
-        item.innerText = series.data.name;
-        this.setMouseOverAndOutListener(item);
+        item.textContent = series.data.name;
+        item.onclick = () => this.onSearchItemClick(series);
+        item.onmouseover = () => this.setActiveItem(item);
+        item.onmouseout = () => this.setActiveItem(null);
         return item;
     }
 
 
-    onSearchItemClick(id) {
-        this.search.value = this.activeItem.innerText;
-        this.app.onSearchItemClick(id);
-        this.searchList.innerHTML = "";
-        this.searchList.append(this.activeItem);
+    onSearchItemClick(series) {
+        this.search.value = series.data.name;
+        this.app.onSearchItemClick(series.data.id);
     }
 }
