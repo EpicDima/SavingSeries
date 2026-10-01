@@ -1,4 +1,4 @@
-import {addClass, debounce, removeClass} from "./common";
+import {addClass, removeClass} from "./common";
 
 
 export default class SearchContainer {
@@ -39,7 +39,9 @@ export default class SearchContainer {
 
 
     setListeners() {
-        this.search.oninput = debounce(() => this.searchSeries(), 200);
+        this.search.oninput = () => this.searchSeries();
+        // Сериалы могли измениться, пока поиск был закрыт
+        this.search.onfocus = () => this.searchSeries();
         this.search.onkeydown = (e) => this.cancelDefaultAction(e);
         this.search.onkeyup = (e) => this.moveByKeyboard(e.key);
         this.searchList.onmousedown = (e) => this.onMouseDown(e);
