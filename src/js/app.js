@@ -153,9 +153,9 @@ export default class App {
     }
 
 
-    openFullitem(id) {
+    openFullitem(id, {keepOpen = false} = {}) {
         for (const container of this.containers.values()) {
-            if (container.showFullItemIfExists(id)) {
+            if (container.showFullItemIfExists(id, keepOpen)) {
                 return;
             }
         }
@@ -184,7 +184,7 @@ export default class App {
 
     onSearchItemClick(id) {
         document.activeElement.blur();
-        this.openFullitem(id);
+        this.openFullitem(id, {keepOpen: true});
     }
 
 

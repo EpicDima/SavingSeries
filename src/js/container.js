@@ -378,10 +378,12 @@ export default class HorizontalContainer {
     }
 
 
-    showFullItemIfExists(id) {
-        let series = this.map.get(id);
+    showFullItemIfExists(id, keepOpen) {
+        const series = this.map.get(id);
         if (series) {
-            this.fullitem.open(series);
+            if (!keepOpen || this.fullitem.needToOpen(series)) {
+                this.fullitem.open(series);
+            }
             this.scrollInThis(series);
             return true;
         }
