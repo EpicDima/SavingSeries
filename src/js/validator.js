@@ -1,62 +1,45 @@
 export function setValidator(input) {
-    input.oninput = validate;
+    input.oninput = () => validate(input);
 }
 
 export function resetValidation(root) {
     root.querySelectorAll(".fullitem-input-label.invalid").forEach(label => label.classList.remove("invalid"));
-    root.querySelectorAll(".invalid-tooltip > .error").forEach(error => error.innerText = "");
+    root.querySelectorAll(".invalid-tooltip > .error").forEach(error => error.textContent = "");
 }
 
-document.addEventListener("languagechange", function () {
-    const errorElements = document.querySelectorAll(".error");
-    errorElements.forEach(function (errorElement) {
-        if (errorElement.innerText && errorElement.innerText.trim() !== "") {
-            const inputContainer = errorElement.closest(".input");
-            if (inputContainer) {
-                const input = inputContainer.querySelector("input, select, textarea");
-                if (input) {
-                    const event = new Event("input", {bubbles: true});
-                    input.dispatchEvent(event);
-                }
-            }
-        }
-    });
+document.addEventListener("languagechange", () => {
+    document.querySelectorAll(".fullitem-input-label.invalid > .fullitem-input").forEach(input => input.oninput?.());
 });
 
-function validate(event) {
-    const input = event.target;
-    const parent = input.closest(".input");
-    if (!parent) {
-        return;
-    }
+export function validate(input) {
     const inputLabel = input.closest(".fullitem-input-label");
-    const error = parent.querySelector(".error");
+    const error = input.closest(".input").querySelector(".error");
     const validState = input.validity;
-    inputLabel.classList.remove("invalid")
-    error.innerText = "";
+    inputLabel.classList.remove("invalid");
+    error.textContent = "";
     if (validState.valid) {
         return;
     }
-    inputLabel.classList.add("invalid")
+    inputLabel.classList.add("invalid");
     if (validState.valueMissing || validState.patternMismatch && !input.value.trim()) {
-        error.innerText = window.i18n.t("validation_field_required");
+        error.textContent = window.i18n.t("validation_field_required");
     } else if (validState.typeMismatch || validState.patternMismatch) {
         if (input.type === "number") {
-            error.innerText = window.i18n.t("validation_enter_number");
+            error.textContent = window.i18n.t("validation_enter_number");
         } else if (input.type === "date") {
-            error.innerText = window.i18n.t("validation_enter_valid_date");
+            error.textContent = window.i18n.t("validation_enter_valid_date");
         } else if (input.type === "url") {
-            error.innerText = window.i18n.t("validation_enter_valid_url");
+            error.textContent = window.i18n.t("validation_enter_valid_url");
         } else {
-            error.innerText = window.i18n.t("validation_enter_valid_value");
+            error.textContent = window.i18n.t("validation_enter_valid_value");
         }
     } else if (validState.rangeUnderflow) {
-        error.innerText = window.i18n.t("validation_number_greater_or_equal", {value: input.min});
+        error.textContent = window.i18n.t("validation_number_greater_or_equal", {value: input.min});
     } else if (validState.rangeOverflow) {
-        error.innerText = window.i18n.t("validation_number_less_or_equal", {value: input.max});
+        error.textContent = window.i18n.t("validation_number_less_or_equal", {value: input.max});
     } else if (validState.tooLong) {
-        error.innerText = window.i18n.t("validation_max_length", {value: input.maxLength});
+        error.textContent = window.i18n.t("validation_max_length", {value: input.maxLength});
     } else {
-        error.innerText = window.i18n.t("validation_enter_valid_value");
+        error.textContent = window.i18n.t("validation_enter_valid_value");
     }
 }

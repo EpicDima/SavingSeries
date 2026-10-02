@@ -13,7 +13,7 @@ import {
     showElement
 } from "./common";
 import Series from "./series";
-import {resetValidation, setValidator} from "./validator";
+import {resetValidation, setValidator, validate} from "./validator";
 import AlertDialog from "./alertDialog";
 
 
@@ -155,10 +155,10 @@ export class BaseFullItem {
 
 
     validateInputs() {
-        this.fields.season.input.oninput({target: this.fields.season.input});
-        this.fields.episode.input.oninput({target: this.fields.episode.input});
-        this.fields.date.input.oninput({target: this.fields.date.input});
-        this.fields.site.input.oninput({target: this.fields.site.input});
+        validate(this.fields.season.input);
+        validate(this.fields.episode.input);
+        validate(this.fields.date.input);
+        validate(this.fields.site.input);
     }
 
 
@@ -711,7 +711,7 @@ export class AddingFullItem extends BaseFullItem {
 
     validateInputs() {
         super.validateInputs();
-        this.fields.name.input.oninput({target: this.fields.name.input});
+        validate(this.fields.name.input);
     }
 
 
