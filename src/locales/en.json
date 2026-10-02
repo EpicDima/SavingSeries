@@ -62,6 +62,5 @@
   "validation_enter_valid_url": "Please enter a valid URL.",
   "validation_enter_valid_value": "Please enter a valid value.",
   "validation_number_greater_or_equal": "Please enter a number greater than or equal to {value}.",
-  "validation_number_less_or_equal": "Please enter a number less than or equal to {value}.",
-  "validation_max_length": "Please enter no more than {value} characters."
+  "validation_number_less_or_equal": "Please enter a number less than or equal to {value}."
 }

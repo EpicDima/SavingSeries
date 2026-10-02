@@ -62,6 +62,5 @@
   "validation_enter_valid_url": "Пожалуйста, введите корректный URL.",
   "validation_enter_valid_value": "Пожалуйста, введите правильное значение.",
   "validation_number_greater_or_equal": "Пожалуйста, введите число, большее или равное {value}.",
-  "validation_number_less_or_equal": "Пожалуйста, введите число, меньшее или равное {value}.",
-  "validation_max_length": "Пожалуйста, введите не более {value} символов."
+  "validation_number_less_or_equal": "Пожалуйста, введите число, меньшее или равное {value}."
 }

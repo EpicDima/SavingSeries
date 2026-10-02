@@ -56,8 +56,5 @@ function getErrorMessage(input) {
     if (validState.rangeOverflow) {
         return {key: "validation_number_less_or_equal", params: {value: input.max}};
     }
-    if (validState.tooLong) {
-        return {key: "validation_max_length", params: {value: input.maxLength}};
-    }
     return {key: "validation_enter_valid_value"};
 }
