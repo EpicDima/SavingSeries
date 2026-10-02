@@ -51,6 +51,7 @@ CI (`.github/workflows/deploy.yml`, Node 26, одна задача ради ск
   добавлении/смене сжимается в `compression.worker.js`: до 2560 px по большей стороне, в JPEG, а при прозрачности —
   в PNG; если меньше не стало, остаётся исходная. Воркер создаётся как
   `new Worker(new URL("./compression.worker.js", import.meta.url))` — именно такой вид нужен Vite, чтобы его собрать.
+  Карточка получает картинку в фон, только когда оказывается у экрана (`IntersectionObserver` в `series.js`).
 - `localStorage.js` — вид списков (`containers`: число карточек и сетка по id `LIST_TYPE`) и положение шапки
   (`navbar`); язык — ключ `preferredLanguage` (в `i18n.js`).
 - Стили — обычный CSS по компонентам в `src/css/`, подключаются через `@import` в `style.css`;

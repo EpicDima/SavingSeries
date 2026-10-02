@@ -221,6 +221,9 @@ export default class HorizontalContainer {
 
     remove() {
         this.resizeObserver.disconnect();
+        for (const series of this.map.values()) {
+            series.stopImageObserving();
+        }
         this.fullitem.remove();
         this.container.remove();
     }

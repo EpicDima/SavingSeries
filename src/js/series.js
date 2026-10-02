@@ -2,6 +2,18 @@ import {STATUS} from "./constants";
 import {dateToLocaleString, hideElement, imageToCssUrl, isImage, roundToUtcDay, showElement} from "./common";
 import Database from "./database";
 
+// Картинку получает только карточка у экрана: разбор и декодирование всех сразу подвешивали страницу
+const pendingImages = new WeakMap();
+const imageObserver = new IntersectionObserver((entries) => {
+    for (const {target, isIntersecting} of entries) {
+        if (isIntersecting) {
+            imageObserver.unobserve(target);
+            target.style.backgroundImage = imageToCssUrl(pendingImages.get(target));
+            pendingImages.delete(target);
+        }
+    }
+}, {rootMargin: "200px", scrollMargin: "0px 100%"});
+
 export default class Series {
 
     static #NAME_MAX_LENGTH = 256;
@@ -154,7 +166,18 @@ export default class Series {
     }
 
     showImage() {
-        this.image.style.backgroundImage = imageToCssUrl(this.data.image);
+        if (this.data.image) {
+            pendingImages.set(this.image, this.data.image);
+            imageObserver.observe(this.image);
+        } else {
+            this.stopImageObserving();
+            this.image.style.backgroundImage = "";
+        }
+    }
+
+    stopImageObserving() {
+        imageObserver.unobserve(this.image);
+        pendingImages.delete(this.image);
     }
 
 
@@ -176,6 +199,7 @@ export default class Series {
 
 
     remove() {
+        this.stopImageObserving();
         this.item.remove();
     }
 
