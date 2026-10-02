@@ -1,3 +1,4 @@
+<!-- tabindex="0" у кнопок: иначе Safari пропускает их по Tab -->
 <template id="fullitemTemplate">
     <div class="fullitem hide">
         <div class="outer-close">
@@ -112,24 +113,24 @@
 </template>
 <template id="fullitemButtonsTemplate">
     <div class="change-button not-on-edit">
-        <button data-i18n-key="edit">Редактировать</button>
+        <button tabindex="0" data-i18n-key="edit">Редактировать</button>
     </div>
     <div class="update-button not-on-edit">
-        <button data-i18n-key="next">Далее</button>
+        <button tabindex="0" data-i18n-key="next">Далее</button>
     </div>
     <div class="cancel-button on-edit">
-        <button data-i18n-key="cancel">Отмена</button>
+        <button tabindex="0" data-i18n-key="cancel">Отмена</button>
     </div>
     <div class="accept-button on-edit">
-        <button data-i18n-key="confirm">Подтвердить</button>
+        <button tabindex="0" data-i18n-key="confirm">Подтвердить</button>
     </div>
     <div class="delete-button on-edit">
-        <button data-i18n-key="delete">Удалить</button>
+        <button tabindex="0" data-i18n-key="delete">Удалить</button>
     </div>
 </template>
 <template id="addingFullitemButtonsTemplate">
     <div class="add-button on-edit">
-        <button data-i18n-key="add">Добавить</button>
+        <button tabindex="0" data-i18n-key="add">Добавить</button>
     </div>
 </template>
 <template id="containerTemplate">
@@ -164,7 +165,6 @@
             </div>
             <div class="nav-item">
                 <ul>
-                    <!-- tabindex: иначе Safari пропускает кнопки по Tab -->
                     <li>
                         <button type="button" tabindex="0" id="openAddingElementMenuItem" data-i18n-key="add_new">
                             Добавление
@@ -222,8 +222,8 @@
     <dialog role="alertdialog" aria-labelledby="alertDialogTitle">
         <div class="title" id="alertDialogTitle"></div>
         <form class="button-container" method="dialog">
-            <button class="accept" value="true" data-i18n-key="ok">ОК</button>
-            <button class="cancel" value="false" autofocus data-i18n-key="cancel">Отмена</button>
+            <button class="accept" value="true" tabindex="0" data-i18n-key="ok">ОК</button>
+            <button class="cancel" value="false" tabindex="0" autofocus data-i18n-key="cancel">Отмена</button>
         </form>
     </dialog>
 </template>
