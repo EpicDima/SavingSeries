@@ -311,6 +311,7 @@ export class BaseFullItem {
         this.fields.image.input.value = "";
         this.fields.status.input.value = series.data.status;
         this.fields.note.input.value = series.data.note;
+        resetValidation(this.form);
     }
 
 
