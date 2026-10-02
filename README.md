@@ -1,5 +1,13 @@
 # SavingSeries
 
-It's a program to track new episodes of series, instead of default notepad.
+A notebook for the series you watch: which episode is next and when it comes out. Everything is stored in the browser
+and moves between browsers as a backup file.
 
-Это программа (веб-страничка), которая используется как блокнот для записи сериалов и последней просмотренной серии, чтобы не забыть эту информацию и не записывать в отдельный текстовый файл или в обычный бумажный блокнот.
+Блокнот сериалов: что смотрю, какая серия следующая и когда она выйдет. Всё хранится в браузере, а в другой браузер
+переносится файлом backup.
+
+```sh
+yarn install --frozen-lockfile
+yarn dev     # http://localhost:5391
+yarn build   # dist/
+```
