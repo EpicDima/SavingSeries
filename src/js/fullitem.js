@@ -13,7 +13,7 @@ import {
     showElement
 } from "./common";
 import Series from "./series";
-import {resetValidation, setValidator, validate} from "./validator";
+import {resetValidation, setError, setValidator, validate} from "./validator";
 import AlertDialog from "./alertDialog";
 
 
@@ -110,7 +110,7 @@ export class BaseFullItem {
     getField(selector) {
         const input = this.fragment.querySelector(selector);
         const row = input.closest(".row");
-        return {div: row, value: row.querySelector(".value"), input, error: row.querySelector(".error")};
+        return {div: row, value: row.querySelector(".value"), input};
     }
 
 
@@ -226,25 +226,19 @@ export class BaseFullItem {
 
 
     changeImage() {
-        this.setErrorToImageInput();
+        setError(this.fields.image.input);
         let reader = new FileReader();
         reader.onload = () => this.fields.image.value.style.backgroundImage = `url(${reader.result})`;
         let file = this.fields.image.input.files[0];
         if (file) {
             if (!file.type.startsWith("image/")) {
-                this.setErrorToImageInput(window.i18n.t("not_an_image"));
+                setError(this.fields.image.input, {key: "not_an_image"});
             } else if (file.size > 10 * 1024 * 1024) {
-                this.setErrorToImageInput(window.i18n.t("file_too_large"));
+                setError(this.fields.image.input, {key: "file_too_large"});
             } else {
                 reader.readAsDataURL(file);
             }
         }
-    }
-
-
-    setErrorToImageInput(text = "") {
-        this.fields.image.error.innerText = text;
-        this.fields.image.input.closest(".fullitem-input-label").classList.toggle("invalid", text !== "");
     }
 
 
