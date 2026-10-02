@@ -37,18 +37,15 @@ function getErrorMessage(input) {
     if (validState.valid) {
         return null;
     }
+    // Раньше valueMissing: неразобранный ввод браузер считает пустым
+    if (validState.badInput) {
+        return {key: input.type === "date" ? "validation_enter_valid_date" : "validation_enter_number"};
+    }
     if (validState.valueMissing || validState.patternMismatch && !input.value.trim()) {
         return {key: "validation_field_required"};
     }
     if (validState.typeMismatch || validState.patternMismatch) {
-        if (input.type === "number") {
-            return {key: "validation_enter_number"};
-        } else if (input.type === "date") {
-            return {key: "validation_enter_valid_date"};
-        } else if (input.type === "url") {
-            return {key: "validation_enter_valid_url"};
-        }
-        return {key: "validation_enter_valid_value"};
+        return {key: input.type === "url" ? "validation_enter_valid_url" : "validation_enter_valid_value"};
     }
     if (validState.rangeUnderflow) {
         return {key: "validation_number_greater_or_equal", params: {value: input.min}};
