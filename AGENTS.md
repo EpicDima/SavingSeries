@@ -47,9 +47,10 @@ CI (`.github/workflows/deploy.yml`, Node 26, одна задача ради ск
   `fullitem.js` — просмотр/редактирование (`FullItem`, по одному на контейнер) и добавление (`AddingFullItem`).
 - `menu.js` — шапка и настройки; `searchContainer.js` — поиск; `dialog.js`/`alertDialog.js`/`languageDialog.js` —
   нативный `<dialog>`; `validator.js` — сообщения ошибок полей формы.
-- Картинка — data URL строкой; при добавлении/смене сжимается в JPEG в `compression.worker.js`
-  (`new Worker(new URL("./compression.worker.js", import.meta.url))` — именно такой вид нужен Vite, чтобы
-  собрать воркер).
+- Картинка — base64 data URL `data:image/…` строкой (иное `isImage` в `common.js` отбрасывает). При
+  добавлении/смене сжимается в `compression.worker.js`: до 2560 px по большей стороне, в JPEG, а при прозрачности —
+  в PNG; если меньше не стало, остаётся исходная. Воркер создаётся как
+  `new Worker(new URL("./compression.worker.js", import.meta.url))` — именно такой вид нужен Vite, чтобы его собрать.
 - `localStorage.js` — вид списков (`containers`: число карточек и сетка по id `LIST_TYPE`) и положение шапки
   (`navbar`); язык — ключ `preferredLanguage` (в `i18n.js`).
 - Стили — обычный CSS по компонентам в `src/css/`, подключаются через `@import` в `style.css`;
