@@ -82,7 +82,7 @@ button {
     cursor: pointer;
     user-select: none;
 
-    &:hover {
+    &:hover, &:focus-visible {
         background-color: #fff3;
         border-color: #fff9;
     }

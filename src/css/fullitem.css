@@ -139,6 +139,10 @@
         color: white;
         padding: 0.3rem 0.25rem;
         border-radius: 0.2rem;
+
+        &:focus-visible {
+            box-shadow: 0 0 0 1px currentColor;
+        }
     }
 
     .fullitem-input-label.invalid > .fullitem-input {
