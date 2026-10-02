@@ -1,14 +1,6 @@
 import {defineConfig} from "vite";
-import {resolve} from "path";
 import {readFile} from "fs/promises";
-import {globSync} from "glob";
 import {minify} from "html-minifier-terser";
-
-const htmlFiles = globSync(["./*.html"]).reduce((acc, file) => {
-    const name = file.split("/").pop().split(".").shift();
-    acc[name] = resolve(import.meta.dirname, file);
-    return acc;
-}, {});
 
 const minifierOptions = {
     collapseWhitespace: true,
@@ -17,7 +9,6 @@ const minifierOptions = {
     minifyJS: true,
 };
 
-// Custom plugin to find and minify all HTML files in the output bundle
 // noinspection JSUnusedGlobalSymbols
 const minifyHtmlInBundle = () => ({
     name: "minify-html-in-bundle",
@@ -61,9 +52,6 @@ export default defineConfig(({mode}) => {
         },
         build: {
             modulePreload: {polyfill: false},
-            rollupOptions: {
-                input: htmlFiles,
-            }
         },
         plugins: [
             isProduction && minifyRawHtml(),

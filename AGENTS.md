@@ -54,7 +54,7 @@ CI (`.github/workflows/deploy.yml`, Node 26, одна задача ради ск
   (`navbar`); язык — ключ `preferredLanguage` (в `i18n.js`).
 - Стили — обычный CSS по компонентам в `src/css/`, подключаются через `@import` в `style.css`;
   элементы скрываются классом `.hide` (`hideElement`/`showElement` в `common.js`), не через `style.display`.
-- `vite.config.js`: входы — все `./*.html` в корне; в production HTML минифицируется плагинами
+- `vite.config.js`: вход — `index.html` (по умолчанию Vite); в production HTML минифицируется плагинами
   (`templates.html` — при загрузке через `?raw`).
 
 ## Данные и совместимость
