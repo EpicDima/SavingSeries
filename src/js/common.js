@@ -117,9 +117,10 @@ export function createLinkElement(site) {
 }
 
 
-// Отсеивает строку "undefined" от старых версий и кавычки, что вышли бы из url("...") в CSS
+// Отсеивает строку "undefined" от старых версий и символы, что вышли бы из url("...") в CSS.
+// Регулярка по всей base64-строке заметно тормозила загрузку
 export function isImage(image) {
-    return typeof image === "string" && /^data:image\/[\w.+-]+;base64,[A-Za-z\d+/]*={0,2}$/.test(image);
+    return typeof image === "string" && image.startsWith("data:image/") && !/["\\\n\r\f]/.test(image);
 }
 
 
