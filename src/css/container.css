@@ -30,7 +30,7 @@
                 mask-size: 1.85rem;
                 background-color: var(--color-white-dim);
 
-                &:hover {
+                &:hover, &:focus-visible {
                     background-color: white;
                 }
             }

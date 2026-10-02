@@ -95,12 +95,12 @@
         }
     }
 
-    &:hover,
+    &:is(:hover, :focus-visible),
     &.active {
         box-shadow: 0 0 0.6rem 0.1rem black;
     }
 
-    &:hover:not(.active) {
+    &:is(:hover, :focus-visible):not(.active) {
         transform: scale(1.02);
 
         > .item {

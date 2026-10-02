@@ -26,7 +26,7 @@ main {
     padding-bottom: 1.5rem;
 }
 
-button, a {
+button, a, div[tabindex="0"], span[tabindex="0"] {
     outline: none !important;
 }
 
@@ -101,7 +101,7 @@ button {
     z-index: 5;
     color: var(--color-muted);
 
-    &:hover {
+    &:hover, &:has(> .close:focus-visible) {
         color: #900f;
     }
 

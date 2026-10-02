@@ -2,7 +2,7 @@
 <template id="fullitemTemplate">
     <div class="fullitem hide">
         <div class="outer-close">
-            <span class="close" data-i18n-title="close" title="Закрыть">&#10006;</span>
+            <span class="close" tabindex="0" role="button" data-i18n-title="close" title="Закрыть">&#10006;</span>
         </div>
         <div class="background">
             <div class="image"></div>
@@ -138,12 +138,12 @@
         <div class="top">
             <div class="title"></div>
             <div class="options">
-                <div class="count-icon four" data-i18n-title="cards_in_row" title="Карточек в строке"></div>
-                <div class="grid-icon" data-i18n-title="grid" title="Сетка"></div>
+                <div class="count-icon four" tabindex="0" role="button" data-i18n-title="cards_in_row" title="Карточек в строке"></div>
+                <div class="grid-icon" tabindex="0" role="button" data-i18n-title="grid" title="Сетка"></div>
             </div>
         </div>
         <div class="outer-container-list">
-            <div class="outer-list">
+            <div class="outer-list" tabindex="-1">
                 <div class="list"></div>
             </div>
             <div class="left-control">
@@ -190,16 +190,16 @@
 <template id="searchContainerTemplate">
     <div class="nav-item search-container">
         <input class="search" maxlength="100" data-i18n-placeholder="search" placeholder="Поиск">
-        <span class="close" data-i18n-title="close" title="Закрыть">&#10006;</span>
+        <span class="close" tabindex="0" role="button" data-i18n-title="close" title="Закрыть">&#10006;</span>
         <div class="search-list"></div>
     </div>
 </template>
 <template id="seriesTemplate">
-    <div class="item-outer">
+    <div class="item-outer" tabindex="0">
         <div class="item">
             <div class="image"></div>
             <div class="gradient"></div>
-            <a class="link hide" target="_blank" data-i18n-title="go_to_site" title="Переход на сайт"></a>
+            <a class="link hide" tabindex="-1" target="_blank" data-i18n-title="go_to_site" title="Переход на сайт"></a>
             <div class="info">
                 <div class="row season">
                     <div class="label" data-i18n-key="season">Сезон</div>
@@ -230,7 +230,7 @@
 <template id="languageDialogTemplate">
     <dialog class="language-dialog">
         <div class="outer-close">
-            <span class="close" data-i18n-title="close" title="Закрыть">&#10006;</span>
+            <span class="close" tabindex="0" role="button" data-i18n-title="close" title="Закрыть">&#10006;</span>
         </div>
         <div class="dialog-header">
             <h2 class="title" data-i18n-key="choose_language">Выбрать язык</h2>

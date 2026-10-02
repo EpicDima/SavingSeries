@@ -38,7 +38,7 @@
                 background-color: var(--color-background);
                 color: var(--color-muted);
 
-                &:hover {
+                &:hover, &:focus-visible {
                     color: white;
                 }
             }

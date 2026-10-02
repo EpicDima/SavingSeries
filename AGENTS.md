@@ -55,6 +55,9 @@ CI (`.github/workflows/deploy.yml`, Node 26, одна задача ради ск
   (`navbar`); язык — ключ `preferredLanguage` (в `i18n.js`).
 - Стили — обычный CSS по компонентам в `src/css/`, подключаются через `@import` в `style.css`;
   элементы скрываются классом `.hide` (`hideElement`/`showElement` в `common.js`), не через `style.display`.
+- Клавиатура: у `<button>` — `tabindex="0"` (иначе Safari пропускает их по Tab); кликабельные `div`/`span` —
+  `tabindex="0"` и `role="button"` (у карточки без роли: внутри ссылка), Enter/пробел и отказ от фокуса мышью для них — `setUpKeyboardControls`
+  в `common.js`. Фокус с клавиатуры (`:focus-visible`) выглядит как наведение, без outline.
 - `vite.config.js`: вход — `index.html` (по умолчанию Vite); в production HTML минифицируется плагинами
   (`templates.html` — при загрузке через `?raw`).
 

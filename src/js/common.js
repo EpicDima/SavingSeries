@@ -32,6 +32,30 @@ export function showElement(elem) {
 }
 
 
+const KEYBOARD_CONTROL = "div[tabindex='0'], span[tabindex='0']";
+
+// div и span с tabindex="0" — кнопки для клавиатуры: Enter и пробел нажимают их раньше клавиш открытой карточки.
+// Мышь их не фокусирует, чтобы пробел и стрелки после клика работали как раньше
+export function setUpKeyboardControls() {
+    document.addEventListener("keydown", (e) => {
+        if ((e.key !== "Enter" && e.key !== " ") || !e.target.matches(KEYBOARD_CONTROL)) {
+            return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        if (!e.repeat) {
+            e.target.click();
+        }
+    }, {capture: true});
+    document.addEventListener("mousedown", (e) => {
+        if (e.button === 0 && !e.defaultPrevented && e.target.closest(KEYBOARD_CONTROL)) {
+            e.preventDefault();
+            document.activeElement?.blur();
+        }
+    });
+}
+
+
 export function animate({duration, draw, timing = (timeFraction) => timeFraction, complete = null}) {
     let start = performance.now();
     let frame = requestAnimationFrame(function animate(time) {
