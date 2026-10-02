@@ -57,6 +57,7 @@
   "save_failed": "Could not save the changes, reload the page and try again: {error}",
   "validation_field_required": "This field is required.",
   "validation_enter_number": "Please enter a number.",
+  "validation_enter_whole_number": "Please enter a whole number.",
   "validation_enter_valid_date": "Please enter a valid date.",
   "validation_enter_valid_url": "Please enter a valid URL.",
   "validation_enter_valid_value": "Please enter a valid value.",

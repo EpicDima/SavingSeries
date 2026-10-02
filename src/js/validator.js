@@ -47,6 +47,9 @@ function getErrorMessage(input) {
     if (validState.typeMismatch || validState.patternMismatch) {
         return {key: input.type === "url" ? "validation_enter_valid_url" : "validation_enter_valid_value"};
     }
+    if (validState.stepMismatch) {
+        return {key: "validation_enter_whole_number"};
+    }
     if (validState.rangeUnderflow) {
         return {key: "validation_number_greater_or_equal", params: {value: input.min}};
     }

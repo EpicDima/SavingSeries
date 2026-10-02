@@ -57,6 +57,7 @@
   "save_failed": "Не удалось сохранить изменения, обновите страницу и попробуйте ещё раз: {error}",
   "validation_field_required": "Это поле необходимо заполнить.",
   "validation_enter_number": "Пожалуйста, введите число.",
+  "validation_enter_whole_number": "Пожалуйста, введите целое число.",
   "validation_enter_valid_date": "Пожалуйста, введите корректную дату.",
   "validation_enter_valid_url": "Пожалуйста, введите корректный URL.",
   "validation_enter_valid_value": "Пожалуйста, введите правильное значение.",
