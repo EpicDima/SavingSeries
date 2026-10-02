@@ -615,6 +615,7 @@ export class FullItem extends BaseFullItem {
     async accept() {
         let data = this.getValuesFromInputs();
         if (!data) {
+            this.validateInputs();
             return;
         }
         const series = this.series;
